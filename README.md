@@ -4,8 +4,8 @@ Add sounds to your game in a minute.
 
 ### How to use
 
-See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master/app/index.html).
-[p5.js](https://p5js.org/) is used for drawing.
+See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master/www/index.html).
+([p5.js](https://p5js.org/) is used for drawing.)
 
 Include sss/index.js script.
 ```
