@@ -1,0 +1,16 @@
+{
+  "name": "sounds-some-sounds",
+  "version": "1.0.0",
+  "description": "add sounds to your game in a minute",
+  "author": "ABA",
+  "license": "MIT",
+  "devDependencies": {
+    "glob": "^7.0.3",
+    "ts-loader": "^0.8.2",
+    "typescript": "^1.8.10",
+    "webpack-livereload-plugin": "^0.8.1"
+  },
+  "dependencies": {
+    "lodash": "^4.11.1"
+  }
+}
