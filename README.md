@@ -8,32 +8,32 @@ See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master
 ([p5.js](https://p5js.org/) is used for drawing.)
 
 Include sss/index.js script.
-```
+```html
   <script src="./libs/sss/index.js"></script>
 ```
 
 Initialize the sss (sounds-some-sounds) library.
 Auto generated SEs and a BGM can be changed by setting the another random seed.
-```
+```js
 function setup() {
   sss.init(184); // initialize sss (184 is a random seed)
 ```
 
 Since Safari on iOS requires playing the first sound within a touch event handler,
 playEmpty() is called in touchStarted().
-```
+```js
 function touchStarted() {
   sss.playEmpty(); // play an empty sound in a touch event handler for iOS
 ```
 
 Call playBgm() to start a BGM.
-```
+```js
   if (!isInGame) {
     sss.playBgm(); // start playing a BGM
 ```
 
 update() should be called per a frame for updating a BGM.
-```
+```js
 function draw() {
   sss.update(); // update function should be called in an animation frame handler
 ```
@@ -49,7 +49,7 @@ You can hear these sounds at the [jsfx demo page](http://loov.io/jsfx/).
 
 The second argument is the number of generated sounds played at a time.
 As the number gets larger, the sound becomes louder and more complicated.
-```
+```js
         if (it.isEnemy) {
           sss.play('u1', 7); // play the jsfx.Preset.L'u'cky SE (7 sounds at a time)
           isInGame = false;
