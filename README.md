@@ -16,7 +16,7 @@ Initialize the sss (sounds-some-sounds) library.
 Auto generated SEs and a BGM can be changed by setting the another random seed.
 ```js
 function setup() {
-  sss.init(184); // initialize sss (184 is a random seed)
+  sss.init(17); // initialize sss (17 is a random seed)
 ```
 
 Since Safari on iOS requires playing the first sound within a touch event handler,
