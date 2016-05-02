@@ -1,6 +1,5 @@
 declare const require: any;
 const jsfx = require('jsfx');
-import * as _ from 'lodash';
 
 let live;
 let random: Random;
@@ -30,7 +29,7 @@ const playPrefixes = {
   s: Preset.Select,
   u: Preset.Lucky,
 };
-const playprefixeArray = _.values(playPrefixes);
+const playprefixeArray = values(playPrefixes);
 export function play(name: string = '0', mult: number = 2, params = null) {
   if (live == null) {
     return;
@@ -45,7 +44,7 @@ export function play(name: string = '0', mult: number = 2, params = null) {
     if (typeof p === 'undefined') {
       p = random.sample(playprefixeArray);
     }
-    params = _.times(mult, p);
+    params = nArray(mult, p);
   }
   buffers[name] = new Buffer(params);
   buffers[name].play();
@@ -68,12 +67,12 @@ export function playBgm(name: string = '0', interval = 0.25,
   stopBgm();
   random.setSeed(seed + getHashFromString(name));
   tracks = [];
-  _.times(4, () => addRandomTrack(interval, params));
-  _.forEach(tracks, t => t.play());
+  times(4, () => addRandomTrack(interval, params));
+  forEach(tracks, t => t.play());
 }
 
 export function stopBgm() {
-  _.forEach(tracks, t => t.stop());
+  forEach(tracks, t => t.stop());
 }
 
 export function update() {
@@ -82,8 +81,8 @@ export function update() {
   }
   const currentTime = live._context.currentTime;
   const schedulingTime = currentTime + schedulingInterval;
-  _.forOwn(buffers, b => b.update(currentTime, schedulingTime));
-  _.forEach(tracks, t => t.update(currentTime, schedulingTime));
+  forOwn(buffers, b => b.update(currentTime, schedulingTime));
+  forEach(tracks, t => t.update(currentTime, schedulingTime));
 }
 
 export function reset() {
@@ -118,7 +117,7 @@ function addRandomTrack(interval: number, params: any[]) {
 
 function createRandomPattern() {
   const len = 64;
-  let pattern = _.times(len, () => false);
+  let pattern = nArray(len, false);
   let pi = 4;
   while (pi <= len) {
     pattern = reversePattern(pattern, pi);
@@ -128,7 +127,7 @@ function createRandomPattern() {
 }
 
 function reversePattern(pattern: boolean[], interval) {
-  let pt = _.times(interval, () => false);
+  let pt = nArray(interval, false);
   let pr = 0.5;
   for (let i = 0; i < interval / 2; i++) {
     if (random.f() < pr) {
@@ -136,14 +135,14 @@ function reversePattern(pattern: boolean[], interval) {
     }
     pr *= 0.5;
   }
-  return _.map(pattern, (p, i) => pt[i % interval] ? !p : p);
+  return map(pattern, (p, i) => pt[i % interval] ? !p : p);
 }
 
 export function addTrack(param, pattern: string | boolean[], interval = 0.25) {
   const track = new Track(param);
   track.patternInterval = interval;
   if (typeof pattern === 'string') {
-    track.pattern = _.map(pattern, p => p === '1');
+    track.pattern = mapString(pattern, p => p === '1');
   } else {
     track.pattern = pattern;
   }
@@ -161,16 +160,68 @@ function getHashFromString(str: string) {
   return hash;
 }
 
+function values(obj: any) {
+  let vs =[];
+  for (let p in obj) {
+    if (obj.hasOwnProperty(p)) {
+      vs.push(obj[p]);
+    }
+  }
+  return vs;
+}
+
+function nArray(n: number, v: any) {
+  let a = [];
+  for (let i = 0; i < n; i++) {
+    a.push(v);
+  }
+  return a;
+}
+
+function times(n: number, func: Function) {
+  for (let i = 0; i < n; i++) {
+    func();
+  }
+}
+
+function forEach(array: any[], func: Function) {
+  for (let i = 0; i < array.length; i++) {
+    func(array[i]);
+  }
+}
+
+function forOwn(obj: any, func: Function) {
+  for (let p in obj) {
+    func(obj[p]);
+  }
+}
+
+function map(array: any[], func: Function) {
+  let result = [];
+  for (let i = 0; i < array.length; i++) {
+    result.push(func(array[i], i));
+  }
+  return result;
+}
+
+function mapString(str: string, func: Function) {
+  let result = [];
+  for (let i = 0; i < str.length; i++) {
+    result.push(func(str.charAt(i), i));
+  }
+  return result;
+}
+
 class Buffer {
   buffers: AudioBuffer[];
   isPlaying = false;
   playedTime: number = null;
 
   constructor(params: any | any[]) {
-    if (!_.isArray(params)) {
+    if (!Array.isArray(params)) {
       params = [params];
     }
-    this.buffers = _.map(params, p => live._createBuffer(p));
+    this.buffers = map(params, p => live._createBuffer(p));
   }
 
   play() {
