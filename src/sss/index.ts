@@ -46,7 +46,7 @@ export function play(name: string = '0', mult: number = 2, params = null) {
     }
     params = nArray(mult, p);
   }
-  buffers[name] = new Buffer(params);
+  buffers[name] = new Sound(params);
   buffers[name].play();
 }
 
@@ -212,7 +212,7 @@ function mapString(str: string, func: Function) {
   return result;
 }
 
-class Buffer {
+class Sound {
   buffers: AudioBuffer[];
   isPlaying = false;
   playedTime: number = null;
@@ -252,7 +252,7 @@ class Buffer {
   }
 }
 
-class Track extends Buffer {
+class Track extends Sound {
   pattern: boolean[];
   patternIndex = 0;
   patternInterval = 0.25;
