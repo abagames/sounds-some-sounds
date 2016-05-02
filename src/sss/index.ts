@@ -248,7 +248,7 @@ class Buffer {
   }
 
   playLater(when: number) {
-    _.forEach(this.buffers, b => live._playBuffer(b, when));
+    forEach(this.buffers, b => live._playBuffer(b, when));
   }
 }
 
