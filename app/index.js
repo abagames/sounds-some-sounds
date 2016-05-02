@@ -70,6 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        sss.init(17);
 	        p.createCanvas(480, 480);
 	        p.noStroke();
+	        initSeedUi();
 	    };
 	    var isInGame = false;
 	    var score = 0;
@@ -136,6 +137,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	        p.text(score, 20, 40);
 	        ticks++;
 	    };
+	    function initSeedUi() {
+	        var change = document.getElementById('change');
+	        var seed = document.getElementById('seed');
+	        var set = document.getElementById('set');
+	        change.onclick = function () {
+	            seed.value = Math.floor(Math.random() * 9999999).toString();
+	            reset();
+	        };
+	        set.onclick = reset;
+	        function reset() {
+	            sss.reset();
+	            sss.setSeed(Number(seed.value));
+	            if (isInGame) {
+	                sss.playBgm();
+	            }
+	        }
+	    }
 	});
 
 
@@ -170,6 +188,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    schedulingInterval = 1 / fps * 2;
 	}
 	exports.init = init;
+	function setSeed(_seed) {
+	    if (_seed === void 0) { _seed = 0; }
+	    seed = _seed;
+	}
+	exports.setSeed = setSeed;
 	exports.Preset = jsfx.Preset;
 	var playPrefixes = {
 	    c: exports.Preset.Coin,

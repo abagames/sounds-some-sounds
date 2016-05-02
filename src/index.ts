@@ -7,6 +7,7 @@ new p5(p => {
     sss.init(17);
     p.createCanvas(480, 480);
     p.noStroke();
+    initSeedUi();
   };
   let isInGame = false;
   let score = 0;
@@ -71,4 +72,21 @@ new p5(p => {
     p.text(score, 20, 40);
     ticks++;
   };
+  function initSeedUi() {
+    const change = <HTMLButtonElement>document.getElementById('change');
+    const seed = <HTMLInputElement>document.getElementById('seed');
+    const set = <HTMLButtonElement>document.getElementById('set');
+    change.onclick = () => {
+      seed.value = Math.floor(Math.random() * 9999999).toString();
+      reset();
+    };
+    set.onclick = reset;
+    function reset() {
+      sss.reset();
+      sss.setSeed(Number(seed.value));
+      if (isInGame) {
+        sss.playBgm();
+      }
+    }
+  }
 });

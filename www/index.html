@@ -16,6 +16,7 @@ function setup() {
   sss.init(17); // initialize sss (17 is a random seed)
   createCanvas(480, 480);
   noStroke();
+  initSeedUi();
 }
 var isInGame = false;
 var score = 0;
@@ -80,12 +81,34 @@ function draw() {
   text(score, 20, 40);
   ticks++;
 }
+function initSeedUi() {
+  var change = document.getElementById('change');
+  var seed = document.getElementById('seed');
+  var set = document.getElementById('set');
+  change.onclick = function() {
+    seed.value = Math.floor(Math.random() * 9999999).toString();
+    reset();
+  };
+  set.onclick = reset;
+  function reset() {
+    sss.reset();
+    sss.setSeed(Number(seed.value));
+    if (isInGame) {
+      sss.playBgm();
+    }
+  }
+}
   </script>
   <!--
   <script src="../app/index.js"></script>
   <script src="http://localhost:35729/livereload.js"></script>
   -->
   <p>[Mouse/Touch]: move</p>
+  <p>
+    <button id="change">change</button>
+    random seed: <input type="number" id="seed" value="0"></input>
+    <button id="set">set</button>
+  </p>
 </body>
 
 </html>
