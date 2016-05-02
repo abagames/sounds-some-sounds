@@ -1,6 +1,6 @@
 sounds-some-sounds
 ======================
-Add sounds to your game in a minute.
+Add sounds to your game in a minute. (Web Audio API required)
 
 You can play [the demo](http://abagames.sakura.ne.jp/16/sss/) of the sample code.
 
@@ -15,7 +15,7 @@ Include sss/index.js script.
 ```
 
 Initialize the sss (sounds-some-sounds) library.
-Auto generated SEs and a BGM can be changed by setting the another random seed.
+Auto generated SEs (sound effects) and a BGM can be changed by setting the another random seed.
 ```js
 function setup() {
   sss.init(17); // initialize sss (17 is a random seed)
@@ -40,7 +40,7 @@ function draw() {
   sss.update(); // update function should be called in an animation frame handler
 ```
 
-Call play() to play an SE (sound effect). The first argument is the name of the SE.
+Call play() to play an SE. The first argument is the name of the SE.
 The SEs having the same name have the same sound.
 You can change the generated sound by changing the name.
 
