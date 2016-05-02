@@ -66,7 +66,6 @@ each SE (setQuantize(0) disables quantization).
 ### Libraries
 
 [jsfx](https://github.com/loov/jsfx) /
-[lodash](https://lodash.com/) /
 [p5.js](https://p5js.org/)
 
 License
