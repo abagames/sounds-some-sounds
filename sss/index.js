@@ -89,6 +89,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    schedulingInterval = 1 / fps * 2;
 	}
 	exports.init = init;
+	function setSeed(_seed) {
+	    if (_seed === void 0) { _seed = 0; }
+	    seed = _seed;
+	}
+	exports.setSeed = setSeed;
 	exports.Preset = jsfx.Preset;
 	var playPrefixes = {
 	    c: exports.Preset.Coin,

@@ -17,6 +17,9 @@ export function init(_seed: number = 0, tempo = 120, fps = 60) {
   playInterval = 60 / tempo;
   schedulingInterval = 1 / fps * 2;
 }
+export function setSeed(_seed: number = 0) {
+  seed = _seed;
+}
 
 export const Preset = jsfx.Preset;
 const playPrefixes = {
