@@ -2,6 +2,8 @@ sounds-some-sounds
 ======================
 Add sounds to your game in a minute.
 
+You can play [the demo](http://abagames.sakura.ne.jp/16/sss/) of the sample code.
+
 ### How to use
 
 See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master/www/index.html).
@@ -57,8 +59,6 @@ As the number gets larger, the sound becomes louder and more complicated.
         } else {
           sss.play('c1'); // play the jsfx.Preset.'C'oin SE
 ```
-
-You can play [the demo](http://abagames.sakura.ne.jp/16/sss/) of the sample code.
 
 SEs are automatically quantized. Call setQuantize() to change the interval of
 each SE (setQuantize(0) disables quantization).
