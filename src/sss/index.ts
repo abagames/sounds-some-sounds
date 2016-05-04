@@ -5,7 +5,7 @@ let live;
 let random: Random;
 let buffers = {};
 let tracks: Track[] = [];
-let playInterval: number;
+export let playInterval: number;
 let schedulingInterval: number;
 let seed;
 export function init(_seed: number = 0, tempo = 120, fps = 60) {
@@ -78,7 +78,7 @@ export function stopBgm() {
   forEach(tracks, t => t.stop());
 }
 
-export function update() {
+export function update(): number {
   if (live == null) {
     return;
   }
@@ -86,6 +86,7 @@ export function update() {
   const schedulingTime = currentTime + schedulingInterval;
   forOwn(buffers, b => b.update(currentTime, schedulingTime));
   forEach(tracks, t => t.update(currentTime, schedulingTime));
+  return currentTime;
 }
 
 export function reset() {

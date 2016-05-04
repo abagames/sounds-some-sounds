@@ -64,7 +64,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	var sss = __webpack_require__(2);
-	var p5 = __webpack_require__(8);
+	var p5 = __webpack_require__(4);
 	new p5(function (p) {
 	    p.setup = function () {
 	        sss.init(17);
@@ -167,12 +167,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var jsfx = __webpack_require__(7);
+	var jsfx = __webpack_require__(3);
 	var live;
 	var random;
 	var buffers = {};
 	var tracks = [];
-	var playInterval;
 	var schedulingInterval;
 	var seed;
 	function init(_seed, tempo, fps) {
@@ -184,7 +183,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    seed = _seed;
 	    random = new Random();
 	    jsfx.setRandomFunc(random.get01);
-	    playInterval = 60 / tempo;
+	    exports.playInterval = 60 / tempo;
 	    schedulingInterval = 1 / fps * 2;
 	}
 	exports.init = init;
@@ -263,6 +262,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var schedulingTime = currentTime + schedulingInterval;
 	    forOwn(buffers, function (b) { return b.update(currentTime, schedulingTime); });
 	    forEach(tracks, function (t) { return t.update(currentTime, schedulingTime); });
+	    return currentTime;
 	}
 	exports.update = update;
 	function reset() {
@@ -403,7 +403,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return;
 	        }
 	        this.isPlaying = false;
-	        var interval = playInterval * quantize;
+	        var interval = exports.playInterval * quantize;
 	        var time = interval > 0 ?
 	            Math.ceil(currentTime / interval) * interval : currentTime;
 	        if (this.playedTime == null || time > this.playedTime) {
@@ -430,8 +430,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return;
 	        }
 	        if (this.scheduledTime == null) {
-	            this.scheduledTime = Math.ceil(currentTime / playInterval) * playInterval -
-	                playInterval * this.patternInterval;
+	            this.scheduledTime = Math.ceil(currentTime / exports.playInterval) * exports.playInterval -
+	                exports.playInterval * this.patternInterval;
 	            this.patternIndex = 0;
 	            this.calcNextScheduledTime();
 	        }
@@ -448,7 +448,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Track.prototype.calcNextScheduledTime = function () {
 	        var pl = this.pattern.length;
-	        var pi = playInterval * this.patternInterval;
+	        var pi = exports.playInterval * this.patternInterval;
 	        for (var i = 0; i < pl; i++) {
 	            this.scheduledTime += pi;
 	            var p = this.pattern[this.patternIndex];
@@ -516,11 +516,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 3 */,
-/* 4 */,
-/* 5 */,
-/* 6 */,
-/* 7 */
+/* 3 */
 /***/ function(module, exports) {
 
 	// original ver.: https://github.com/loov/jsfx
@@ -1692,7 +1688,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 8 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var require;var require;/*! p5.js v0.4.23 March 04, 2016 */

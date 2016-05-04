@@ -5,9 +5,10 @@ declare module sss {
   function setQuantize(_quantize: number);
   function playBgm(name?: string, interval?: number, params?: any);
   function stopBgm();
-  function update();
+  function update(): number;
   function reset();
   function playEmpty();
   function playParam(param: any);
   const Preset;
+  let playInterval: number
 }
