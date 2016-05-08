@@ -66,11 +66,11 @@ export function setQuantize(_quantize: number) {
 }
 
 export function playBgm(name: string = '0', interval = 0.25,
-  params = [Preset.Laser, Preset.Hit]) {
+  params = [Preset.Laser, Preset.Hit], tracksNum = 8) {
   stopBgm();
   random.setSeed(seed + getHashFromString(name));
   tracks = [];
-  times(4, () => addRandomTrack(interval, params));
+  times(tracksNum, () => addRandomTrack(interval, params));
   forEach(tracks, t => t.play());
 }
 

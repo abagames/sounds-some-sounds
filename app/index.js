@@ -239,14 +239,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    quantize = _quantize;
 	}
 	exports.setQuantize = setQuantize;
-	function playBgm(name, interval, params) {
+	function playBgm(name, interval, params, tracksNum) {
 	    if (name === void 0) { name = '0'; }
 	    if (interval === void 0) { interval = 0.25; }
 	    if (params === void 0) { params = [exports.Preset.Laser, exports.Preset.Hit]; }
+	    if (tracksNum === void 0) { tracksNum = 8; }
 	    stopBgm();
 	    random.setSeed(seed + getHashFromString(name));
 	    tracks = [];
-	    times(4, function () { return addRandomTrack(interval, params); });
+	    times(tracksNum, function () { return addRandomTrack(interval, params); });
 	    forEach(tracks, function (t) { return t.play(); });
 	}
 	exports.playBgm = playBgm;
