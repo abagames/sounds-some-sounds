@@ -67,7 +67,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var p5 = __webpack_require__(4);
 	new p5(function (p) {
 	    p.setup = function () {
-	        sss.init(17);
+	        sss.init(9677173);
 	        p.createCanvas(480, 480);
 	        p.noStroke();
 	        initSeedUi();

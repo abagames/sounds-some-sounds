@@ -4,7 +4,7 @@ const p5 = require('p5');
 
 new p5(p => {
   p.setup = () => {
-    sss.init(17);
+    sss.init(9677173);
     p.createCanvas(480, 480);
     p.noStroke();
     initSeedUi();
