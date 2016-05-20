@@ -67,6 +67,9 @@ export function setQuantize(_quantize: number) {
 
 export function playBgm(name: string = '0', interval = 0.25,
   params = [Preset.Laser, Preset.Hit], tracksNum = 8) {
+  if (live == null) {
+    return;
+  }
   stopBgm();
   random.setSeed(seed + getHashFromString(name));
   tracks = [];
@@ -75,6 +78,9 @@ export function playBgm(name: string = '0', interval = 0.25,
 }
 
 export function stopBgm() {
+  if (live == null) {
+    return;
+  }
   forEach(tracks, t => t.stop());
 }
 

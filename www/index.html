@@ -50,7 +50,7 @@ function draw() {
     var size = (random() * random() + 0.5) * 100;
     var speed = (random() + 1) * (Math.sqrt(ticks / 1000 + 1)) * 2;
     var isEnemy = random() < (0.2 * Math.sqrt(ticks / 1000 + 1));
-    items.push({ pos, size, speed, isEnemy });
+    items.push({ pos: pos, size: size, speed: speed, isEnemy: isEnemy });
   }
   for (var i = 0; i < items.length;) {
     var it = items[i];

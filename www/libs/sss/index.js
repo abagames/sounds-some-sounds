@@ -145,6 +145,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (interval === void 0) { interval = 0.25; }
 	    if (params === void 0) { params = [exports.Preset.Laser, exports.Preset.Hit]; }
 	    if (tracksNum === void 0) { tracksNum = 8; }
+	    if (live == null) {
+	        return;
+	    }
 	    stopBgm();
 	    random.setSeed(seed + getHashFromString(name));
 	    tracks = [];
@@ -153,6 +156,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	exports.playBgm = playBgm;
 	function stopBgm() {
+	    if (live == null) {
+	        return;
+	    }
 	    forEach(tracks, function (t) { return t.stop(); });
 	}
 	exports.stopBgm = stopBgm;
