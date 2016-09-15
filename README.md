@@ -2,11 +2,11 @@ sounds-some-sounds
 ======================
 Add sounds to your game in a minute. (Web Audio API required)
 
-You can play [the demo](http://abagames.sakura.ne.jp/16/sss/) of the sample code.
+You can play [the demo](https://abagames.github.io/sounds-some-sounds/) of the sample code.
 
 ### How to use
 
-See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master/www/index.html).
+See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master/docs/index.html).
 ([p5.js](https://p5js.org/) is used for drawing.)
 
 Include sss/index.js script.

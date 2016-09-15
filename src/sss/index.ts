@@ -171,7 +171,7 @@ function getHashFromString(str: string) {
 }
 
 function values(obj: any) {
-  let vs =[];
+  let vs = [];
   for (let p in obj) {
     if (obj.hasOwnProperty(p)) {
       vs.push(obj[p]);

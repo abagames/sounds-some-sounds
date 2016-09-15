@@ -1,9 +1,10 @@
 body {
   -webkit-touch-callout: none;
-  -webkit-user-select: none;
   -webkit-tap-highlight-color: #eee;
+  user-select: none;
+  -webkit-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none;    
+  -ms-user-select: none;
   background: #eee;
   text-align: center;
 }

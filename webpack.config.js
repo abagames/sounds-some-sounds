@@ -4,10 +4,10 @@ var glob = require('glob');
 module.exports = {
   entry: {
     sss: glob.sync('./src/sss/**/*.ts'),
-    app: glob.sync('./src/**/*.ts'),
+    sample: glob.sync('./src/**/*.ts'),
   },
   output: {
-    path: '.',
+    path: './docs/libs',
     filename: '[name]/index.js',
     library: ['[name]'],
     libraryTarget: 'umd'

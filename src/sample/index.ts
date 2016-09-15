@@ -1,4 +1,4 @@
-import * as sss from './sss/index';
+import * as sss from '../sss/index';
 declare const require: any;
 const p5 = require('p5');
 
