@@ -1,4 +1,3 @@
-var LiveReloadPlugin = require('webpack-livereload-plugin');
 var glob = require('glob');
 
 module.exports = {
@@ -8,12 +7,16 @@ module.exports = {
   },
   output: {
     path: './docs/libs',
+    publicPath: '/libs/',
     filename: '[name]/index.js',
     library: ['[name]'],
     libraryTarget: 'umd'
   },
   resolve: {
     extensions: ['.ts', "", ".webpack.js", ".web.js", ".js"]
+  },
+  devServer: {
+    contentBase: 'docs'
   },
   module: {
     loaders: [
@@ -23,8 +26,5 @@ module.exports = {
         loader: 'ts-loader'
       }
     ]
-  },
-  plugins: [
-    new LiveReloadPlugin()
-  ]
+  }
 };
