@@ -1,27 +1,14 @@
 declare const require: any;
 const jsfx = require('jsfx');
 
+export let playInterval: number;
+export const Preset = jsfx.Preset;
 let live;
 let random: Random;
 let buffers = {};
 let tracks: Track[] = [];
-export let playInterval: number;
 let schedulingInterval: number;
 let seed;
-export function init(_seed: number = 0, tempo = 120, fps = 60) {
-  live = jsfx.Live({});
-  setVolume(0.1);
-  seed = _seed;
-  random = new Random();
-  jsfx.setRandomFunc(random.get01);
-  playInterval = 60 / tempo;
-  schedulingInterval = 1 / fps * 2;
-}
-export function setSeed(_seed: number = 0) {
-  seed = _seed;
-}
-
-export const Preset = jsfx.Preset;
 const playPrefixes = {
   c: Preset.Coin,
   l: Preset.Laser,
@@ -33,6 +20,24 @@ const playPrefixes = {
   u: Preset.Lucky,
 };
 const playprefixeArray = values(playPrefixes);
+let quantize = 0.5;
+let isEmptyPlayed = false;
+let prevPlayingFileName: string;
+
+export function init(_seed: number = 0, tempo = 120, fps = 60) {
+  live = jsfx.Live({});
+  setVolume(0.1);
+  seed = _seed;
+  random = new Random();
+  jsfx.setRandomFunc(random.get01);
+  playInterval = 60 / tempo;
+  schedulingInterval = 1 / fps * 2;
+}
+
+export function setSeed(_seed: number = 0) {
+  seed = _seed;
+}
+
 export function play(name: string = '0', mult: number = 2, params = null) {
   if (live == null) {
     return;
@@ -60,7 +65,6 @@ export function setVolume(volume: number) {
   live._volume.gain.value = volume;
 }
 
-let quantize = 0.5;
 export function setQuantize(_quantize: number) {
   quantize = _quantize;
 }
@@ -101,7 +105,6 @@ export function reset() {
   tracks = [];
 }
 
-let isEmptyPlayed = false;
 export function playEmpty() {
   if (live == null) {
     return;
@@ -159,69 +162,6 @@ export function addTrack(param, pattern: string | boolean[], interval = 0.25) {
   tracks.push(track);
 }
 
-function getHashFromString(str: string) {
-  let hash = 0;
-  const len = str.length;
-  for (let i = 0; i < len; i++) {
-    const chr = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + chr;
-    hash |= 0;
-  }
-  return hash;
-}
-
-function values(obj: any) {
-  let vs = [];
-  for (let p in obj) {
-    if (obj.hasOwnProperty(p)) {
-      vs.push(obj[p]);
-    }
-  }
-  return vs;
-}
-
-function nArray(n: number, v: any) {
-  let a = [];
-  for (let i = 0; i < n; i++) {
-    a.push(v);
-  }
-  return a;
-}
-
-function times(n: number, func: Function) {
-  for (let i = 0; i < n; i++) {
-    func();
-  }
-}
-
-function forEach(array: any[], func: Function) {
-  for (let i = 0; i < array.length; i++) {
-    func(array[i]);
-  }
-}
-
-function forOwn(obj: any, func: Function) {
-  for (let p in obj) {
-    func(obj[p]);
-  }
-}
-
-function map(array: any[], func: Function) {
-  let result = [];
-  for (let i = 0; i < array.length; i++) {
-    result.push(func(array[i], i));
-  }
-  return result;
-}
-
-function mapString(str: string, func: Function) {
-  let result = [];
-  for (let i = 0; i < str.length; i++) {
-    result.push(func(str.charAt(i), i));
-  }
-  return result;
-}
-
 class Sound {
   buffers: AudioBuffer[];
   isPlaying = false;
@@ -254,7 +194,6 @@ class Sound {
       this.playLater(time);
       this.playedTime = time;
     }
-    return;
   }
 
   playLater(when: number) {
@@ -361,4 +300,67 @@ class Random {
     this.f = this.f.bind(this);
     this.i = this.i.bind(this);
   }
+}
+
+function getHashFromString(str: string) {
+  let hash = 0;
+  const len = str.length;
+  for (let i = 0; i < len; i++) {
+    const chr = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + chr;
+    hash |= 0;
+  }
+  return hash;
+}
+
+function values(obj: any) {
+  let vs = [];
+  for (let p in obj) {
+    if (obj.hasOwnProperty(p)) {
+      vs.push(obj[p]);
+    }
+  }
+  return vs;
+}
+
+function nArray(n: number, v: any) {
+  let a = [];
+  for (let i = 0; i < n; i++) {
+    a.push(v);
+  }
+  return a;
+}
+
+function times(n: number, func: Function) {
+  for (let i = 0; i < n; i++) {
+    func();
+  }
+}
+
+function forEach(array: any[], func: Function) {
+  for (let i = 0; i < array.length; i++) {
+    func(array[i]);
+  }
+}
+
+function forOwn(obj: any, func: Function) {
+  for (let p in obj) {
+    func(obj[p]);
+  }
+}
+
+function map(array: any[], func: Function) {
+  let result = [];
+  for (let i = 0; i < array.length; i++) {
+    result.push(func(array[i], i));
+  }
+  return result;
+}
+
+function mapString(str: string, func: Function) {
+  let result = [];
+  for (let i = 0; i < str.length; i++) {
+    result.push(func(str.charAt(i), i));
+  }
+  return result;
 }
