@@ -212,10 +212,7 @@ class Track extends Sound {
       return;
     }
     if (this.scheduledTime == null) {
-      this.scheduledTime = Math.ceil(currentTime / playInterval) * playInterval -
-        playInterval * this.patternInterval;
-      this.patternIndex = 0;
-      this.calcNextScheduledTime();
+      this.calcFirstScheduledTime(currentTime);
     }
     for (let i = 0; i < 99; i++) {
       if (this.scheduledTime >= currentTime) {
@@ -223,10 +220,21 @@ class Track extends Sound {
       }
       this.calcNextScheduledTime();
     }
-    while (this.scheduledTime <= schedulingTime) {
-      this.playLater(this.scheduledTime);
-      this.calcNextScheduledTime();
+    if (this.scheduledTime < currentTime) {
+      this.scheduledTime = null;
+    } else {
+      while (this.scheduledTime <= schedulingTime) {
+        this.playLater(this.scheduledTime);
+        this.calcNextScheduledTime();
+      }
     }
+  }
+
+  calcFirstScheduledTime(currentTime: number) {
+    this.scheduledTime = Math.ceil(currentTime / playInterval) * playInterval -
+      playInterval * this.patternInterval;
+    this.patternIndex = 0;
+    this.calcNextScheduledTime();
   }
 
   calcNextScheduledTime() {
