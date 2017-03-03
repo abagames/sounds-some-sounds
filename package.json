@@ -12,7 +12,7 @@
     "webpack-dev-server": "^1.16.2"
   },
   "scripts": {
-    "wds": "webpack-dev-server",
+    "wds": "webpack-dev-server --inline",
     "build": "webpack"
   }
 }

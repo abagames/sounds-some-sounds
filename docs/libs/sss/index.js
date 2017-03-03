@@ -108,15 +108,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    seed = _seed;
 	}
 	exports.setSeed = setSeed;
-	function play(name, mult, params) {
+	function play(name, mult, params, volume) {
 	    if (name === void 0) { name = '0'; }
 	    if (mult === void 0) { mult = 2; }
 	    if (params === void 0) { params = null; }
+	    if (volume === void 0) { volume = null; }
 	    if (live == null) {
 	        return;
 	    }
 	    if (buffers[name] != null) {
-	        buffers[name].play();
+	        buffers[name].play(volume);
 	        return;
 	    }
 	    random.setSeed(seed + getHashFromString(name));
@@ -128,7 +129,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        params = nArray(mult, p);
 	    }
 	    buffers[name] = new Sound(params);
-	    buffers[name].play();
+	    buffers[name].play(volume);
 	}
 	exports.play = play;
 	function setVolume(volume) {
@@ -142,11 +143,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    quantize = _quantize;
 	}
 	exports.setQuantize = setQuantize;
-	function playBgm(name, interval, params, tracksNum) {
+	function playBgm(name, interval, params, tracksNum, volume) {
 	    if (name === void 0) { name = '0'; }
 	    if (interval === void 0) { interval = 0.25; }
 	    if (params === void 0) { params = [exports.Preset.Laser, exports.Preset.Hit]; }
 	    if (tracksNum === void 0) { tracksNum = 8; }
+	    if (volume === void 0) { volume = null; }
 	    if (live == null) {
 	        return;
 	    }
@@ -154,7 +156,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    random.setSeed(seed + getHashFromString(name));
 	    tracks = [];
 	    times(tracksNum, function () { return addRandomTrack(interval, params); });
-	    forEach(tracks, function (t) { return t.play(); });
+	    forEach(tracks, function (t) { return t.play(volume); });
 	}
 	exports.playBgm = playBgm;
 	function stopBgm() {
@@ -245,9 +247,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            params = [params];
 	        }
 	        this.buffers = map(params, function (p) { return live._createBuffer(p); });
+	        this.gainNode = live._createGain();
 	    }
-	    Sound.prototype.play = function () {
+	    Sound.prototype.play = function (volume) {
+	        if (volume === void 0) { volume = null; }
 	        this.isPlaying = true;
+	        this.volume = volume;
 	    };
 	    Sound.prototype.stop = function () {
 	        this.isPlaying = false;
@@ -266,7 +271,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    Sound.prototype.playLater = function (when) {
-	        forEach(this.buffers, function (b) { return live._playBuffer(b, when); });
+	        var _this = this;
+	        if (this.volume == null) {
+	            forEach(this.buffers, function (b) { return live._playBuffer(b, when); });
+	        }
+	        else {
+	            this.gainNode.gain.value = this.volume;
+	            forEach(this.buffers, function (b) { return live._playBufferAndConnect(b, when, _this.gainNode); });
+	        }
 	    };
 	    return Sound;
 	}());
@@ -441,6 +453,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	//  - Live._createBuffer
 	//  - Live._createEmptyBuffer
 	//  - Live._playBuffer
+	//  - Live._playBufferAndConnect
+	//  - Live._createGain
 	//  - setRandomFunc
 	//  - webkitAudioContext
 	var jsfx = {};
@@ -613,6 +627,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	      player._playBuffer = function (buffer, when) {
 	        var bufSrc = createBufferSource(buffer, when);
 	        bufSrc.connect(volume);
+	      }
+
+	      player._playBufferAndConnect = function (buffer, when, node) {
+	        var bufSrc = createBufferSource(buffer, when);
+	        bufSrc.connect(node);
+	        node.connect(volume);
+	      };
+
+	      player._createGain = function () {
+	        return context.createGain();
 	      }
 
 	      return player;

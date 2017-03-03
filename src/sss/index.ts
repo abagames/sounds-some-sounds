@@ -38,12 +38,13 @@ export function setSeed(_seed: number = 0) {
   seed = _seed;
 }
 
-export function play(name: string = '0', mult: number = 2, params = null) {
+export function play
+  (name: string = '0', mult: number = 2, params = null, volume: number = null) {
   if (live == null) {
     return;
   }
   if (buffers[name] != null) {
-    buffers[name].play();
+    buffers[name].play(volume);
     return;
   }
   random.setSeed(seed + getHashFromString(name));
@@ -55,7 +56,7 @@ export function play(name: string = '0', mult: number = 2, params = null) {
     params = nArray(mult, p);
   }
   buffers[name] = new Sound(params);
-  buffers[name].play();
+  buffers[name].play(volume);
 }
 
 export function setVolume(volume: number) {
@@ -70,7 +71,7 @@ export function setQuantize(_quantize: number) {
 }
 
 export function playBgm(name: string = '0', interval = 0.25,
-  params = [Preset.Laser, Preset.Hit], tracksNum = 8) {
+  params = [Preset.Laser, Preset.Hit], tracksNum = 8, volume: number = null) {
   if (live == null) {
     return;
   }
@@ -78,7 +79,7 @@ export function playBgm(name: string = '0', interval = 0.25,
   random.setSeed(seed + getHashFromString(name));
   tracks = [];
   times(tracksNum, () => addRandomTrack(interval, params));
-  forEach(tracks, t => t.play());
+  forEach(tracks, t => t.play(volume));
 }
 
 export function stopBgm() {
@@ -166,16 +167,20 @@ class Sound {
   buffers: AudioBuffer[];
   isPlaying = false;
   playedTime: number = null;
+  gainNode: GainNode;
+  volume: number;
 
   constructor(params: any | any[]) {
     if (!Array.isArray(params)) {
       params = [params];
     }
     this.buffers = map(params, p => live._createBuffer(p));
+    this.gainNode = live._createGain();
   }
 
-  play() {
+  play(volume: number = null) {
     this.isPlaying = true;
+    this.volume = volume;
   }
 
   stop() {
@@ -197,7 +202,12 @@ class Sound {
   }
 
   playLater(when: number) {
-    forEach(this.buffers, b => live._playBuffer(b, when));
+    if (this.volume == null) {
+      forEach(this.buffers, b => live._playBuffer(b, when));
+    } else {
+      this.gainNode.gain.value = this.volume;
+      forEach(this.buffers, b => live._playBufferAndConnect(b, when, this.gainNode));
+    }
   }
 }
 

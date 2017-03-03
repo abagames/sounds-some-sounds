@@ -4,6 +4,8 @@
 //  - Live._createBuffer
 //  - Live._createEmptyBuffer
 //  - Live._playBuffer
+//  - Live._playBufferAndConnect
+//  - Live._createGain
 //  - setRandomFunc
 //  - webkitAudioContext
 var jsfx = {};
@@ -176,6 +178,16 @@ var jsfx = {};
       player._playBuffer = function (buffer, when) {
         var bufSrc = createBufferSource(buffer, when);
         bufSrc.connect(volume);
+      }
+
+      player._playBufferAndConnect = function (buffer, when, node) {
+        var bufSrc = createBufferSource(buffer, when);
+        bufSrc.connect(node);
+        node.connect(volume);
+      };
+
+      player._createGain = function () {
+        return context.createGain();
       }
 
       return player;
