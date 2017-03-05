@@ -4,7 +4,8 @@ declare module 'sss' {
   function play(name?: string, mult?: number, params?: any, volume?: number);
   function setVolume(volume: number);
   function setQuantize(_quantize: number);
-  function playBgm(name?: string, interval?: number, params?: any, volume?: number);
+  function playBgm
+    (name?: string, interval?: number, params?: any, tracksNum?: number, volume?: number);
   function stopBgm();
   function update(): number;
   function reset();
