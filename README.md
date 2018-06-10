@@ -2,24 +2,23 @@
 
 Add sounds to your game in a minute. (Web Audio API required)
 
-You can play [the demo](https://abagames.github.io/sounds-some-sounds/) of the sample code.
+You can play [the demo](https://abagames.github.io/sounds-some-sounds/samples/index.html?rects) of the sample code.
 
 ### How to use
 
 See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master/docs/index.html).
-([p5.js](https://p5js.org/) is used for drawing.)
 
-Include sss/index.js script.
+Include sounds-some-sounds/index.js script.
 
 ```html
-  <script src="./libs/sss/index.js"></script>
+  <script src="../sounds-some-sounds/index.js"></script>
 ```
 
 Initialize the sss (sounds-some-sounds) library.
 Auto generated SEs (sound effects) and a BGM can be changed by setting the another random seed.
 
 ```js
-function setup() {
+window.onload = () => {
   sss.init(9677173); // initialize sss (9677173 is a random seed)
 ```
 
@@ -27,7 +26,7 @@ Since Safari on iOS requires playing the first sound within a touch event handle
 playEmpty() is called in touchStarted().
 
 ```js
-function touchStarted() {
+function onCursorDown(e) {
   sss.playEmpty(); // play an empty sound in a touch event handler for iOS
 ```
 
@@ -68,12 +67,3 @@ As the number gets larger, the sound becomes louder and more complicated.
 
 SEs are automatically quantized. Call setQuantize() to change the interval of
 each SE (setQuantize(0) disables quantization).
-
-### Libraries
-
-[jsfx](https://github.com/loov/jsfx) /
-[p5.js](https://p5js.org/)
-
-## License
-
-MIT

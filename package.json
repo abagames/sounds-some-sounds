@@ -12,7 +12,7 @@
     "webpack-serve": "^1.0.4"
   },
   "scripts": {
-    "start": "webpack-serve",
+    "start": "webpack-serve --sample=rects",
     "build": "webpack"
   }
 }
