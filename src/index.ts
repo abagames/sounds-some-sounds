@@ -18,7 +18,7 @@ const playPrefixes = {
   s: Preset.Select,
   u: Preset.Lucky
 };
-const playprefixeArray = values(playPrefixes);
+const playPrefixArray = values(playPrefixes);
 let quantize = 0.5;
 let isEmptyPlayed = false;
 let prevPlayingFileName: string;
@@ -39,7 +39,7 @@ export function setSeed(_seed: number = 0) {
 
 export function play(
   name: string = "0",
-  mult: number = 2,
+  numberOfSounds: number = 2,
   params = null,
   volume: number = null
 ) {
@@ -54,9 +54,9 @@ export function play(
   if (params == null) {
     let p = playPrefixes[name[0]];
     if (typeof p === "undefined") {
-      p = random.sample(playprefixeArray);
+      p = random.sample(playPrefixArray);
     }
-    params = nArray(mult, p);
+    params = nArray(numberOfSounds, p);
   }
   buffers[name] = new Sound(params);
   buffers[name].play(volume);
