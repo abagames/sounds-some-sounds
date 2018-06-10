@@ -28,7 +28,7 @@ export function init(_seed: number = 0, tempo = 120, fps = 60) {
   setVolume(0.1);
   seed = _seed;
   random = new Random();
-  jsfx.setRandomFunc(random.get01);
+  jsfx.setRandomFunc(random.get);
   playInterval = 60 / tempo;
   schedulingInterval = (1 / fps) * 2;
 }
@@ -54,7 +54,7 @@ export function play(
   if (params == null) {
     let p = playPrefixes[name[0]];
     if (typeof p === "undefined") {
-      p = random.sample(playPrefixArray);
+      p = random.select(playPrefixArray);
     }
     params = nArray(numberOfSounds, p);
   }
@@ -134,7 +134,7 @@ export function playParam(param) {
 }
 
 function addRandomTrack(interval: number, params: any[]) {
-  addTrack(random.sample(params), createRandomPattern(), interval);
+  addTrack(random.select(params), createRandomPattern(), interval);
 }
 
 function createRandomPattern() {
@@ -152,8 +152,8 @@ function reversePattern(pattern: boolean[], interval) {
   let pt = nArray(interval, false);
   let pr = 0.5;
   for (let i = 0; i < interval / 2; i++) {
-    if (random.f() < pr) {
-      pt[random.i(interval - 1)] = true;
+    if (random.get() < pr) {
+      pt[random.getInt(interval - 1)] = true;
     }
     pr *= 0.5;
   }
@@ -281,53 +281,47 @@ class Random {
   z: number;
   w: number;
 
-  setSeed(v: number = -0x7fffffff) {
-    if (v === -0x7fffffff) {
-      v = Math.floor(Math.random() * 0x7fffffff);
+  get(fromOrTo: number = 1, to: number = null) {
+    if (to == null) {
+      to = fromOrTo;
+      fromOrTo = 0;
     }
-    this.x = v = 1812433253 * (v ^ (v >> 30));
-    this.y = v = 1812433253 * (v ^ (v >> 30)) + 1;
-    this.z = v = 1812433253 * (v ^ (v >> 30)) + 2;
-    this.w = v = 1812433253 * (v ^ (v >> 30)) + 3;
+    return (this.getToMaxInt() / 0xffffffff) * (to - fromOrTo) + fromOrTo;
+  }
+
+  getInt(fromOrTo: number, to: number = null) {
+    return Math.floor(this.get(fromOrTo, to));
+  }
+
+  getPm() {
+    return this.getInt(2) * 2 - 1;
+  }
+
+  select(values: any[]) {
+    return values[this.getInt(values.length)];
+  }
+
+  setSeed(w: number = null) {
+    this.w = w != null ? w : Math.floor(Math.random() * 0xffffffff);
+    this.x = (0 | (this.w << 13)) >>> 0;
+    this.y = (0 | ((this.w >>> 9) ^ (this.x << 6))) >>> 0;
+    this.z = (0 | (this.y >>> 7)) >>> 0;
     return this;
   }
 
-  f(minOrMax: number = null, max: number = null) {
-    if (minOrMax == null) {
-      return this.get01();
-    }
-    if (max == null) {
-      return this.get01() * minOrMax;
-    }
-    return this.get01() * (max - minOrMax) + minOrMax;
-  }
-
-  i(minOrMax: number = null, max: number = null) {
-    return Math.floor(this.f(minOrMax, max + 1));
-  }
-
-  sample(array: any[]) {
-    return array[this.i(array.length - 1)];
-  }
-
-  getInt() {
-    var t = this.x ^ (this.x << 11);
+  getToMaxInt() {
+    const t = this.x ^ (this.x << 11);
     this.x = this.y;
     this.y = this.z;
     this.z = this.w;
-    this.w = this.w ^ (this.w >> 19) ^ (t ^ (t >> 8));
+    this.w = (this.w ^ (this.w >>> 19) ^ (t ^ (t >>> 8))) >>> 0;
     return this.w;
-  }
-
-  get01() {
-    return this.getInt() / 0x7fffffff;
   }
 
   constructor() {
     this.setSeed();
-    this.get01 = this.get01.bind(this);
-    this.f = this.f.bind(this);
-    this.i = this.i.bind(this);
+    this.get = this.get.bind(this);
+    this.getToMaxInt = this.getToMaxInt.bind(this);
   }
 }
 

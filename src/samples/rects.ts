@@ -6,7 +6,7 @@ let context: CanvasRenderingContext2D;
 let cursorPos = { x: 0, y: 0 };
 
 window.onload = () => {
-  sss.init(9677173);
+  sss.init(1252650);
   canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
   context = canvas.getContext("2d");
