@@ -21,11 +21,10 @@ window.onload = () => {
 ```
 
 Since Safari on iOS requires playing the first sound within a touch event handler,
-playEmpty() is called in touchStarted().
+playEmpty() is called in document.ontouchstart handler.
 
 ```js
-function onCursorDown(e) {
-  sss.playEmpty(); // play an empty sound in a touch event handler for iOS
+sss.playEmpty(); // play an empty sound in a touch event handler for iOS
 ```
 
 Call playBgm() to start a BGM.
