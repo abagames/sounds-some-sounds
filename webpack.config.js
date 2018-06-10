@@ -1,29 +1,27 @@
-var glob = require('glob');
+const path = require("path");
 
 module.exports = {
+  mode: process.env.WEBPACK_SERVE ? "development" : "production",
   entry: {
-    sss: glob.sync('./src/sss/**/*.ts'),
-    sample: glob.sync('./src/**/*.ts'),
+    sss: "./src/sss/index.ts",
+    sample: "./src/sample/index.ts"
   },
   output: {
-    path: './docs/libs',
-    publicPath: '/libs/',
-    filename: '[name]/index.js',
-    library: ['[name]'],
-    libraryTarget: 'umd'
+    path: path.join(__dirname, "docs/libs"),
+    filename: "[name]/index.js",
+    library: ["[name]"],
+    libraryTarget: "umd"
   },
   resolve: {
-    extensions: ['.ts', "", ".webpack.js", ".web.js", ".js"]
-  },
-  devServer: {
-    contentBase: 'docs'
+    extensions: [".ts", ".js"],
+    modules: ["node_modules", "web_modules"]
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.ts$/,
         exclude: /(node_modules|web_modules)/,
-        loader: 'ts-loader'
+        loader: "awesome-typescript-loader"
       }
     ]
   }

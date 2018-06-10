@@ -1,8 +1,10 @@
-import * as sss from '../sss/index';
+import * as sss from "../sss/index";
 declare const require: any;
-const p5 = require('p5');
+const p5 = require("p5");
+let p: p5;
 
-new p5(p => {
+new p5(_p => {
+  p = _p;
   p.setup = () => {
     sss.init(9677173);
     p.createCanvas(480, 480);
@@ -32,33 +34,34 @@ new p5(p => {
     sss.update();
     p.background(255);
     if (isInGame) {
-      p.fill('#8e8');
+      p.fill("#8e8");
       shipX = p.constrain(p.mouseX, 16, 480 - 16);
       p.rect(shipX - shipSize / 2, shipY - shipSize / 2, shipSize, shipSize);
     }
     if (p.random() < 0.1 * Math.sqrt(ticks / 1000 + 1)) {
       const pos = p.createVector(p.random() * 480, -60);
       const size = (p.random() * p.random() + 0.5) * 100;
-      const speed = (p.random() + 1) * (Math.sqrt(ticks / 1000 + 1)) * 2;
-      const isEnemy = p.random() < (0.2 * Math.sqrt(ticks / 1000 + 1));
+      const speed = (p.random() + 1) * Math.sqrt(ticks / 1000 + 1) * 2;
+      const isEnemy = p.random() < 0.2 * Math.sqrt(ticks / 1000 + 1);
       items.push({ pos, size, speed, isEnemy });
     }
-    for (let i = 0; i < items.length;) {
+    for (let i = 0; i < items.length; ) {
       const it = items[i];
       it.pos.y += it.speed;
-      p.fill(it.isEnemy ? '#e88' : '#ee8');
+      p.fill(it.isEnemy ? "#e88" : "#ee8");
       p.rect(it.pos.x - it.size / 2, it.pos.y - it.size / 2, it.size, it.size);
-      const isHitting = isInGame &&
+      const isHitting =
+        isInGame &&
         (Math.abs(it.pos.x - shipX) < (it.size + shipSize) / 2 &&
           Math.abs(it.pos.y - shipY) < (it.size + shipSize) / 2);
       if (it.pos.y > 550 || isHitting) {
         if (isHitting) {
           if (it.isEnemy) {
-            sss.play('u1', 7);
+            sss.play("u1", 7);
             isInGame = false;
             sss.stopBgm();
           } else {
-            sss.play('c1');
+            sss.play("c1");
             score++;
           }
         }
@@ -67,15 +70,15 @@ new p5(p => {
         i++;
       }
     }
-    p.fill('#135');
+    p.fill("#135");
     p.textSize(24);
     p.text(score, 20, 40);
     ticks++;
   };
   function initSeedUi() {
-    const change = <HTMLButtonElement>document.getElementById('change');
-    const seed = <HTMLInputElement>document.getElementById('seed');
-    const set = <HTMLButtonElement>document.getElementById('set');
+    const change = <HTMLButtonElement>document.getElementById("change");
+    const seed = <HTMLInputElement>document.getElementById("seed");
+    const set = <HTMLButtonElement>document.getElementById("set");
     change.onclick = () => {
       seed.value = Math.floor(Math.random() * 9999999).toString();
       reset();

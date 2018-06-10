@@ -1,5 +1,4 @@
-declare const require: any;
-const jsfx = require('jsfx');
+import * as jsfx from "jsfx";
 
 export let playInterval: number;
 export const Preset = jsfx.Preset;
@@ -17,7 +16,7 @@ const playPrefixes = {
   h: Preset.Hit,
   j: Preset.Jump,
   s: Preset.Select,
-  u: Preset.Lucky,
+  u: Preset.Lucky
 };
 const playprefixeArray = values(playPrefixes);
 let quantize = 0.5;
@@ -31,15 +30,19 @@ export function init(_seed: number = 0, tempo = 120, fps = 60) {
   random = new Random();
   jsfx.setRandomFunc(random.get01);
   playInterval = 60 / tempo;
-  schedulingInterval = 1 / fps * 2;
+  schedulingInterval = (1 / fps) * 2;
 }
 
 export function setSeed(_seed: number = 0) {
   seed = _seed;
 }
 
-export function play
-  (name: string = '0', mult: number = 2, params = null, volume: number = null) {
+export function play(
+  name: string = "0",
+  mult: number = 2,
+  params = null,
+  volume: number = null
+) {
   if (live == null) {
     return;
   }
@@ -50,7 +53,7 @@ export function play
   random.setSeed(seed + getHashFromString(name));
   if (params == null) {
     let p = playPrefixes[name[0]];
-    if (typeof p === 'undefined') {
+    if (typeof p === "undefined") {
       p = random.sample(playprefixeArray);
     }
     params = nArray(mult, p);
@@ -70,8 +73,13 @@ export function setQuantize(_quantize: number) {
   quantize = _quantize;
 }
 
-export function playBgm(name: string = '0', interval = 0.25,
-  params = [Preset.Laser, Preset.Hit], tracksNum = 8, volume: number = null) {
+export function playBgm(
+  name: string = "0",
+  interval = 0.25,
+  params = [Preset.Laser, Preset.Hit],
+  tracksNum = 8,
+  volume: number = null
+) {
   if (live == null) {
     return;
   }
@@ -149,14 +157,14 @@ function reversePattern(pattern: boolean[], interval) {
     }
     pr *= 0.5;
   }
-  return map(pattern, (p, i) => pt[i % interval] ? !p : p);
+  return map(pattern, (p, i) => (pt[i % interval] ? !p : p));
 }
 
 export function addTrack(param, pattern: string | boolean[], interval = 0.25) {
   const track = new Track(param);
   track.patternInterval = interval;
-  if (typeof pattern === 'string') {
-    track.pattern = mapString(pattern, p => p === '1');
+  if (typeof pattern === "string") {
+    track.pattern = mapString(pattern, p => p === "1");
   } else {
     track.pattern = pattern;
   }
@@ -193,8 +201,8 @@ class Sound {
     }
     this.isPlaying = false;
     const interval = playInterval * quantize;
-    const time = interval > 0 ?
-      Math.ceil(currentTime / interval) * interval : currentTime;
+    const time =
+      interval > 0 ? Math.ceil(currentTime / interval) * interval : currentTime;
     if (this.playedTime == null || time > this.playedTime) {
       this.playLater(time);
       this.playedTime = time;
@@ -206,7 +214,9 @@ class Sound {
       forEach(this.buffers, b => live._playBuffer(b, when));
     } else {
       this.gainNode.gain.value = this.volume;
-      forEach(this.buffers, b => live._playBufferAndConnect(b, when, this.gainNode));
+      forEach(this.buffers, b =>
+        live._playBufferAndConnect(b, when, this.gainNode)
+      );
     }
   }
 }
@@ -241,7 +251,8 @@ class Track extends Sound {
   }
 
   calcFirstScheduledTime(currentTime: number) {
-    this.scheduledTime = Math.ceil(currentTime / playInterval) * playInterval -
+    this.scheduledTime =
+      Math.ceil(currentTime / playInterval) * playInterval -
       playInterval * this.patternInterval;
     this.patternIndex = 0;
     this.calcNextScheduledTime();
@@ -274,9 +285,9 @@ class Random {
     if (v === -0x7fffffff) {
       v = Math.floor(Math.random() * 0x7fffffff);
     }
-    this.x = v = 1812433253 * (v ^ (v >> 30))
-    this.y = v = 1812433253 * (v ^ (v >> 30)) + 1
-    this.z = v = 1812433253 * (v ^ (v >> 30)) + 2
+    this.x = v = 1812433253 * (v ^ (v >> 30));
+    this.y = v = 1812433253 * (v ^ (v >> 30)) + 1;
+    this.z = v = 1812433253 * (v ^ (v >> 30)) + 2;
     this.w = v = 1812433253 * (v ^ (v >> 30)) + 3;
     return this;
   }
@@ -304,7 +315,7 @@ class Random {
     this.x = this.y;
     this.y = this.z;
     this.z = this.w;
-    this.w = (this.w ^ (this.w >> 19)) ^ (t ^ (t >> 8));
+    this.w = this.w ^ (this.w >> 19) ^ (t ^ (t >> 8));
     return this.w;
   }
 
@@ -325,7 +336,7 @@ function getHashFromString(str: string) {
   const len = str.length;
   for (let i = 0; i < len; i++) {
     const chr = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + chr;
+    hash = (hash << 5) - hash + chr;
     hash |= 0;
   }
   return hash;
