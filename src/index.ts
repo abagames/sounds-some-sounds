@@ -4,7 +4,7 @@ export let playInterval: number;
 export const Preset = jsfx.Preset;
 let live;
 let random: Random;
-let buffers = {};
+let sounds = {};
 let tracks: Track[] = [];
 let schedulingInterval: number;
 let seed;
@@ -46,8 +46,8 @@ export function play(
   if (live == null) {
     return;
   }
-  if (buffers[name] != null) {
-    buffers[name].play(volume);
+  if (sounds[name] != null) {
+    sounds[name].play(volume);
     return;
   }
   random.setSeed(seed + getHashFromString(name));
@@ -58,8 +58,8 @@ export function play(
     }
     params = nArray(numberOfSounds, p);
   }
-  buffers[name] = new Sound(params);
-  buffers[name].play(volume);
+  sounds[name] = new Sound(params);
+  sounds[name].play(volume);
 }
 
 export function setVolume(volume: number) {
@@ -103,14 +103,14 @@ export function update(): number {
   }
   const currentTime = live._context.currentTime;
   const schedulingTime = currentTime + schedulingInterval;
-  forOwn(buffers, b => b.update(currentTime, schedulingTime));
+  forOwn(sounds, s => s.update(currentTime, schedulingTime));
   forEach(tracks, t => t.update(currentTime, schedulingTime));
   return currentTime;
 }
 
 export function reset() {
   stopBgm();
-  buffers = {};
+  sounds = {};
   tracks = [];
 }
 
