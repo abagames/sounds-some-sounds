@@ -1,4 +1,4 @@
-declare module "sss" {
+declare module "sounds-some-sounds" {
   function init(_seed?: number, tempo?: number, fps?: number);
   function setSeed(_seed?: number);
   function play(name?: string, mult?: number, params?: any, volume?: number);
