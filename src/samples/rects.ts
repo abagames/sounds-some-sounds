@@ -6,7 +6,7 @@ let context: CanvasRenderingContext2D;
 let cursorPos = { x: 0, y: 0 };
 
 window.onload = () => {
-  sss.init(1252650);
+  sss.init(4745754);
   canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
   context = canvas.getContext("2d");
@@ -96,7 +96,7 @@ function update() {
           isInGame = false;
           sss.stopBgm();
         } else {
-          sss.play("c1");
+          sss.play("s1");
           score++;
         }
       }

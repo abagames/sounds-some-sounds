@@ -39,6 +39,7 @@ export function setSeed(_seed: number = 0) {
 
 export function play(
   name: string = "0",
+  note = 69 - 12,
   numberOfSounds: number = 2,
   params = null,
   volume: number = null
@@ -58,7 +59,7 @@ export function play(
     }
     params = nArray(numberOfSounds, p);
   }
-  sounds[name] = new Sound(params);
+  sounds[name] = new Sound(params, midiNoteNumberToFrequency(note));
   sounds[name].play(volume);
 }
 
@@ -71,30 +72,6 @@ export function setVolume(volume: number) {
 
 export function setQuantize(_quantize: number) {
   quantize = _quantize;
-}
-
-export function playBgm(
-  name: string = "0",
-  interval = 0.25,
-  params = [Preset.Laser, Preset.Hit],
-  tracksNum = 8,
-  volume: number = null
-) {
-  if (live == null) {
-    return;
-  }
-  stopBgm();
-  random.setSeed(seed + getHashFromString(name));
-  tracks = [];
-  times(tracksNum, () => addRandomTrack(interval, params));
-  forEach(tracks, t => t.play(volume));
-}
-
-export function stopBgm() {
-  if (live == null) {
-    return;
-  }
-  forEach(tracks, t => t.stop());
 }
 
 export function update(): number {
@@ -133,12 +110,98 @@ export function playParam(param) {
   live._play(param);
 }
 
-function addRandomTrack(interval: number, params: any[]) {
-  addTrack(random.select(params), createRandomPattern(), interval);
+export function playBgm(
+  name: string = "0",
+  note = 69 - 24,
+  len = 32,
+  interval = 0.25,
+  params = [Preset.Laser, Preset.Select, Preset.Hit, Preset.Hit],
+  tracksNum = 4,
+  volume: number = null
+) {
+  if (live == null) {
+    return;
+  }
+  stopBgm();
+  random.setSeed(seed + getHashFromString(name));
+  initProgression();
+  tracks = [];
+  let param = random.select(params);
+  times(tracksNum, () => {
+    const randomness = Math.floor(
+      Math.abs(random.get() + random.get() - 1) * 3
+    );
+    const chordOffset = Math.floor((random.get() + random.get() - 1) * 10);
+    const velocityRatio = Math.abs(random.get() + random.get() - 1);
+    const hasSameNoteWithPrevPart = random.get() < 0.25;
+    if (!hasSameNoteWithPrevPart) {
+      param = random.select(params);
+    }
+    const isLimitNoteWidth = random.get() < 0.5;
+    const isLimitNoteResolution = random.get() < 0.5;
+    addTrack(
+      len,
+      interval,
+      param,
+      note,
+      randomness,
+      chordOffset,
+      velocityRatio,
+      hasSameNoteWithPrevPart,
+      isLimitNoteWidth,
+      isLimitNoteResolution
+    );
+  });
+  forEach(tracks, t => t.play(volume));
 }
 
-function createRandomPattern() {
-  const len = 64;
+export function stopBgm() {
+  if (live == null) {
+    return;
+  }
+  forEach(tracks, t => t.stop());
+}
+
+export function addTrack(
+  len = 32,
+  interval = 0.25,
+  param: any,
+  note = 60,
+  chordOffset = 0,
+  randomness = 0,
+  velocityRatio = 1,
+  hasSameNoteWithPrevPart = false,
+  isLimitNoteWidth = false,
+  isLimitNoteResolution = false
+) {
+  const track = new Track(param, midiNoteNumberToFrequency(note), 0.7);
+  track.noteInterval = interval;
+  if (tracks.length > 0 && hasSameNoteWithPrevPart) {
+    track.noteRatios = tracks[tracks.length - 1].noteRatios;
+  } else {
+    const pattern = createRandomPattern(len);
+    track.noteRatios = createNoteRatios(
+      pattern,
+      isLimitNoteWidth ? 0 : -1,
+      1,
+      velocityRatio
+    );
+  }
+  track.notes = createNotes(
+    track.noteRatios,
+    chordOffset,
+    randomness,
+    isLimitNoteResolution
+  );
+  tracks.push(track);
+}
+
+function midiNoteNumberToFrequency(d) {
+  const a = 440;
+  return a * Math.pow(2, (d - 69) / 12);
+}
+
+function createRandomPattern(len: number) {
   let pattern = nArray(len, false);
   let pi = 4;
   while (pi <= len) {
@@ -150,25 +213,105 @@ function createRandomPattern() {
 
 function reversePattern(pattern: boolean[], interval) {
   let pt = nArray(interval, false);
-  let pr = 0.5;
-  for (let i = 0; i < interval / 2; i++) {
-    if (random.get() < pr) {
-      pt[random.getInt(interval - 1)] = true;
-    }
-    pr *= 0.5;
+  const pn = Math.floor(Math.abs(random.get() + random.get() - 1) * 4);
+  for (let i = 0; i < pn; i++) {
+    pt[random.getInt(interval - 1)] = true;
   }
   return map(pattern, (p, i) => (pt[i % interval] ? !p : p));
 }
 
-export function addTrack(param, pattern: string | boolean[], interval = 0.25) {
-  const track = new Track(param);
-  track.patternInterval = interval;
-  if (typeof pattern === "string") {
-    track.pattern = mapString(pattern, p => p === "1");
-  } else {
-    track.pattern = pattern;
-  }
-  tracks.push(track);
+const chords = [
+  [0, 4, 7],
+  [0, 3, 7],
+  [0, 4, 7, 10],
+  [0, 4, 7, 11],
+  [0, 3, 7, 10]
+];
+
+// I C:0, II D:2, III E:4, IV F:5, V G:7, VI A:9, VII B:11
+// M:0, m:1, 7:2, M7:3, m7:4
+const progressions = [
+  [[0, 0], [7, 0], [9, 1], [4, 1]],
+  [[5, 0], [0, 0], [5, 0], [7, 0]],
+  [[5, 3], [7, 2], [4, 4], [9, 1]],
+  [[9, 1], [2, 1], [7, 0], [0, 0]],
+  [[9, 1], [5, 0], [7, 0], [0, 0]]
+];
+
+let progression: number[][];
+
+function initProgression() {
+  const baseProgression = random.select(progressions);
+  progression = baseProgression.map((bp, i) => [
+    random.get() < 0.7
+      ? bp[0]
+      : progressions[random.getInt(progressions.length)][i][0],
+    random.get() < 0.7 ? bp[1] : random.getInt(chords.length)
+  ]);
+}
+
+function createNoteRatios(pattern: boolean[], min, max, velocityRatio) {
+  let n = random.get();
+  let nv = random.get(-0.5, 0.5);
+  let len = pattern.length;
+  let cordLength = len / progression.length;
+  let noteRatios = [];
+  pattern.forEach((p, pi) => {
+    let i = Math.floor(pi / cordLength);
+    let j = pi % cordLength;
+    if (i === Math.floor(progression.length / 2)) {
+      noteRatios.push(noteRatios[j]);
+      n = noteRatios[j];
+      return;
+    }
+    if (!p) {
+      noteRatios.push(null);
+      return;
+    }
+    noteRatios.push(n);
+    nv += random.get(-0.25, 0.25);
+    n += nv * velocityRatio;
+    if (random.get() < 0.2 || n <= min || n >= max) {
+      n -= nv * 2;
+      nv *= -1;
+    }
+  });
+  return noteRatios;
+}
+
+function createNotes(
+  noteRatios: number[],
+  offset: number,
+  randomness: number,
+  isLimitNoteResolution
+) {
+  let len = noteRatios.length;
+  let cordLength = len / progression.length;
+  return noteRatios.map((nr, ni) => {
+    if (nr == null) {
+      return null;
+    }
+    let i = Math.floor(ni / cordLength);
+    let j = ni % cordLength;
+    let d = progression[i][0];
+    let chord = chords[progression[i][1]];
+    let n = nr;
+    if (isLimitNoteResolution) {
+      n = Math.floor(n * 2) / 2;
+    }
+    let b = Math.floor(n);
+    let cn = Math.floor((n - b) * chord.length);
+    cn += offset + random.getInt(-randomness, randomness + 1);
+    while (cn >= chord.length) {
+      cn -= chord.length;
+      b++;
+    }
+    while (cn < 0) {
+      cn += chord.length;
+      b--;
+    }
+    return (d + b * 12 + chord[cn]) * 100;
+  });
 }
 
 class Sound {
@@ -178,11 +321,21 @@ class Sound {
   gainNode: GainNode;
   volume: number;
 
-  constructor(params: any | any[]) {
+  constructor(params: any | any[], frequency = null, durationRatio = 1) {
     if (!Array.isArray(params)) {
       params = [params];
     }
-    this.buffers = map(params, p => live._createBuffer(p));
+    this.buffers = map(params, p => {
+      if (p instanceof Function) {
+        p = p();
+      }
+      p.Volume.Sustain *= durationRatio;
+      p.Volume.Decay *= durationRatio;
+      if (frequency != null) {
+        p.Frequency.Start = frequency;
+      }
+      return live._createBuffer(p);
+    });
     this.gainNode = live._createGain();
   }
 
@@ -209,23 +362,25 @@ class Sound {
     }
   }
 
-  playLater(when: number) {
+  playLater(when: number, detune: number = null) {
     if (this.volume == null) {
-      forEach(this.buffers, b => live._playBuffer(b, when));
+      forEach(this.buffers, b => live._playBuffer(b, when, detune));
     } else {
       this.gainNode.gain.value = this.volume;
       forEach(this.buffers, b =>
-        live._playBufferAndConnect(b, when, this.gainNode)
+        live._playBufferAndConnect(b, when, this.gainNode, detune)
       );
     }
   }
 }
 
 class Track extends Sound {
-  pattern: boolean[];
-  patternIndex = 0;
-  patternInterval = 0.25;
+  noteRatios: number[];
+  notes: number[];
+  noteIndex = 0;
+  noteInterval = 0.25;
   scheduledTime: number = null;
+  nextNote: number;
 
   update(currentTime: number, schedulingTime: number) {
     if (!this.isPlaying) {
@@ -244,7 +399,9 @@ class Track extends Sound {
       this.scheduledTime = null;
     } else {
       while (this.scheduledTime <= schedulingTime) {
-        this.playLater(this.scheduledTime);
+        if (this.nextNote != null) {
+          this.playLater(this.scheduledTime, this.nextNote);
+        }
         this.calcNextScheduledTime();
       }
     }
@@ -253,22 +410,22 @@ class Track extends Sound {
   calcFirstScheduledTime(currentTime: number) {
     this.scheduledTime =
       Math.ceil(currentTime / playInterval) * playInterval -
-      playInterval * this.patternInterval;
-    this.patternIndex = 0;
+      playInterval * this.noteInterval;
+    this.noteIndex = 0;
     this.calcNextScheduledTime();
   }
 
   calcNextScheduledTime() {
-    const pl = this.pattern.length;
-    const pi = playInterval * this.patternInterval;
+    const pl = this.notes.length;
+    const pi = playInterval * this.noteInterval;
     for (let i = 0; i < pl; i++) {
       this.scheduledTime += pi;
-      const p = this.pattern[this.patternIndex];
-      this.patternIndex++;
-      if (this.patternIndex >= pl) {
-        this.patternIndex = 0;
+      this.nextNote = this.notes[this.noteIndex];
+      this.noteIndex++;
+      if (this.noteIndex >= pl) {
+        this.noteIndex = 0;
       }
-      if (p) {
+      if (this.nextNote != null) {
         break;
       }
     }
