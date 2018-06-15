@@ -173,29 +173,27 @@ var jsfx = {};
         return buffer;
       };
 
-      function createBufferSource(buffer, when, detune) {
+      function createBufferSource(buffer, detune) {
         var bufSrc = context.createBufferSource();
         bufSrc.buffer = buffer;
         if (detune != null) {
           bufSrc.detune.value = detune;
         }
         bufSrc.start = bufSrc.start || bufSrc.noteOn;
-        bufSrc.start(when);
-        bufSrc.onended = function() {
-          bufSrc.disconnect();
-        };
         return bufSrc;
       }
 
       player._playBuffer = function(buffer, when, detune) {
-        var bufSrc = createBufferSource(buffer, when, detune);
+        var bufSrc = createBufferSource(buffer, detune);
         bufSrc.connect(volume);
+        bufSrc.start(when);
       };
 
       player._playBufferAndConnect = function(buffer, when, node, detune) {
-        var bufSrc = createBufferSource(buffer, when, detune);
+        var bufSrc = createBufferSource(buffer, detune);
         bufSrc.connect(node);
         node.connect(volume);
+        bufSrc.start(when);
       };
 
       player._createGain = function() {
