@@ -6,7 +6,7 @@ let context: CanvasRenderingContext2D;
 let cursorPos = { x: 0, y: 0 };
 
 window.onload = () => {
-  sss.init(4745754);
+  sss.init(8124155);
   canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
   context = canvas.getContext("2d");
@@ -37,7 +37,7 @@ let items = [];
 function onCursorDown(e) {
   sss.playEmpty();
   if (!isInGame) {
-    sss.playBgm();
+    sss.playJingle("s1");
     isInGame = true;
     score = 0;
     ticks = 0;
@@ -59,6 +59,9 @@ function update() {
   context.fillStyle = "white";
   context.fillRect(0, 0, size, size);
   if (isInGame) {
+    if (ticks === 180) {
+      sss.playBgm();
+    }
     context.fillStyle = "#8e8";
     shipX = constrain(cursorPos.x, 16, size - 16);
     context.fillRect(
@@ -92,11 +95,13 @@ function update() {
     if (it.pos.y > 550 || isHitting) {
       if (isHitting) {
         if (it.isEnemy) {
-          sss.play("u1", 7);
+          //sss.play("u1", 7);
+          sss.playJingle("h1", true);
           isInGame = false;
           sss.stopBgm();
         } else {
           sss.play("s1");
+          //sss.playJingle("c1", 0.0625, 8);
           score++;
         }
       }

@@ -4,8 +4,9 @@ export let playInterval: number;
 export const Preset = jsfx.Preset;
 let live;
 let random: Random;
-let sounds = {};
-let tracks: Track[] = [];
+let sounds: { [key: string]: Sound } = {};
+let tracks: { [key: string]: Track[] } = {};
+let bgmTracks: Track[] = [];
 let schedulingInterval: number;
 let seed;
 const playPrefixes = {
@@ -39,8 +40,8 @@ export function setSeed(_seed: number = 0) {
 
 export function play(
   name: string = "0",
-  note = 69 - 12,
   numberOfSounds: number = 2,
+  note = null,
   params = null,
   volume: number = null
 ) {
@@ -59,8 +60,70 @@ export function play(
     }
     params = nArray(numberOfSounds, p);
   }
-  sounds[name] = new Sound(params, midiNoteNumberToFrequency(note));
+  const frequency = note == null ? null : midiNoteNumberToFrequency(note);
+  sounds[name] = new Sound(params, frequency);
   sounds[name].play(volume);
+}
+
+export function playJingle(
+  name: string = "0",
+  isSe = false,
+  note = 69 - 12,
+  len = 16,
+  interval = 0.25,
+  numberOfTracks: number = 4,
+  param = null,
+  volume: number = null
+) {
+  if (live == null) {
+    return;
+  }
+  if (tracks[name] != null) {
+    tracks[name].forEach(t => t.play(volume));
+    return;
+  }
+  random.setSeed(seed + getHashFromString(name));
+  initProgression();
+  prevTrack = null;
+  if (param == null) {
+    let p = playPrefixes[name[0]];
+    if (typeof p === "undefined") {
+      p = random.select(playPrefixArray);
+    }
+    param = p;
+  }
+  if (isSe) {
+    interval /= 4;
+  }
+  tracks[name] = timesMap(numberOfTracks, () => {
+    const randomness = Math.floor(
+      Math.abs(random.get() + random.get() - 1) * 3
+    );
+    const chordOffset = Math.floor((random.get() + random.get() - 1) * 10);
+    const velocityRatio = isSe ? 2 : Math.abs(random.get() + random.get() - 1);
+    const hasSameNoteWithPrevPart = random.get() < 0.25;
+    const isLimitNoteWidth = isSe ? false : random.get() < 0.5;
+    const isLimitNoteResolution = random.get() < 0.5;
+    const isRepeatHalf = isSe ? random.get() < 0.25 : random.get() < 0.9;
+    const restRatio = random.get(0.5);
+    const track = createTrack(
+      len,
+      interval,
+      param,
+      note,
+      randomness,
+      chordOffset,
+      velocityRatio,
+      hasSameNoteWithPrevPart,
+      isLimitNoteWidth,
+      isLimitNoteResolution,
+      isRepeatHalf,
+      restRatio
+    );
+    track.isLooping = false;
+    return track;
+  });
+  tracks[name].forEach(t => t.play(volume));
 }
 
 export function setVolume(volume: number) {
@@ -81,14 +144,16 @@ export function update(): number {
   const currentTime = live._context.currentTime;
   const schedulingTime = currentTime + schedulingInterval;
   forOwn(sounds, s => s.update(currentTime, schedulingTime));
-  forEach(tracks, t => t.update(currentTime, schedulingTime));
+  forOwn(tracks, ts => forEach(ts, t => t.update(currentTime, schedulingTime)));
+  forEach(bgmTracks, t => t.update(currentTime, schedulingTime));
   return currentTime;
 }
 
 export function reset() {
   stopBgm();
   sounds = {};
-  tracks = [];
+  tracks = {};
+  bgmTracks = [];
 }
 
 export function playEmpty() {
@@ -115,8 +180,8 @@ export function playBgm(
   note = 69 - 24,
   len = 32,
   interval = 0.25,
+  numberOfTracks = 4,
   params = [Preset.Laser, Preset.Select, Preset.Hit, Preset.Hit],
-  tracksNum = 4,
   volume: number = null
 ) {
   if (live == null) {
@@ -125,9 +190,9 @@ export function playBgm(
   stopBgm();
   random.setSeed(seed + getHashFromString(name));
   initProgression();
-  tracks = [];
+  prevTrack = null;
   let param = random.select(params);
-  times(tracksNum, () => {
+  bgmTracks = timesMap(numberOfTracks, () => {
     const randomness = Math.floor(
       Math.abs(random.get() + random.get() - 1) * 3
     );
@@ -139,7 +204,8 @@ export function playBgm(
     }
     const isLimitNoteWidth = random.get() < 0.5;
     const isLimitNoteResolution = random.get() < 0.5;
-    addTrack(
+    const isRepeatHalf = random.get() < 0.9;
+    return createTrack(
       len,
       interval,
       param,
@@ -149,20 +215,23 @@ export function playBgm(
       velocityRatio,
       hasSameNoteWithPrevPart,
       isLimitNoteWidth,
-      isLimitNoteResolution
+      isLimitNoteResolution,
+      isRepeatHalf
     );
   });
-  forEach(tracks, t => t.play(volume));
+  forEach(bgmTracks, t => t.play(volume));
 }
 
 export function stopBgm() {
   if (live == null) {
     return;
   }
-  forEach(tracks, t => t.stop());
+  forEach(bgmTracks, t => t.stop());
 }
 
-export function addTrack(
+let prevTrack: Track;
+
+export function createTrack(
   len = 32,
   interval = 0.25,
   param: any,
@@ -172,19 +241,25 @@ export function addTrack(
   velocityRatio = 1,
   hasSameNoteWithPrevPart = false,
   isLimitNoteWidth = false,
-  isLimitNoteResolution = false
+  isLimitNoteResolution = false,
+  isRepeatHalf = false,
+  restRatio = null
 ) {
   const track = new Track(param, midiNoteNumberToFrequency(note), 0.7);
   track.noteInterval = interval;
-  if (tracks.length > 0 && hasSameNoteWithPrevPart) {
-    track.noteRatios = tracks[tracks.length - 1].noteRatios;
+  if (prevTrack != null && hasSameNoteWithPrevPart) {
+    track.noteRatios = prevTrack.noteRatios;
   } else {
-    const pattern = createRandomPattern(len);
+    const pattern =
+      restRatio != null
+        ? createRandomPatternWithRestRatio(len, restRatio)
+        : createRandomPattern(len);
     track.noteRatios = createNoteRatios(
       pattern,
       isLimitNoteWidth ? 0 : -1,
       1,
-      velocityRatio
+      velocityRatio,
+      isRepeatHalf
     );
   }
   track.notes = createNotes(
@@ -193,7 +268,8 @@ export function addTrack(
     randomness,
     isLimitNoteResolution
   );
-  tracks.push(track);
+  prevTrack = track;
+  return track;
 }
 
 function midiNoteNumberToFrequency(d) {
@@ -218,6 +294,10 @@ function reversePattern(pattern: boolean[], interval) {
     pt[random.getInt(interval - 1)] = true;
   }
   return map(pattern, (p, i) => (pt[i % interval] ? !p : p));
+}
+
+function createRandomPatternWithRestRatio(len: number, restRatio: number) {
+  return timesMap(len, () => random.get() >= restRatio);
 }
 
 const chords = [
@@ -250,7 +330,13 @@ function initProgression() {
   ]);
 }
 
-function createNoteRatios(pattern: boolean[], min, max, velocityRatio) {
+function createNoteRatios(
+  pattern: boolean[],
+  min,
+  max,
+  velocityRatio,
+  isRepeatHalf
+) {
   let n = random.get();
   let nv = random.get(-0.5, 0.5);
   let len = pattern.length;
@@ -259,7 +345,7 @@ function createNoteRatios(pattern: boolean[], min, max, velocityRatio) {
   pattern.forEach((p, pi) => {
     let i = Math.floor(pi / cordLength);
     let j = pi % cordLength;
-    if (i === Math.floor(progression.length / 2)) {
+    if (isRepeatHalf && i === Math.floor(progression.length / 2)) {
       noteRatios.push(noteRatios[j]);
       n = noteRatios[j];
       return;
@@ -381,6 +467,12 @@ class Track extends Sound {
   noteInterval = 0.25;
   scheduledTime: number = null;
   nextNote: number;
+  isLooping = true;
+
+  play(volume: number = null) {
+    super.play(volume);
+    this.scheduledTime = null;
+  }
 
   update(currentTime: number, schedulingTime: number) {
     if (!this.isPlaying) {
@@ -401,6 +493,10 @@ class Track extends Sound {
       while (this.scheduledTime <= schedulingTime) {
         if (this.nextNote != null) {
           this.playLater(this.scheduledTime, this.nextNote);
+        }
+        if (!this.isLooping && this.noteIndex === 0) {
+          this.stop();
+          return;
         }
         this.calcNextScheduledTime();
       }
@@ -424,6 +520,9 @@ class Track extends Sound {
       this.noteIndex++;
       if (this.noteIndex >= pl) {
         this.noteIndex = 0;
+        if (!this.isLooping) {
+          break;
+        }
       }
       if (this.nextNote != null) {
         break;
@@ -515,6 +614,14 @@ function times(n: number, func: Function) {
   for (let i = 0; i < n; i++) {
     func();
   }
+}
+
+function timesMap(n: number, func: Function) {
+  let result = [];
+  for (let i = 0; i < n; i++) {
+    result.push(func(i));
+  }
+  return result;
 }
 
 function forEach(array: any[], func: Function) {
