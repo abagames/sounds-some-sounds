@@ -6,7 +6,7 @@ let context: CanvasRenderingContext2D;
 let cursorPos = { x: 0, y: 0 };
 
 window.onload = () => {
-  sss.init(8124155);
+  sss.init(51649);
   canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
   context = canvas.getContext("2d");
@@ -95,13 +95,12 @@ function update() {
     if (it.pos.y > 550 || isHitting) {
       if (isHitting) {
         if (it.isEnemy) {
-          //sss.play("u1", 7);
-          sss.playJingle("h1", true);
           isInGame = false;
           sss.stopBgm();
+          sss.stopJingles();
+          sss.playJingle("l1", true);
         } else {
           sss.play("s1");
-          //sss.playJingle("c1", 0.0625, 8);
           score++;
         }
       }

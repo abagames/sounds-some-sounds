@@ -126,6 +126,10 @@ export function playJingle(
   tracks[name].forEach(t => t.play(volume));
 }
 
+export function stopJingles() {
+  forOwn(tracks, ts => forEach(ts, t => t.stop()));
+}
+
 export function setVolume(volume: number) {
   if (live == null) {
     return;
