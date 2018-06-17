@@ -4,13 +4,9 @@ Add sounds to your game in a minute. (Web Audio API required)
 
 ### How to use
 
-See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master/docs/index.html).
+See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master/src/samples/rects.ts).
 
-Include sounds-some-sounds/index.js script.
-
-```html
-  <script src="../sounds-some-sounds/index.js"></script>
-```
+Include [sounds-some-sounds/index.js](https://github.com/abagames/sounds-some-sounds/blob/master/docs/sounds-some-sounds/index.js) script.
 
 Initialize the sss (sounds-some-sounds) library.
 Auto generated SEs (sound effects) and a BGM can be changed by setting the another random seed.
