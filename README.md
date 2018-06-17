@@ -17,28 +17,32 @@ Auto generated SEs (sound effects) and a BGM can be changed by setting the anoth
 
 ```js
 window.onload = () => {
-  sss.init(1252650); // initialize sss (1252650 is a random seed)
+  // initialize sss with a random seed number
+  sss.init(51649);  
 ```
 
 Since Safari on iOS requires playing the first sound within a touch event handler,
 playEmpty() is called in document.ontouchstart handler.
 
 ```js
-sss.playEmpty(); // play an empty sound in a touch event handler for iOS
+// play an empty sound in a touch event handler for iOS
+sss.playEmpty();
 ```
 
 Call playBgm() to start a BGM.
 
 ```js
-  if (!isInGame) {
-    sss.playBgm(); // start playing a BGM
+// start playing a BGM
+sss.playBgm();
 ```
 
-update() should be called per a frame for updating a BGM.
+update() should be called per a frame for updating sounds.
 
 ```js
-function draw() {
-  sss.update(); // update function should be called in an animation frame handler
+function update() {
+  requestAnimationFrame(update);
+  // update function should be called in an animation frame handler
+  sss.update();
 ```
 
 Call play() to play an SE. The first argument is the name of the SE.
@@ -54,12 +58,20 @@ The second argument is the number of generated sounds played at a time.
 As the number gets larger, the sound becomes louder and more complicated.
 
 ```js
-        if (it.isEnemy) {
-          sss.play('u1', 7); // play the jsfx.Preset.L'u'cky SE (7 sounds at a time)
-          isInGame = false;
-          sss.stopBgm();
-        } else {
-          sss.play('c1'); // play the jsfx.Preset.'C'oin SE
+// play the jsfx.Preset.'S'elect SE
+sss.play("s1");
+```
+
+You can also play a jingle (short melody) with playJingle().
+
+```js
+// play an opening jingle (short melody)
+sss.playJingle("s1");
+```
+
+```js
+// play the jsfx.Preset.'L'aser jingle as a SE (sound effect)
+sss.playJingle("l1", true);
 ```
 
 SEs are automatically quantized. Call setQuantize() to change the interval of

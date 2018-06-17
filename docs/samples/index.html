@@ -12,13 +12,15 @@
   <!--
   <script src="../sounds-some-sounds/index.js"></script>
   <script>
+
     const size = 480;
     let canvas;
     let context;
     let cursorPos = { x: 0, y: 0 };
 
     window.onload = () => {
-      sss.init(1252650); // initialize sss (1252650 is a random seed)
+      // initialize sss with a random seed number
+      sss.init(51649);
       canvas = document.createElement("canvas");
       canvas.width = canvas.height = size;
       context = canvas.getContext("2d");
@@ -47,9 +49,11 @@
     let items = [];
 
     function onCursorDown(e) {
-      sss.playEmpty(); // play an empty sound in a touch event handler for iOS
+      // play an empty sound in a touch event handler for iOS
+      sss.playEmpty();
       if (!isInGame) {
-        sss.playBgm(); // start playing a BGM
+        // play an opening jingle (short melody)
+        sss.playJingle("s1");
         isInGame = true;
         score = 0;
         ticks = 0;
@@ -67,10 +71,15 @@
 
     function update() {
       requestAnimationFrame(update);
-      sss.update(); // update function should be called in an animation frame handler
+      // update function should be called in an animation frame handler
+      sss.update();
       context.fillStyle = "white";
       context.fillRect(0, 0, size, size);
       if (isInGame) {
+        if (ticks === 180) {
+          // start playing a BGM
+          sss.playBgm();
+        }
         context.fillStyle = "#8e8";
         shipX = constrain(cursorPos.x, 16, size - 16);
         context.fillRect(
@@ -104,11 +113,14 @@
         if (it.pos.y > 550 || isHitting) {
           if (isHitting) {
             if (it.isEnemy) {
-              sss.play("u1", 7); // play the jsfx.Preset.L'u'cky SE (7 sounds at a time)
               isInGame = false;
               sss.stopBgm();
+              sss.stopJingles();
+              // play the jsfx.Preset.'L'aser jingle as a SE (sound effect)
+              sss.playJingle("l1", true);
             } else {
-              sss.play("c1"); // play the jsfx.Preset.'C'oin SE
+              // play the jsfx.Preset.'S'elect SE
+              sss.play("s1");
               score++;
             }
           }
@@ -143,7 +155,7 @@
           sss.playBgm();
         }
       }
-    }
+    }  
   </script>
 -->
   <script>

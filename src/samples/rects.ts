@@ -6,6 +6,7 @@ let context: CanvasRenderingContext2D;
 let cursorPos = { x: 0, y: 0 };
 
 window.onload = () => {
+  // initialize sss with a random seed number
   sss.init(51649);
   canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
@@ -35,8 +36,10 @@ const shipSize = 36;
 let items = [];
 
 function onCursorDown(e) {
+  // play an empty sound in a touch event handler for iOS
   sss.playEmpty();
   if (!isInGame) {
+    // play an opening jingle (short melody)
     sss.playJingle("s1");
     isInGame = true;
     score = 0;
@@ -55,11 +58,13 @@ function onCursorUp(e) {
 
 function update() {
   requestAnimationFrame(update);
+  // update function should be called in an animation frame handler
   sss.update();
   context.fillStyle = "white";
   context.fillRect(0, 0, size, size);
   if (isInGame) {
     if (ticks === 180) {
+      // start playing a BGM
       sss.playBgm();
     }
     context.fillStyle = "#8e8";
@@ -98,8 +103,10 @@ function update() {
           isInGame = false;
           sss.stopBgm();
           sss.stopJingles();
+          // play the jsfx.Preset.'L'aser jingle as a SE (sound effect)
           sss.playJingle("l1", true);
         } else {
+          // play the jsfx.Preset.'S'elect SE
           sss.play("s1");
           score++;
         }
