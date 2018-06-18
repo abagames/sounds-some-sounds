@@ -92,8 +92,10 @@ export function playJingle(
     }
     param = p;
   }
+  let durationRatio = 0.8;
   if (isSe) {
     interval /= 4;
+    durationRatio /= 2;
   }
   tracks[name] = timesMap(numberOfTracks, () => {
     const randomness = Math.floor(
@@ -111,6 +113,7 @@ export function playJingle(
       interval,
       param,
       note,
+      durationRatio,
       randomness,
       chordOffset,
       velocityRatio,
@@ -214,6 +217,7 @@ export function playBgm(
       interval,
       param,
       note,
+      0.7,
       randomness,
       chordOffset,
       velocityRatio,
@@ -240,6 +244,7 @@ export function createTrack(
   interval = 0.25,
   param: any,
   note = 60,
+  durationRatio = 1,
   chordOffset = 0,
   randomness = 0,
   velocityRatio = 1,
@@ -249,7 +254,7 @@ export function createTrack(
   isRepeatHalf = false,
   restRatio = null
 ) {
-  const track = new Track(param, midiNoteNumberToFrequency(note), 0.7);
+  const track = new Track(param, midiNoteNumberToFrequency(note), durationRatio);
   track.noteInterval = interval;
   if (prevTrack != null && hasSameNoteWithPrevPart) {
     track.noteRatios = prevTrack.noteRatios;
