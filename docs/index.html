@@ -10,8 +10,12 @@
 
 <body>
   <script>
+    var defaultSampleName = 'rects';
     var sampleName = window.location.search.substring(1);
     sampleName = sampleName.replace(/\W/g, '');
+    if (sampleName.length <= 0) {
+      sampleName = defaultSampleName;
+    }
     document.title = "sounds-some-sounds demo - " + sampleName;
     var script = document.createElement('script');
     script.src = sampleName + '.js';

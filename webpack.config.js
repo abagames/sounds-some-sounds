@@ -20,7 +20,7 @@ module.exports = function(env) {
   if (env == null || env.sample == null) {
     config.entry = "./src/index.ts";
     config.output = {
-      path: path.join(__dirname, "/docs/sounds-some-sounds"),
+      path: path.join(__dirname, "build"),
       filename: "index.js",
       library: ["sss"],
       libraryTarget: "umd"
@@ -29,7 +29,7 @@ module.exports = function(env) {
     var sample = env.sample;
     config.entry = "./src/samples/" + sample + ".ts";
     config.output = {
-      path: path.join(__dirname, "/docs/samples"),
+      path: path.join(__dirname, "docs"),
       filename: sample + ".js"
     };
   }

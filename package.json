@@ -4,6 +4,7 @@
   "description": "Add sounds to your game in a minute",
   "author": "ABA",
   "license": "MIT",
+  "main": "build/index.js",
   "devDependencies": {
     "awesome-typescript-loader": "^5.0.0",
     "typescript": "^2.9.1",
@@ -13,6 +14,7 @@
   },
   "scripts": {
     "start": "webpack-serve --sample=rects",
-    "build": "webpack"
+    "build": "webpack",
+    "build_sample": "webpack --env.sample=rects"
   }
 }
