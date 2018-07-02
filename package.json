@@ -2,9 +2,8 @@
   "name": "sounds-some-sounds",
   "version": "1.0.0",
   "description": "Add sounds to your game in a minute",
-  "author": "ABA",
-  "license": "MIT",
   "main": "build/index.js",
+  "typings": "typings/index.d.ts",
   "devDependencies": {
     "awesome-typescript-loader": "^5.0.0",
     "typescript": "^2.9.1",
@@ -16,5 +15,12 @@
     "start": "webpack-serve --sample=rects",
     "build": "webpack",
     "build_sample": "webpack --env.sample=rects"
-  }
+  },
+  "author": "abagames",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abagames/sounds-some-sounds.git"
+  },
+  "homepage": "https://github.com/abagames/sounds-some-sounds"
 }
