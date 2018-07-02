@@ -54,19 +54,19 @@ The second argument is the number of generated sounds played at a time.
 As the number gets larger, the sound becomes louder and more complicated.
 
 ```js
-// play the jsfx.Preset.'S'elect SE
+// play the jsfx.Preset.'s'elect SE
 sss.play("s1");
 ```
 
 You can also play a jingle (short melody) with playJingle().
 
 ```js
-// play an opening jingle (short melody)
-sss.playJingle("s1");
+// play an opening jingle (short melody) with the jsfx.Preset.'s'elect
+sss.playJingle("s0");
 ```
 
 ```js
-// play the jsfx.Preset.'L'aser jingle as a SE (sound effect)
+// play the jsfx.Preset.'l'aser jingle as a SE (sound effect)
 sss.playJingle("l1", true);
 ```
 

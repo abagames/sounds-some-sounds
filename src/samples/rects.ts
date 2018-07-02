@@ -39,8 +39,8 @@ function onCursorDown(e) {
   // play an empty sound in a touch event handler for iOS
   sss.playEmpty();
   if (!isInGame) {
-    // play an opening jingle (short melody)
-    sss.playJingle("s1");
+    // play an opening jingle (short melody) with the jsfx.Preset.'s'elect
+    sss.playJingle("s0");
     isInGame = true;
     score = 0;
     ticks = 0;
@@ -103,10 +103,10 @@ function update() {
           isInGame = false;
           sss.stopBgm();
           sss.stopJingles();
-          // play the jsfx.Preset.'L'aser jingle as a SE (sound effect)
+          // play the jsfx.Preset.'l'aser jingle as a SE (sound effect)
           sss.playJingle("l1", true);
         } else {
-          // play the jsfx.Preset.'S'elect SE
+          // play the jsfx.Preset.'s'elect SE
           sss.play("s1");
           score++;
         }
