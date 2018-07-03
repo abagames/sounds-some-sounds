@@ -176,7 +176,7 @@ var jsfx = {};
       function createBufferSource(buffer, detune) {
         var bufSrc = context.createBufferSource();
         bufSrc.buffer = buffer;
-        if (detune != null) {
+        if (detune != null && bufSrc.detune != null) {
           bufSrc.detune.value = detune;
         }
         bufSrc.start = bufSrc.start || bufSrc.noteOn;
