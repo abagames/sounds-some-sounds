@@ -176,8 +176,9 @@ var jsfx = {};
       function createBufferSource(buffer, detune) {
         var bufSrc = context.createBufferSource();
         bufSrc.buffer = buffer;
-        if (detune != null && bufSrc.detune != null) {
-          bufSrc.detune.value = detune;
+        if (detune != null && bufSrc.playbackRate != null) {
+          const semitoneRatio = Math.pow(2, 1 / 12);
+          bufSrc.playbackRate.value = Math.pow(semitoneRatio, detune / 100);
         }
         bufSrc.start = bufSrc.start || bufSrc.noteOn;
         return bufSrc;
