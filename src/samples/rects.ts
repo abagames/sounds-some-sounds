@@ -13,8 +13,12 @@ window.onload = () => {
   context = canvas.getContext("2d");
   document.body.appendChild(canvas);
   initSeedUi();
-  document.onmousedown = onCursorDown;
-  document.ontouchstart = onCursorDown;
+  document.onmousedown = e => {
+    onCursorDown(e.clientX, e.clientY);
+  };
+  document.ontouchstart = e => {
+    onCursorDown(e.touches[0].clientX, e.touches[0].clientY);
+  };
   document.onmousemove = e => {
     onCursorMove(e.clientX, e.clientY);
   };
@@ -35,7 +39,7 @@ const shipY = 320;
 const shipSize = 36;
 let items = [];
 
-function onCursorDown(e) {
+function onCursorDown(x: number, y: number) {
   // play an empty sound in a touch event handler for iOS
   sss.playEmpty();
   if (!isInGame) {
@@ -45,6 +49,7 @@ function onCursorDown(e) {
     score = 0;
     ticks = 0;
   }
+  onCursorMove(x, y);
 }
 
 function onCursorMove(x: number, y: number) {
