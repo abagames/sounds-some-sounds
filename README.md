@@ -1,4 +1,6 @@
-# sounds-some-sounds ([Demo](https://abagames.github.io/sounds-some-sounds/index.html?rects))
+# sounds-some-sounds
+
+[Demo](https://abagames.github.io/sounds-some-sounds/index.html?rects)
 
 Add sounds to your game in a minute. (Web Audio API required)
 
