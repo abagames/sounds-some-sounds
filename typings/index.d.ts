@@ -1,40 +1,15 @@
-declare module "sounds-some-sounds" {
-  function init(_seed?: number, tempo?: number, fps?: number);
-  function setSeed(_seed?: number);
-  function play(
-    name?: string,
-    numberOfSounds?: number,
-    note?: number,
-    params?: any,
-    volume?: number
-  );
-  function playJingle(
-    name?: string,
-    isSe?: boolean,
-    note?: number,
-    len?: number,
-    interval?: number,
-    numberOfTracks?: number,
-    param?: any,
-    volume?: number
-  );
-  function stopJingles();
-  function setVolume(volume: number);
-  function setQuantize(_quantize: number);
-  function playBgm(
-    name?: string,
-    note?: number,
-    len?: number,
-    interval?: number,
-    numberOfTracks?: number,
-    params?: any,
-    volume?: number
-  );
-  function stopBgm();
-  function update(): number;
-  function reset();
-  function playEmpty();
-  function playParam(param: any);
-  const Preset;
-  let playInterval: number;
-}
+export declare let playInterval: number;
+export declare const Preset: any;
+export declare function init(_seed?: number, tempo?: number, fps?: number): void;
+export declare function setSeed(_seed?: number): void;
+export declare function play(name?: string, numberOfSounds?: number, note?: any, params?: any, volume?: number): void;
+export declare function playJingle(name?: string, isSe?: boolean, note?: number, len?: number, interval?: number, numberOfTracks?: number, param?: any, volume?: number): void;
+export declare function stopJingles(): void;
+export declare function setVolume(volume: number): void;
+export declare function setQuantize(_quantize: number): void;
+export declare function update(): number;
+export declare function reset(): void;
+export declare function playEmpty(): void;
+export declare function playParam(param: any): void;
+export declare function playBgm(name?: string, note?: number, len?: number, interval?: number, numberOfTracks?: number, params?: any[], volume?: number): void;
+export declare function stopBgm(): void;

@@ -239,7 +239,7 @@ export function stopBgm() {
 
 let prevTrack: Track;
 
-export function createTrack(
+function createTrack(
   len = 32,
   interval = 0.25,
   param: any,

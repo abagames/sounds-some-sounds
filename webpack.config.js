@@ -25,6 +25,10 @@ module.exports = function(env) {
       library: ["sss"],
       libraryTarget: "umd"
     };
+    config.module.rules[0].query = {
+      declaration: true,
+      declarationDir: "typings"
+    };
   } else {
     var sample = env.sample;
     config.entry = "./src/samples/" + sample + ".ts";
