@@ -13,21 +13,31 @@ window.onload = () => {
   context = canvas.getContext("2d");
   document.body.appendChild(canvas);
   initSeedUi();
-  document.onmousedown = e => {
+  document.addEventListener("mousedown", e => {
     onCursorDown(e.clientX, e.clientY);
-  };
-  document.ontouchstart = e => {
+  });
+  document.addEventListener("touchstart", e => {
     onCursorDown(e.touches[0].clientX, e.touches[0].clientY);
-  };
-  document.onmousemove = e => {
+  });
+  document.addEventListener("mousemove", e => {
     onCursorMove(e.clientX, e.clientY);
-  };
-  document.ontouchmove = e => {
-    e.preventDefault();
-    onCursorMove(e.touches[0].clientX, e.touches[0].clientY);
-  };
-  document.onmouseup = onCursorUp;
-  document.ontouchend = onCursorUp;
+  });
+  document.addEventListener(
+    "touchmove",
+    e => {
+      e.preventDefault();
+      onCursorMove(e.touches[0].clientX, e.touches[0].clientY);
+    },
+    { passive: false }
+  );
+  document.addEventListener(
+    "touchend",
+    e => {
+      e.preventDefault();
+      (e.target as any).click();
+    },
+    { passive: false }
+  );
   update();
 };
 
@@ -55,10 +65,6 @@ function onCursorDown(x: number, y: number) {
 function onCursorMove(x: number, y: number) {
   cursorPos.x = x - canvas.offsetLeft;
   cursorPos.y = y - canvas.offsetTop;
-}
-
-function onCursorUp(e) {
-  e.preventDefault();
 }
 
 function update() {
