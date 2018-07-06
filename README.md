@@ -20,11 +20,11 @@ Auto generated SEs (sound effects) and a BGM can be changed by setting the anoth
 ```js
 window.onload = () => {
   // initialize sss with a random seed number
-  sss.init(51649);  
+  sss.init(9398255);  
 ```
 
 Since Safari on iOS requires playing the first sound within a touch event handler,
-playEmpty() is called in document.ontouchstart handler.
+playEmpty() is called in a touchstart event handler.
 
 ```js
 // play an empty sound in a touch event handler for iOS
