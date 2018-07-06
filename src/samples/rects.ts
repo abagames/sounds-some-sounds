@@ -7,7 +7,7 @@ let cursorPos = { x: 0, y: 0 };
 
 window.onload = () => {
   // initialize sss with a random seed number
-  sss.init(51649);
+  sss.init(9398255);
   canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
   context = canvas.getContext("2d");

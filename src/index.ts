@@ -254,7 +254,11 @@ function createTrack(
   isRepeatHalf = false,
   restRatio = null
 ) {
-  const track = new Track(param, midiNoteNumberToFrequency(note), durationRatio);
+  const track = new Track(
+    param,
+    midiNoteNumberToFrequency(note),
+    durationRatio
+  );
   track.noteInterval = interval;
   if (prevTrack != null && hasSameNoteWithPrevPart) {
     track.noteRatios = prevTrack.noteRatios;
@@ -555,7 +559,11 @@ class Random {
   }
 
   getInt(fromOrTo: number, to: number = null) {
-    return Math.floor(this.get(fromOrTo, to));
+    if (to == null) {
+      to = fromOrTo;
+      fromOrTo = 0;
+    }
+    return (this.getToMaxInt() % (to - fromOrTo)) + fromOrTo;
   }
 
   getPm() {
@@ -566,11 +574,20 @@ class Random {
     return values[this.getInt(values.length)];
   }
 
-  setSeed(w: number = null) {
-    this.w = w != null ? w : Math.floor(Math.random() * 0xffffffff);
-    this.x = (0 | (this.w << 13)) >>> 0;
-    this.y = (0 | ((this.w >>> 9) ^ (this.x << 6))) >>> 0;
-    this.z = (0 | (this.y >>> 7)) >>> 0;
+  setSeed(
+    w: number = null,
+    x = 123456789,
+    y = 362436069,
+    z = 521288629,
+    loopCount = 32
+  ) {
+    this.w = w != null ? w >>> 0 : Math.floor(Math.random() * 0xffffffff) >>> 0;
+    this.x = x >>> 0;
+    this.y = y >>> 0;
+    this.z = z >>> 0;
+    for (let i = 0; i < loopCount; i++) {
+      this.getToMaxInt();
+    }
     return this;
   }
 

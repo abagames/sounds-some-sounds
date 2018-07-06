@@ -11,7 +11,7 @@ See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master
 Include [build/index.js](https://github.com/abagames/sounds-some-sounds/blob/master/build/index.js) script or install from npm.
 
 ```
-% npm install sounds-some-sounds
+% npm i sounds-some-sounds
 ```
 
 Initialize the sss (sounds-some-sounds) library.
