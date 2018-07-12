@@ -360,7 +360,9 @@ function createNoteRatios(
     let j = pi % cordLength;
     if (isRepeatHalf && i === Math.floor(progression.length / 2)) {
       noteRatios.push(noteRatios[j]);
-      n = noteRatios[j];
+      if (noteRatios[j] != null) {
+        n = noteRatios[j];
+      }
       return;
     }
     if (!p) {
