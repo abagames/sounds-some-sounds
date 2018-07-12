@@ -8,10 +8,20 @@ Add sounds to your game in a minute. (Web Audio API required)
 
 See the [sample code](https://github.com/abagames/sounds-some-sounds/blob/master/src/samples/rects.ts).
 
-Include [build/index.js](https://github.com/abagames/sounds-some-sounds/blob/master/build/index.js) script or install from npm.
+Include [build/index.js](https://github.com/abagames/sounds-some-sounds/blob/master/build/index.js) script,
+
+```html
+  <script src="https://unpkg.com/sounds-some-sounds/build/index.js"></script>
+```
+
+or install from npm.
 
 ```
-% npm i sounds-some-sounds
+> npm i sounds-some-sounds
+```
+
+```js
+import * as sss from "sounds-some-sounds";
 ```
 
 Initialize the sss (sounds-some-sounds) library.
