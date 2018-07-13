@@ -17,6 +17,9 @@ module.exports = function(env) {
       ]
     }
   };
+  if (process.env.WEBPACK_SERVE) {
+    env.sample = "rects";
+  }
   if (env == null || env.sample == null) {
     config.entry = "./src/index.ts";
     config.output = {
