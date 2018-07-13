@@ -1,4 +1,7 @@
 const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+const sampleName = "rects";
 
 module.exports = function(env) {
   const config = {
@@ -17,10 +20,7 @@ module.exports = function(env) {
       ]
     }
   };
-  if (process.env.WEBPACK_SERVE) {
-    env.sample = "rects";
-  }
-  if (env == null || env.sample == null) {
+  if (!process.env.WEBPACK_SERVE && (env == null || env.sample == null)) {
     config.entry = "./src/index.ts";
     config.output = {
       path: path.join(__dirname, "build"),
@@ -33,12 +33,19 @@ module.exports = function(env) {
       declarationDir: "typings"
     };
   } else {
-    var sample = env.sample;
-    config.entry = "./src/samples/" + sample + ".ts";
+    config.entry = "./src/samples/" + sampleName + ".ts";
     config.output = {
       path: path.join(__dirname, "docs"),
-      filename: sample + ".js"
+      filename: sampleName + ".js"
     };
+    config.plugins = [
+      new HtmlWebpackPlugin({
+        template: "src/samples/index.html",
+        filename: "index.html",
+        title: sampleName,
+        inject: false
+      })
+    ];
   }
   return config;
 };
