@@ -23,6 +23,7 @@ const playPrefixArray = values(playPrefixes);
 let quantize = 0.5;
 let isEmptyPlayed = false;
 let prevPlayingFileName: string;
+const schedulingFrame = 3;
 
 export function init(_seed: number = 0, tempo = 120, fps = 60) {
   live = jsfx.Live({});
@@ -31,7 +32,7 @@ export function init(_seed: number = 0, tempo = 120, fps = 60) {
   random = new Random();
   jsfx.setRandomFunc(random.get);
   playInterval = 60 / tempo;
-  schedulingInterval = (1 / fps) * 2;
+  schedulingInterval = (1 / fps) * schedulingFrame;
 }
 
 export function setSeed(_seed: number = 0) {
@@ -496,25 +497,32 @@ class Track extends Sound {
     if (this.scheduledTime == null) {
       this.calcFirstScheduledTime(currentTime);
     }
-    for (let i = 0; i < 99; i++) {
+    for (let i = 0; i < 9; i++) {
       if (this.scheduledTime >= currentTime) {
         break;
       }
       this.calcNextScheduledTime();
+      if (!this.isLooping && this.noteIndex === 0) {
+        break;
+      }
     }
     if (this.scheduledTime < currentTime) {
-      this.scheduledTime = null;
-    } else {
-      while (this.scheduledTime <= schedulingTime) {
-        if (this.nextNote != null) {
-          this.playLater(this.scheduledTime, this.nextNote);
-        }
-        if (!this.isLooping && this.noteIndex === 0) {
-          this.stop();
-          return;
-        }
-        this.calcNextScheduledTime();
+      if (this.isLooping) {
+        this.scheduledTime = null;
+      } else {
+        this.stop();
       }
+      return;
+    }
+    while (this.scheduledTime <= schedulingTime) {
+      if (this.nextNote != null) {
+        this.playLater(this.scheduledTime, this.nextNote);
+      }
+      if (!this.isLooping && this.noteIndex === 0) {
+        this.stop();
+        return;
+      }
+      this.calcNextScheduledTime();
     }
   }
 
