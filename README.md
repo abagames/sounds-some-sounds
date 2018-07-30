@@ -30,7 +30,7 @@ Auto generated SEs (sound effects) and a BGM can be changed by setting the anoth
 ```js
 window.onload = () => {
   // initialize sss with a random seed number
-  sss.init(9398255);  
+  sss.init(4733606);
 ```
 
 Since Safari on iOS requires playing the first sound within a touch event handler,
