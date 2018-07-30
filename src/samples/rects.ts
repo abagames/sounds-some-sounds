@@ -30,10 +30,14 @@ window.onload = () => {
     },
     { passive: false }
   );
+  document.addEventListener("mouseup", e => {
+    onCursorUp();
+  });
   document.addEventListener(
     "touchend",
     e => {
       e.preventDefault();
+      onCursorUp();
       (e.target as any).click();
     },
     { passive: false }
@@ -53,9 +57,9 @@ function onCursorDown(x: number, y: number) {
   // play an empty sound in a touch event handler for iOS
   sss.playEmpty();
   if (!isInGame) {
+    isInGame = true;
     // play an opening jingle (short melody) with the jsfx.Preset.'s'elect
     sss.playJingle("s0");
-    isInGame = true;
     score = 0;
     ticks = 0;
   }
@@ -65,6 +69,11 @@ function onCursorDown(x: number, y: number) {
 function onCursorMove(x: number, y: number) {
   cursorPos.x = x - canvas.offsetLeft;
   cursorPos.y = y - canvas.offsetTop;
+}
+
+function onCursorUp() {
+  // call AudioContext#resume() in a ui event handler for Chrome
+  sss.resumeAudioContext();
 }
 
 function update() {

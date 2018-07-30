@@ -10,6 +10,7 @@ export declare function setQuantize(_quantize: number): void;
 export declare function update(): number;
 export declare function reset(): void;
 export declare function playEmpty(): void;
+export declare function resumeAudioContext(): void;
 export declare function playParam(param: any): void;
 export declare function playBgm(name?: string, note?: number, len?: number, interval?: number, numberOfTracks?: number, params?: any[], volume?: number): void;
 export declare function stopBgm(): void;

@@ -41,6 +41,13 @@ playEmpty() is called in a touchstart event handler.
 sss.playEmpty();
 ```
 
+Chrome requires calling AudioContext#resume() in a ui event handler.
+
+```js
+// call AudioContext#resume() in a ui event handler for Chrome
+sss.resumeAudioContext();
+```
+
 Call playBgm() to start a BGM.
 
 ```js

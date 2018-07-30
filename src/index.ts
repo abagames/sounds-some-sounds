@@ -175,6 +175,10 @@ export function playEmpty() {
   isEmptyPlayed = true;
 }
 
+export function resumeAudioContext() {
+  live._context.resume();
+}
+
 export function playParam(param) {
   if (live == null) {
     return;
