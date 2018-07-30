@@ -22,7 +22,6 @@ const playPrefixes = {
 const playPrefixArray = values(playPrefixes);
 let quantize = 0.5;
 let isEmptyPlayed = false;
-let prevPlayingFileName: string;
 const schedulingFrame = 3;
 
 export function init(_seed: number = 0, tempo = 120, fps = 60) {
@@ -646,12 +645,6 @@ function nArray(n: number, v: any) {
   return a;
 }
 
-function times(n: number, func: Function) {
-  for (let i = 0; i < n; i++) {
-    func();
-  }
-}
-
 function timesMap(n: number, func: Function) {
   let result = [];
   for (let i = 0; i < n; i++) {
@@ -676,14 +669,6 @@ function map(array: any[], func: Function) {
   let result = [];
   for (let i = 0; i < array.length; i++) {
     result.push(func(array[i], i));
-  }
-  return result;
-}
-
-function mapString(str: string, func: Function) {
-  let result = [];
-  for (let i = 0; i < str.length; i++) {
-    result.push(func(str.charAt(i), i));
   }
   return result;
 }
