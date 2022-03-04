@@ -2,26 +2,26 @@
   "name": "sounds-some-sounds",
   "version": "1.0.5",
   "description": "Add sounds to your game in a minute",
-  "main": "build/index.js",
-  "typings": "typings/index.d.ts",
-  "devDependencies": {
-    "awesome-typescript-loader": "^5.2.0",
-    "html-webpack-plugin": "^3.2.0",
-    "typescript": "^2.9.2",
-    "webpack": "^4.16.0",
-    "webpack-cli": "^3.0.8",
-    "webpack-serve": "^2.0.2"
-  },
-  "scripts": {
-    "start": "webpack-serve --content docs",
-    "build": "webpack",
-    "build_sample": "webpack --env.sample"
-  },
   "author": "abagames",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/abagames/sounds-some-sounds.git"
   },
-  "homepage": "https://github.com/abagames/sounds-some-sounds"
+  "homepage": "https://github.com/abagames/sounds-some-sounds",
+  "main": "build/index.js",
+  "typings": "typings/index.d.ts",
+  "scripts": {
+    "build": "vite build",
+    "dev_demo": "vite dev --config vite_demo.config.js",
+    "build_demo": "vite build --config vite_demo.config.js",
+    "preview_demo": "vite preview --config vite_demo.config.js"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.2",
+    "vite": "^2.8.6"
+  },
+  "dependencies": {
+    "mml-iterator": "^1.1.0"
+  }
 }

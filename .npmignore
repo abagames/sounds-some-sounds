@@ -1,9 +1,6 @@
-node_modules/
-.vscode/
-package-lock.json
-npm-debug.log
 docs/
 src/
-web_modules/
-web_typings/
+lib/
+.vscode/
 .gitattributes
+package-lock.json

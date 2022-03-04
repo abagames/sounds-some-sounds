@@ -1,7 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs"
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "Node",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
-  "exclude": ["node_modules", "web_modules"]
+  "include": ["src/**/*"]
 }

@@ -1,4 +1,6 @@
-docs/* linguist-documentation
-web_modules/* linguist-vendored
-web_typings/* linguist-vendored
-build/* linguist-generated
+docs/build/* linguist-generated
+docs/dist/* linguist-generated
+docs/lib/* linguist-vendored
+docs/typings/* linguist-vendored
+assets/* linguist-vendored
+lib/* linguist-vendored
