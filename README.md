@@ -56,7 +56,7 @@ Call `play()` to play an SE. The first argument is the name of the SE. The SEs h
 If the name starts with 'c', 'l', 'e', 'p', 'h', 'j', 's' or 'r',
 corresponding [jsfx](https://github.com/loov/jsfx) Preset SE
 (Coin, Laser, Explosion, Powerup, Hit, Jump, Select and Random (Lucky)) is generated.
-You can hear these sounds at the [jsfx demo page](http://loov.io/jsfx/).
+You can hear these sounds at the [demo page](https://abagames.github.io/sounds-some-sounds/index.html).
 
 The second argument is the number of generated sounds played at a time. As the number gets larger, the sound becomes louder and more complicated.
 
@@ -65,7 +65,7 @@ The second argument is the number of generated sounds played at a time. As the n
 sss.play("s1");
 ```
 
-SEs are automatically quantized to the BGM. The quantize interval can be changed with the `setQuantize()` function (setQuantize(0) disables quantization).
+SEs are automatically quantized to the BGM. The quantize interval can be changed with the `setQuantize()` function (`setQuantize(0)` disables quantization).
 
 You can also play a jingle (short melody) with `playJingle()`.
 
