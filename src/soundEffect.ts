@@ -28,10 +28,11 @@ export const types = [
   "hit",
   "jump",
   "select",
+  "lucky",
   "random",
+  "click",
   "synth",
   "tone",
-  "click",
 ] as const;
 export type Type = typeof types[number];
 const typeFunctionNames = {
@@ -42,10 +43,11 @@ const typeFunctionNames = {
   hit: "Hit",
   jump: "Jump",
   select: "Select",
+  lucky: "Lucky",
   random: "Lucky",
+  click: "Click",
   synth: "Synth",
   tone: "Tone",
-  click: "Click",
 };
 
 export const random = new Random();
@@ -62,8 +64,7 @@ export function play(soundEffect: SoundEffect) {
   playSoundEffect(soundEffect);
 }
 
-export function update() {
-  const currentTime = audioContext.currentTime;
+export function update(currentTime: number) {
   soundEffects.forEach((se) => {
     updateSoundEffect(se, currentTime);
   });

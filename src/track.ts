@@ -58,9 +58,9 @@ export function remove(track: Track) {
   tracks = tracks.filter((t) => t !== track);
 }
 
-export function update() {
+export function update(currentTime: number) {
   tracks.forEach((t) => {
-    updateTrack(t);
+    updateTrack(t, currentTime);
   });
 }
 
@@ -83,11 +83,10 @@ export function stopAll() {
   });
 }
 
-function updateTrack(track: Track) {
+function updateTrack(track: Track, currentTime: number) {
   if (!track.isPlaying) {
     return;
   }
-  const currentTime = audioContext.currentTime;
   if (currentTime < track.nextNotesTime) {
     return;
   }
