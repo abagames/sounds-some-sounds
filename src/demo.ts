@@ -7,19 +7,19 @@ import "../lib/crisp-game-lib/bundle.js";
 };
 
 let playingButtons;
-let currentPlay;
-let seed = 31;
+let seed = 1;
 
 (window as any).update = function () {
   if (ticks === 0) {
     playingButtons = [
       "coin",
-      "laser",
-      "explosion",
-      "powerUp",
-      "hit",
       "jump",
+      "powerUp",
+      "laser",
       "select",
+      "hit",
+      "click",
+      "explosion",
       "random",
     ].map((p, i) =>
       getButton({
@@ -28,18 +28,17 @@ let seed = 31;
         text: p,
         isToggle: false,
         onClick: () => {
-          sss.play(p);
-          currentPlay = p;
+          sss.playSoundEffect(p as SoundEffectType);
         },
       })
     );
     sss.setSeed(seed);
-    sss.playBgm();
+    sss.playMml(sss.generateMml());
   }
   playingButtons.forEach((pb) => {
     updateButton(pb);
   });
-  const bp = vec(5, 73);
+  const bp = vec(5, 92);
   color("light_blue");
   rect(bp.x, bp.y, 90, 5);
   color("white");
@@ -51,17 +50,14 @@ let seed = 31;
     text(`${nextSeed}`, 85, bp.y - 3);
     if (input.isJustPressed) {
       seed = nextSeed;
-      sss.stopBgm();
+      sss.stopMml();
       sss.setSeed(seed);
-      sss.playBgm();
+      sss.playMml(sss.generateMml());
     }
   }
   color("black");
   rect(bp.x + seed, bp.y + 1, 1, 3);
-  text(`init(${seed})`, 5, 88);
-  if (currentPlay != null) {
-    text(`play("${currentPlay}");`, 5, 95);
-  }
+  text(`seed: ${seed}`, 5, bp.y - 3);
 };
 
 declare const onLoad: any;
