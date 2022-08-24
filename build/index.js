@@ -1,19 +1,5 @@
 var __defProp = Object.defineProperty;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b) => {
-  for (var prop in b || (b = {}))
-    if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a, prop, b[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b)) {
-      if (__propIsEnum.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    }
-  return a;
-};
 var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
@@ -22,6 +8,10 @@ var __publicField = (obj, key, value) => {
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.sss = {}));
 })(this, function(exports2) {
   "use strict";
+  function getDefaultExportFromCjs(x) {
+    return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
+  }
+  var lib = { exports: {} };
   var Syntax$2 = {
     Note: "Note",
     Rest: "Rest",
@@ -174,7 +164,7 @@ var __publicField = (obj, key, value) => {
     }
     _createClass$1(MMLParser2, [{
       key: "parse",
-      value: function parse() {
+      value: function parse2() {
         var _this = this;
         var result = [];
         this._readUntil(";", function() {
@@ -470,7 +460,7 @@ var __publicField = (obj, key, value) => {
   var DefaultParams = DefaultParams$1;
   var MMLParser = MMLParser_1;
   var ITERATOR = typeof Symbol !== "undefined" ? Symbol.iterator : "@@iterator";
-  var MMLIterator = function() {
+  var MMLIterator$1 = function() {
     function MMLIterator2(source) {
       _classCallCheck(this, MMLIterator2);
       this.source = source;
@@ -638,37 +628,37 @@ var __publicField = (obj, key, value) => {
       key: Syntax.LoopExit,
       value: function value() {
         var looper = this._loopStack[this._loopStack.length - 1];
-        var index = this._commandIndex;
+        var index2 = this._commandIndex;
         if (looper.loopCount <= 1 && looper.loopOutIndex !== -1) {
-          index = looper.loopOutIndex;
+          index2 = looper.loopOutIndex;
         }
-        this._commandIndex = index;
+        this._commandIndex = index2;
       }
     }, {
       key: Syntax.LoopEnd,
       value: function value() {
         var looper = this._loopStack[this._loopStack.length - 1];
-        var index = this._commandIndex;
+        var index2 = this._commandIndex;
         if (looper.loopOutIndex === -1) {
           looper.loopOutIndex = this._commandIndex;
         }
         looper.loopCount -= 1;
         if (0 < looper.loopCount) {
-          index = looper.loopTopIndex;
+          index2 = looper.loopTopIndex;
         } else {
           this._loopStack.pop();
         }
-        this._commandIndex = index;
+        this._commandIndex = index2;
       }
     }]);
     return MMLIterator2;
   }();
   function arrayToIterator(array) {
-    var index = 0;
+    var index2 = 0;
     return {
       next: function next() {
-        if (index < array.length) {
-          return { done: false, value: array[index++] };
+        if (index2 < array.length) {
+          return { done: false, value: array[index2++] };
         }
         return { done: true };
       }
@@ -677,8 +667,11 @@ var __publicField = (obj, key, value) => {
   function isNoteEvent(command) {
     return command.type === Syntax.Note || command.type === Syntax.Rest;
   }
-  var MMLIterator_1 = MMLIterator;
-  var lib = MMLIterator_1;
+  var MMLIterator_1 = MMLIterator$1;
+  (function(module2) {
+    module2.exports = MMLIterator_1;
+  })(lib);
+  const MMLIterator = /* @__PURE__ */ getDefaultExportFromCjs(lib.exports);
   var jsfx = {};
   (function(jsfx2) {
     var TAU = +Math.PI * 2;
@@ -723,9 +716,9 @@ var __publicField = (obj, key, value) => {
       for (var i = 0; i < modules.length; i += 1) {
         var M = modules[i];
         var P = params[M.name] || {};
-        map_object(M.params, function(def, name) {
-          if (typeof P[name] === "undefined") {
-            P[name] = def.D;
+        map_object(M.params, function(def, name2) {
+          if (typeof P[name2] === "undefined") {
+            P[name2] = def.D;
           }
         });
         params[M.name] = P;
@@ -1128,9 +1121,9 @@ var __publicField = (obj, key, value) => {
     }
     jsfx2._RemoveEmptyParams = RemoveEmptyParams;
     function RemoveEmptyParams(params) {
-      for (var name in params) {
-        if (Object_keys(params[name]).length == 0) {
-          delete params[name];
+      for (var name2 in params) {
+        if (Object_keys(params[name2]).length == 0) {
+          delete params[name2];
         }
       }
     }
@@ -1288,12 +1281,12 @@ var __publicField = (obj, key, value) => {
         var p = EmptyParams();
         map_object(p, function(out, moduleName) {
           var defs = jsfx2.Module[moduleName].params;
-          map_object(defs, function(def, name) {
+          map_object(defs, function(def, name2) {
             if (def.C) {
               var values = Object_keys(def.C);
-              out[name] = values[values.length * random2() | 0];
+              out[name2] = values[values.length * random2() | 0];
             } else {
-              out[name] = random2() * (def.H - def.L) + def.L;
+              out[name2] = random2() * (def.H - def.L) + def.L;
             }
           });
         });
@@ -1345,10 +1338,18 @@ var __publicField = (obj, key, value) => {
     jsfx2.G.unoise = newGenerator("sample = Math.random();");
     jsfx2.G.sine = newGenerator("sample = Math.sin(phase);");
     jsfx2.G.saw = newGenerator("sample = 2*(phase/TAU - ((phase/TAU + 0.5)|0));");
-    jsfx2.G.triangle = newGenerator("sample = Math.abs(4 * ((phase/TAU - 0.25)%1) - 2) - 1;");
-    jsfx2.G.square = newGenerator("var s = Math.sin(phase); sample = s > A ? 1.0 : s < A ? -1.0 : A;");
-    jsfx2.G.synth = newGenerator("sample = Math.sin(phase) + .5*Math.sin(phase/2) + .3*Math.sin(phase/4);");
-    jsfx2.G.noise = newGenerator("if(phase % TAU < 4){__noiseLast = Math.random() * 2 - 1;} sample = __noiseLast;");
+    jsfx2.G.triangle = newGenerator(
+      "sample = Math.abs(4 * ((phase/TAU - 0.25)%1) - 2) - 1;"
+    );
+    jsfx2.G.square = newGenerator(
+      "var s = Math.sin(phase); sample = s > A ? 1.0 : s < A ? -1.0 : A;"
+    );
+    jsfx2.G.synth = newGenerator(
+      "sample = Math.sin(phase) + .5*Math.sin(phase/2) + .3*Math.sin(phase/4);"
+    );
+    jsfx2.G.noise = newGenerator(
+      "if(phase % TAU < 4){__noiseLast = Math.random() * 2 - 1;} sample = __noiseLast;"
+    );
     jsfx2.G.string = {
       create: function() {
         var BS = 1 << 16;
@@ -1382,7 +1383,11 @@ var __publicField = (obj, key, value) => {
       }
     };
     function newGenerator(line) {
-      return new Function("$", "block", "var TAU = Math.PI * 2;\nvar sample;\nvar phase = +$.generatorPhase,\n	A = +$.generatorA, ASlide = +$.generatorASlide,\n	B = +$.generatorB, BSlide = +$.generatorBSlide;\n\nfor(var i = 0; i < block.length; i++){\n	var phaseSpeed = block[i];\n	phase += phaseSpeed;\n	if(phase > TAU){ phase -= TAU };\n	A += ASlide; B += BSlide;\n   A = A < 0 ? 0 : A > 1 ? 1 : A;\n   B = B < 0 ? 0 : B > 1 ? 1 : B;\n" + line + "	block[i] = sample;\n}\n\n$.generatorPhase = phase;\n$.generatorA = A;\n$.generatorB = B;\nreturn block.length;\n");
+      return new Function(
+        "$",
+        "block",
+        "var TAU = Math.PI * 2;\nvar sample;\nvar phase = +$.generatorPhase,\n	A = +$.generatorA, ASlide = +$.generatorASlide,\n	B = +$.generatorB, BSlide = +$.generatorBSlide;\n\nfor(var i = 0; i < block.length; i++){\n	var phaseSpeed = block[i];\n	phase += phaseSpeed;\n	if(phase > TAU){ phase -= TAU };\n	A += ASlide; B += BSlide;\n   A = A < 0 ? 0 : A > 1 ? 1 : A;\n   B = B < 0 ? 0 : B > 1 ? 1 : B;\n" + line + "	block[i] = sample;\n}\n\n$.generatorPhase = phase;\n$.generatorA = A;\n$.generatorB = B;\nreturn block.length;\n"
+      );
     }
     jsfx2.CreateAudio = CreateAudio;
     function CreateAudio(data) {
@@ -1429,7 +1434,10 @@ var __publicField = (obj, key, value) => {
     jsfx2.Util = {};
     jsfx2.Util.CopyFToU8 = CopyFToU8;
     function CopyFToU8(into, floats) {
-      assert(into.length / 2 == floats.length, "the target buffer must be twice as large as the iinput");
+      assert(
+        into.length / 2 == floats.length,
+        "the target buffer must be twice as large as the iinput"
+      );
       var k = 0;
       for (var i = 0; i < floats.length; i++) {
         var v = +floats[i];
@@ -1486,9 +1494,9 @@ var __publicField = (obj, key, value) => {
     }
     function map_object(obj, fn) {
       var r = {};
-      for (var name in obj) {
-        if (obj.hasOwnProperty(name)) {
-          r[name] = fn(obj[name], name);
+      for (var name2 in obj) {
+        if (obj.hasOwnProperty(name2)) {
+          r[name2] = fn(obj[name2], name2);
         }
       }
       return r;
@@ -1506,8 +1514,8 @@ var __publicField = (obj, key, value) => {
     }
     function Object_keys(obj) {
       var r = [];
-      for (var name in obj) {
-        r.push(name);
+      for (var name2 in obj) {
+        r.push(name2);
       }
       return r;
     }
@@ -1571,8 +1579,8 @@ var __publicField = (obj, key, value) => {
     if (quantize == null) {
       return time;
     }
-    const interval = playInterval * quantize;
-    return interval > 0 ? Math.ceil(time / interval) * interval : time;
+    const interval2 = playInterval * quantize;
+    return interval2 > 0 ? Math.ceil(time / interval2) * interval2 : time;
   }
   function playEmpty() {
     const bufferSource = audioContext.createBufferSource();
@@ -1665,10 +1673,11 @@ var __publicField = (obj, key, value) => {
     "hit",
     "jump",
     "select",
+    "lucky",
     "random",
+    "click",
     "synth",
-    "tone",
-    "click"
+    "tone"
   ];
   const typeFunctionNames = {
     coin: "Coin",
@@ -1678,10 +1687,11 @@ var __publicField = (obj, key, value) => {
     hit: "Hit",
     jump: "Jump",
     select: "Select",
+    lucky: "Lucky",
     random: "Lucky",
+    click: "Click",
     synth: "Synth",
-    tone: "Tone",
-    click: "Click"
+    tone: "Tone"
   };
   const random$2 = new Random();
   let soundEffects$1;
@@ -1694,21 +1704,20 @@ var __publicField = (obj, key, value) => {
   function play$2(soundEffect) {
     playSoundEffect$1(soundEffect);
   }
-  function update$3() {
-    const currentTime = audioContext.currentTime;
+  function update$3(currentTime) {
     soundEffects$1.forEach((se) => {
       updateSoundEffect(se, currentTime);
     });
   }
-  function get$2(type = void 0, seed = void 0, numberOfSounds = 2, volume2 = 0.5, freq = void 0, attackRatio = 1, sustainRatio = 1) {
+  function get$9(type = void 0, seed = void 0, numberOfSounds = 2, volume2 = 0.5, freq2 = void 0, attackRatio = 1, sustainRatio = 1) {
     if (seed != null) {
       random$2.setSeed(seed);
     }
     const preset = jsfx.Preset[typeFunctionNames[type != null ? type : types[random$2.getInt(8)]]];
     const params = times(numberOfSounds, () => {
       const p = preset();
-      if (freq != null && p.Frequency.Start != null) {
-        p.Frequency.Start = freq;
+      if (freq2 != null && p.Frequency.Start != null) {
+        p.Frequency.Start = freq2;
       }
       if (p.Volume.Attack != null) {
         p.Volume.Attack *= attackRatio;
@@ -1751,14 +1760,30 @@ var __publicField = (obj, key, value) => {
       if (type != null) {
         t = type;
       }
-      se = get$2(t, random2.getInt(999999999), t === "explosion" ? 1 : 2, volume2 != null ? volume2 : t === "explosion" ? 0.4 : 0.5, random2.get(100, 200), t === "explosion" ? 0.5 : 1, t === "explosion" ? 0.2 : 1);
+      se = get$9(
+        t,
+        random2.getInt(999999999),
+        t === "explosion" ? 1 : 2,
+        volume2 != null ? volume2 : t === "explosion" ? 0.4 : 0.5,
+        random2.get(100, 200),
+        t === "explosion" ? 0.5 : 1,
+        t === "explosion" ? 0.2 : 1
+      );
     } else {
       const al = calcNoteLengthAverage(sequence);
       let t = random2.get() < 1 / al ? "select" : random2.select(["tone", "tone", "synth"]);
       if (type != null) {
         t = type;
       }
-      se = get$2(t, random2.getInt(999999999), t !== "select" ? 1 : 2, volume2 != null ? volume2 : t === "tone" ? 0.3 : t === "synth" ? 0.4 : 0.25, 261.6, t !== "select" ? 0.1 : 1, t !== "select" ? 2 : 1);
+      se = get$9(
+        t,
+        random2.getInt(999999999),
+        t !== "select" ? 1 : 2,
+        volume2 != null ? volume2 : t === "tone" ? 0.3 : t === "synth" ? 0.4 : 0.25,
+        261.6,
+        t !== "select" ? 0.1 : 1,
+        t !== "select" ? 2 : 1
+      );
     }
     se.isDrum = isDrum;
     se.seed = seed;
@@ -1779,7 +1804,7 @@ var __publicField = (obj, key, value) => {
     });
     return sl / nc;
   }
-  function add$1(se) {
+  function add$3(se) {
     soundEffects$1.push(se);
   }
   function playSoundEffect$1(soundEffect) {
@@ -1856,7 +1881,7 @@ var __publicField = (obj, key, value) => {
     }
     return { mml: leftMml, args: { isDrum, seed, type, volume: volume2 } };
   }
-  function get$1(mml, sequence, soundEffect2, visualizer) {
+  function get$8(mml, sequence, soundEffect2, visualizer) {
     return {
       mml,
       sequence,
@@ -1902,7 +1927,7 @@ var __publicField = (obj, key, value) => {
     stopAll();
     tracks = [];
   }
-  function get(parts, notesStepsCount, speedRatio = 1) {
+  function get$7(parts, notesStepsCount, speedRatio = 1) {
     parts.forEach((p) => {
       p.noteIndex = 0;
     });
@@ -1925,15 +1950,15 @@ var __publicField = (obj, key, value) => {
     track.noteInterval = noteInterval;
     track.nextNotesTime = getQuantizedTime(audioContext.currentTime) - noteInterval;
   }
-  function add(track) {
+  function add$2(track) {
     tracks.push(track);
   }
   function remove(track) {
     tracks = tracks.filter((t) => t !== track);
   }
-  function update$1() {
+  function update$1(currentTime) {
     tracks.forEach((t) => {
-      updateTrack(t);
+      updateTrack(t, currentTime);
     });
   }
   function play$1(track, isLooping = false) {
@@ -1952,11 +1977,10 @@ var __publicField = (obj, key, value) => {
       stop(t);
     });
   }
-  function updateTrack(track) {
+  function updateTrack(track, currentTime) {
     if (!track.isPlaying) {
       return;
     }
-    const currentTime = audioContext.currentTime;
     if (currentTime < track.nextNotesTime) {
       return;
     }
@@ -1985,20 +2009,25 @@ var __publicField = (obj, key, value) => {
     j: "jump",
     s: "select",
     u: "random",
-    r: "random"
+    r: "random",
+    i: "click",
+    y: "synth",
+    t: "tone"
   };
   const random$1 = random$2;
-  let baseRandomSeed$1 = 1;
-  function setSeed$1(_baseRandomSeed) {
-    baseRandomSeed$1 = _baseRandomSeed;
+  let baseRandomSeed$2 = 1;
+  function setSeed$2(_baseRandomSeed) {
+    baseRandomSeed$2 = _baseRandomSeed;
   }
-  function generateBgm(name, pitch, len, interval, numberOfTracks, soundEffectTypes, volume2) {
-    random$1.setSeed(baseRandomSeed$1 + getHashFromString(name));
+  function generateBgm(name2, pitch, len, interval2, numberOfTracks, soundEffectTypes, volume2) {
+    random$1.setSeed(baseRandomSeed$2 + getHashFromString(name2));
     initProgression();
     prevTrack = null;
     let param = random$1.select(soundEffectTypes);
     const tracks2 = times(numberOfTracks, () => {
-      const randomness = Math.floor(Math.abs(random$1.get() + random$1.get() - 1) * 3);
+      const randomness = Math.floor(
+        Math.abs(random$1.get() + random$1.get() - 1) * 3
+      );
       const chordOffset = Math.floor((random$1.get() + random$1.get() - 1) * 10);
       const velocityRatio = Math.abs(random$1.get() + random$1.get() - 1);
       const hasSameNoteWithPrevPart = random$1.get() < 0.25;
@@ -2008,25 +2037,41 @@ var __publicField = (obj, key, value) => {
       const isLimitNoteWidth = random$1.get() < 0.5;
       const isLimitNoteResolution = random$1.get() < 0.5;
       const isRepeatHalf = random$1.get() < 0.9;
-      return generatePart(len, param, pitch, 0.7, randomness, chordOffset, velocityRatio, hasSameNoteWithPrevPart, isLimitNoteWidth, isLimitNoteResolution, isRepeatHalf, void 0, volume2);
+      return generatePart(
+        len,
+        param,
+        pitch,
+        0.7,
+        randomness,
+        chordOffset,
+        velocityRatio,
+        hasSameNoteWithPrevPart,
+        isLimitNoteWidth,
+        isLimitNoteResolution,
+        isRepeatHalf,
+        void 0,
+        volume2
+      );
     });
-    return getTrack(tracks2, 0.5 / interval);
+    return getTrack(tracks2, 0.5 / interval2);
   }
-  function generateJingle(name = "0", isSe = false, note = 69 - 12, len = 16, interval = 0.25, numberOfTracks = 4, volume2 = 1) {
-    random$1.setSeed(baseRandomSeed$1 + getHashFromString(name));
+  function generateJingle(name2 = "0", isSe = false, note2 = 69 - 12, len = 16, interval2 = 0.25, numberOfTracks = 4, volume2 = 1) {
+    random$1.setSeed(baseRandomSeed$2 + getHashFromString(name2));
     initProgression();
     prevTrack = null;
-    let soundEffectType = playPrefixes[name[0]];
+    let soundEffectType = playPrefixes[name2[0]];
     if (soundEffectType == null) {
       soundEffectType = types[random$1.getInt(8)];
     }
     let durationRatio = 0.8;
     if (isSe) {
-      interval /= 4;
+      interval2 /= 4;
       durationRatio /= 2;
     }
     const tracks2 = times(numberOfTracks, () => {
-      const randomness = Math.floor(Math.abs(random$1.get() + random$1.get() - 1) * 3);
+      const randomness = Math.floor(
+        Math.abs(random$1.get() + random$1.get() - 1) * 3
+      );
       const chordOffset = Math.floor((random$1.get() + random$1.get() - 1) * 10);
       const velocityRatio = isSe ? 2 : Math.abs(random$1.get() + random$1.get() - 1);
       const hasSameNoteWithPrevPart = random$1.get() < 0.25;
@@ -2034,10 +2079,24 @@ var __publicField = (obj, key, value) => {
       const isLimitNoteResolution = random$1.get() < 0.5;
       const isRepeatHalf = isSe ? random$1.get() < 0.25 : random$1.get() < 0.9;
       const restRatio = random$1.get(0.5);
-      const track2 = generatePart(len, soundEffectType, note, durationRatio, randomness, chordOffset, velocityRatio, hasSameNoteWithPrevPart, isLimitNoteWidth, isLimitNoteResolution, isRepeatHalf, restRatio, volume2);
+      const track2 = generatePart(
+        len,
+        soundEffectType,
+        note2,
+        durationRatio,
+        randomness,
+        chordOffset,
+        velocityRatio,
+        hasSameNoteWithPrevPart,
+        isLimitNoteWidth,
+        isLimitNoteResolution,
+        isRepeatHalf,
+        restRatio,
+        volume2
+      );
       return track2;
     });
-    return getTrack(tracks2, 0.5 / interval);
+    return getTrack(tracks2, 0.5 / interval2);
   }
   function getTrack(gps, speedRatio) {
     const parts = gps.map((t) => {
@@ -2047,44 +2106,60 @@ var __publicField = (obj, key, value) => {
           notes.push({ pitch: n + 69, quantizedStartStep: i * 2 });
         }
       });
-      return get$1(void 0, { notes }, t.soundEffect);
+      return get$8(void 0, { notes }, t.soundEffect);
     });
-    return get(parts, gps[0].notes.length * 2, speedRatio);
+    return get$7(parts, gps[0].notes.length * 2, speedRatio);
   }
   let prevTrack;
   function generatePart(len = 32, soundEffectName, pitch = 60, durationRatio = 1, chordOffset = 0, randomness = 0, velocityRatio = 1, hasSameNoteWithPrevPart = false, isLimitNoteWidth = false, isLimitNoteResolution = false, isRepeatHalf = false, restRatio = null, volume2 = 0.1) {
-    const generatedPart = getGeneratedPart(soundEffectName, pitchToFreq(pitch), durationRatio, volume2);
+    const generatedPart = getGeneratedPart(
+      soundEffectName,
+      pitchToFreq(pitch),
+      durationRatio,
+      volume2
+    );
     if (prevTrack != null && hasSameNoteWithPrevPart) {
       generatedPart.noteRatios = prevTrack.noteRatios;
     } else {
-      const pattern = restRatio != null ? createRandomPatternWithRestRatio(len, restRatio) : createRandomPattern(len);
-      generatedPart.noteRatios = createNoteRatios(pattern, isLimitNoteWidth ? 0 : -1, 1, velocityRatio, isRepeatHalf);
+      const pattern = restRatio != null ? createRandomPatternWithRestRatio(len, restRatio) : createRandomPattern$1(len);
+      generatedPart.noteRatios = createNoteRatios(
+        pattern,
+        isLimitNoteWidth ? 0 : -1,
+        1,
+        velocityRatio,
+        isRepeatHalf
+      );
     }
-    generatedPart.notes = createNotes(generatedPart.noteRatios, chordOffset, randomness, isLimitNoteResolution);
+    generatedPart.notes = createNotes(
+      generatedPart.noteRatios,
+      chordOffset,
+      randomness,
+      isLimitNoteResolution
+    );
     prevTrack = generatedPart;
     return generatedPart;
   }
-  function createRandomPattern(len) {
+  function createRandomPattern$1(len) {
     let pattern = times(len, () => false);
     let pi = 4;
     while (pi <= len) {
-      pattern = reversePattern(pattern, pi);
+      pattern = reversePattern$1(pattern, pi);
       pi *= 2;
     }
     return pattern;
   }
-  function reversePattern(pattern, interval) {
-    let pt = times(interval, () => false);
+  function reversePattern$1(pattern, interval2) {
+    let pt = times(interval2, () => false);
     const pn = Math.floor(Math.abs(random$1.get() + random$1.get() - 1) * 4);
     for (let i = 0; i < pn; i++) {
-      pt[random$1.getInt(interval - 1)] = true;
+      pt[random$1.getInt(interval2 - 1)] = true;
     }
-    return pattern.map((p, i) => pt[i % interval] ? !p : p);
+    return pattern.map((p, i) => pt[i % interval2] ? !p : p);
   }
   function createRandomPatternWithRestRatio(len, restRatio) {
     return times(len, () => random$1.get() >= restRatio);
   }
-  const chords = [
+  const chords$2 = [
     [0, 4, 7],
     [0, 3, 7],
     [0, 4, 7, 10],
@@ -2128,7 +2203,7 @@ var __publicField = (obj, key, value) => {
     const baseProgression = random$1.select(progressions);
     progression = baseProgression.map((bp, i) => [
       random$1.get() < 0.7 ? bp[0] : progressions[random$1.getInt(progressions.length)][i][0],
-      random$1.get() < 0.7 ? bp[1] : random$1.getInt(chords.length)
+      random$1.get() < 0.7 ? bp[1] : random$1.getInt(chords$2.length)
     ]);
   }
   function createNoteRatios(pattern, min, max, velocityRatio, isRepeatHalf) {
@@ -2170,117 +2245,1349 @@ var __publicField = (obj, key, value) => {
       }
       let i = Math.floor(ni / cordLength);
       let d = progression[i][0];
-      let chord = chords[progression[i][1]];
+      let chord2 = chords$2[progression[i][1]];
       let n = nr;
       if (isLimitNoteResolution) {
         n = Math.floor(n * 2) / 2;
       }
       let b = Math.floor(n);
-      let cn = Math.floor((n - b) * chord.length);
+      let cn = Math.floor((n - b) * chord2.length);
       cn += offset + random$1.getInt(-randomness, randomness + 1);
-      while (cn >= chord.length) {
-        cn -= chord.length;
+      while (cn >= chord2.length) {
+        cn -= chord2.length;
         b++;
       }
       while (cn < 0) {
-        cn += chord.length;
+        cn += chord2.length;
         b--;
       }
-      return d + b * 12 + chord[cn];
+      return d + b * 12 + chord2[cn];
     });
   }
-  function getGeneratedPart(soundEffectName, freq, durationRatio, volume2) {
+  function getGeneratedPart(soundEffectName, freq2, durationRatio, volume2) {
     return {
       noteRatios: void 0,
       notes: void 0,
-      soundEffect: get$2(soundEffectName, void 0, 1, volume2, freq, durationRatio, durationRatio)
+      soundEffect: get$9(
+        soundEffectName,
+        void 0,
+        1,
+        volume2,
+        freq2,
+        durationRatio,
+        durationRatio
+      )
     };
   }
-  const random = random$2;
-  let baseRandomSeed;
-  let jingles;
-  let generatedTrack;
-  function play(name = "0", numberOfSounds = 2, pitch, volume2 = 1) {
-    playSoundEffect(playPrefixes[name[0]], {
-      seed: baseRandomSeed + getHashFromString(name),
-      numberOfSounds,
-      pitch,
-      volume: volume2
+  const fillStr = (s, n) => Array(Math.abs(n) + 1).join(s);
+  function deprecate(original, alternative, fn) {
+    return function(...args) {
+      console.warn(`${original} is deprecated. Use ${alternative}.`);
+      return fn.apply(this, args);
+    };
+  }
+  function isNamed(src) {
+    return src !== null && typeof src === "object" && typeof src.name === "string" ? true : false;
+  }
+  function isPitch(pitch) {
+    return pitch !== null && typeof pitch === "object" && typeof pitch.step === "number" && typeof pitch.alt === "number" ? true : false;
+  }
+  const FIFTHS = [0, 2, 4, -1, 1, 3, 5];
+  const STEPS_TO_OCTS = FIFTHS.map((fifths) => Math.floor(fifths * 7 / 12));
+  function encode(pitch) {
+    const { step, alt, oct, dir = 1 } = pitch;
+    const f = FIFTHS[step] + 7 * alt;
+    if (oct === void 0) {
+      return [dir * f];
+    }
+    const o = oct - STEPS_TO_OCTS[step] - 4 * alt;
+    return [dir * f, dir * o];
+  }
+  const FIFTHS_TO_STEPS = [3, 0, 4, 1, 5, 2, 6];
+  function decode(coord) {
+    const [f, o, dir] = coord;
+    const step = FIFTHS_TO_STEPS[unaltered(f)];
+    const alt = Math.floor((f + 1) / 7);
+    if (o === void 0) {
+      return { step, alt, dir };
+    }
+    const oct = o + 4 * alt + STEPS_TO_OCTS[step];
+    return { step, alt, oct, dir };
+  }
+  function unaltered(f) {
+    const i = (f + 1) % 7;
+    return i < 0 ? 7 + i : i;
+  }
+  const NoNote = { empty: true, name: "", pc: "", acc: "" };
+  const cache$1$1 = /* @__PURE__ */ new Map();
+  const stepToLetter = (step) => "CDEFGAB".charAt(step);
+  const altToAcc = (alt) => alt < 0 ? fillStr("b", -alt) : fillStr("#", alt);
+  const accToAlt = (acc) => acc[0] === "b" ? -acc.length : acc.length;
+  function note(src) {
+    const cached = cache$1$1.get(src);
+    if (cached) {
+      return cached;
+    }
+    const value = typeof src === "string" ? parse$1(src) : isPitch(src) ? note(pitchName$1(src)) : isNamed(src) ? note(src.name) : NoNote;
+    cache$1$1.set(src, value);
+    return value;
+  }
+  const REGEX$1$1 = /^([a-gA-G]?)(#{1,}|b{1,}|x{1,}|)(-?\d*)\s*(.*)$/;
+  function tokenizeNote(str) {
+    const m = REGEX$1$1.exec(str);
+    return [m[1].toUpperCase(), m[2].replace(/x/g, "##"), m[3], m[4]];
+  }
+  function coordToNote(noteCoord) {
+    return note(decode(noteCoord));
+  }
+  const mod = (n, m) => (n % m + m) % m;
+  const SEMI = [0, 2, 4, 5, 7, 9, 11];
+  function parse$1(noteName) {
+    const tokens = tokenizeNote(noteName);
+    if (tokens[0] === "" || tokens[3] !== "") {
+      return NoNote;
+    }
+    const letter = tokens[0];
+    const acc = tokens[1];
+    const octStr = tokens[2];
+    const step = (letter.charCodeAt(0) + 3) % 7;
+    const alt = accToAlt(acc);
+    const oct = octStr.length ? +octStr : void 0;
+    const coord = encode({ step, alt, oct });
+    const name2 = letter + acc + octStr;
+    const pc = letter + acc;
+    const chroma2 = (SEMI[step] + alt + 120) % 12;
+    const height = oct === void 0 ? mod(SEMI[step] + alt, 12) - 12 * 99 : SEMI[step] + alt + 12 * (oct + 1);
+    const midi2 = height >= 0 && height <= 127 ? height : null;
+    const freq2 = oct === void 0 ? null : Math.pow(2, (height - 69) / 12) * 440;
+    return {
+      empty: false,
+      acc,
+      alt,
+      chroma: chroma2,
+      coord,
+      freq: freq2,
+      height,
+      letter,
+      midi: midi2,
+      name: name2,
+      oct,
+      pc,
+      step
+    };
+  }
+  function pitchName$1(props) {
+    const { step, alt, oct } = props;
+    const letter = stepToLetter(step);
+    if (!letter) {
+      return "";
+    }
+    const pc = letter + altToAcc(alt);
+    return oct || oct === 0 ? pc + oct : pc;
+  }
+  const NoInterval = { empty: true, name: "", acc: "" };
+  const INTERVAL_TONAL_REGEX = "([-+]?\\d+)(d{1,4}|m|M|P|A{1,4})";
+  const INTERVAL_SHORTHAND_REGEX = "(AA|A|P|M|m|d|dd)([-+]?\\d+)";
+  const REGEX$2 = new RegExp("^" + INTERVAL_TONAL_REGEX + "|" + INTERVAL_SHORTHAND_REGEX + "$");
+  function tokenizeInterval(str) {
+    const m = REGEX$2.exec(`${str}`);
+    if (m === null) {
+      return ["", ""];
+    }
+    return m[1] ? [m[1], m[2]] : [m[4], m[3]];
+  }
+  const cache$2 = {};
+  function interval(src) {
+    return typeof src === "string" ? cache$2[src] || (cache$2[src] = parse$2(src)) : isPitch(src) ? interval(pitchName(src)) : isNamed(src) ? interval(src.name) : NoInterval;
+  }
+  const SIZES = [0, 2, 4, 5, 7, 9, 11];
+  const TYPES = "PMMPPMM";
+  function parse$2(str) {
+    const tokens = tokenizeInterval(str);
+    if (tokens[0] === "") {
+      return NoInterval;
+    }
+    const num = +tokens[0];
+    const q = tokens[1];
+    const step = (Math.abs(num) - 1) % 7;
+    const t = TYPES[step];
+    if (t === "M" && q === "P") {
+      return NoInterval;
+    }
+    const type = t === "M" ? "majorable" : "perfectable";
+    const name2 = "" + num + q;
+    const dir = num < 0 ? -1 : 1;
+    const simple = num === 8 || num === -8 ? num : dir * (step + 1);
+    const alt = qToAlt(type, q);
+    const oct = Math.floor((Math.abs(num) - 1) / 7);
+    const semitones = dir * (SIZES[step] + alt + 12 * oct);
+    const chroma2 = (dir * (SIZES[step] + alt) % 12 + 12) % 12;
+    const coord = encode({ step, alt, oct, dir });
+    return {
+      empty: false,
+      name: name2,
+      num,
+      q,
+      step,
+      alt,
+      dir,
+      type,
+      simple,
+      semitones,
+      chroma: chroma2,
+      coord,
+      oct
+    };
+  }
+  function coordToInterval(coord, forceDescending) {
+    const [f, o = 0] = coord;
+    const isDescending = f * 7 + o * 12 < 0;
+    const ivl = forceDescending || isDescending ? [-f, -o, -1] : [f, o, 1];
+    return interval(decode(ivl));
+  }
+  function qToAlt(type, q) {
+    return q === "M" && type === "majorable" || q === "P" && type === "perfectable" ? 0 : q === "m" && type === "majorable" ? -1 : /^A+$/.test(q) ? q.length : /^d+$/.test(q) ? -1 * (type === "perfectable" ? q.length : q.length + 1) : 0;
+  }
+  function pitchName(props) {
+    const { step, alt, oct = 0, dir } = props;
+    if (!dir) {
+      return "";
+    }
+    const calcNum = step + 1 + 7 * oct;
+    const num = calcNum === 0 ? step + 1 : calcNum;
+    const d = dir < 0 ? "-" : "";
+    const type = TYPES[step] === "M" ? "majorable" : "perfectable";
+    const name2 = d + num + altToQ(type, alt);
+    return name2;
+  }
+  function altToQ(type, alt) {
+    if (alt === 0) {
+      return type === "majorable" ? "M" : "P";
+    } else if (alt === -1 && type === "majorable") {
+      return "m";
+    } else if (alt > 0) {
+      return fillStr("A", alt);
+    } else {
+      return fillStr("d", type === "perfectable" ? alt : alt + 1);
+    }
+  }
+  function transpose$2(noteName, intervalName) {
+    const note$1 = note(noteName);
+    const interval$1 = interval(intervalName);
+    if (note$1.empty || interval$1.empty) {
+      return "";
+    }
+    const noteCoord = note$1.coord;
+    const intervalCoord = interval$1.coord;
+    const tr2 = noteCoord.length === 1 ? [noteCoord[0] + intervalCoord[0]] : [noteCoord[0] + intervalCoord[0], noteCoord[1] + intervalCoord[1]];
+    return coordToNote(tr2).name;
+  }
+  function distance(fromNote, toNote) {
+    const from = note(fromNote);
+    const to = note(toNote);
+    if (from.empty || to.empty) {
+      return "";
+    }
+    const fcoord = from.coord;
+    const tcoord = to.coord;
+    const fifths = tcoord[0] - fcoord[0];
+    const octs = fcoord.length === 2 && tcoord.length === 2 ? tcoord[1] - fcoord[1] : -Math.floor(fifths * 7 / 12);
+    const forceDescending = to.height === from.height && to.midi !== null && from.midi !== null && from.step > to.step;
+    return coordToInterval([fifths, octs], forceDescending).name;
+  }
+  function rotate(times2, arr) {
+    const len = arr.length;
+    const n = (times2 % len + len) % len;
+    return arr.slice(n, len).concat(arr.slice(0, n));
+  }
+  function compact(arr) {
+    return arr.filter((n) => n === 0 || n);
+  }
+  const EmptyPcset = {
+    empty: true,
+    name: "",
+    setNum: 0,
+    chroma: "000000000000",
+    normalized: "000000000000",
+    intervals: []
+  };
+  const setNumToChroma = (num) => Number(num).toString(2);
+  const chromaToNumber = (chroma2) => parseInt(chroma2, 2);
+  const REGEX$1 = /^[01]{12}$/;
+  function isChroma(set) {
+    return REGEX$1.test(set);
+  }
+  const isPcsetNum = (set) => typeof set === "number" && set >= 0 && set <= 4095;
+  const isPcset = (set) => set && isChroma(set.chroma);
+  const cache$1 = { [EmptyPcset.chroma]: EmptyPcset };
+  function get$6(src) {
+    const chroma2 = isChroma(src) ? src : isPcsetNum(src) ? setNumToChroma(src) : Array.isArray(src) ? listToChroma(src) : isPcset(src) ? src.chroma : EmptyPcset.chroma;
+    return cache$1[chroma2] = cache$1[chroma2] || chromaToPcset(chroma2);
+  }
+  const IVLS = [
+    "1P",
+    "2m",
+    "2M",
+    "3m",
+    "3M",
+    "4P",
+    "5d",
+    "5P",
+    "6m",
+    "6M",
+    "7m",
+    "7M"
+  ];
+  function chromaToIntervals(chroma2) {
+    const intervals = [];
+    for (let i = 0; i < 12; i++) {
+      if (chroma2.charAt(i) === "1")
+        intervals.push(IVLS[i]);
+    }
+    return intervals;
+  }
+  function modes$1(set, normalize = true) {
+    const pcs = get$6(set);
+    const binary = pcs.chroma.split("");
+    return compact(binary.map((_, i) => {
+      const r = rotate(i, binary);
+      return normalize && r[0] === "0" ? null : r.join("");
+    }));
+  }
+  function isSubsetOf(set) {
+    const s = get$6(set).setNum;
+    return (notes) => {
+      const o = get$6(notes).setNum;
+      return s && s !== o && (o & s) === o;
+    };
+  }
+  function isSupersetOf(set) {
+    const s = get$6(set).setNum;
+    return (notes) => {
+      const o = get$6(notes).setNum;
+      return s && s !== o && (o | s) === o;
+    };
+  }
+  function chromaRotations(chroma2) {
+    const binary = chroma2.split("");
+    return binary.map((_, i) => rotate(i, binary).join(""));
+  }
+  function chromaToPcset(chroma2) {
+    const setNum = chromaToNumber(chroma2);
+    const normalizedNum = chromaRotations(chroma2).map(chromaToNumber).filter((n) => n >= 2048).sort()[0];
+    const normalized = setNumToChroma(normalizedNum);
+    const intervals = chromaToIntervals(chroma2);
+    return {
+      empty: false,
+      name: "",
+      setNum,
+      chroma: chroma2,
+      normalized,
+      intervals
+    };
+  }
+  function listToChroma(set) {
+    if (set.length === 0) {
+      return EmptyPcset.chroma;
+    }
+    let pitch;
+    const binary = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    for (let i = 0; i < set.length; i++) {
+      pitch = note(set[i]);
+      if (pitch.empty)
+        pitch = interval(set[i]);
+      if (!pitch.empty)
+        binary[pitch.chroma] = 1;
+    }
+    return binary.join("");
+  }
+  const CHORDS = [
+    ["1P 3M 5P", "major", "M ^ "],
+    ["1P 3M 5P 7M", "major seventh", "maj7 \u0394 ma7 M7 Maj7 ^7"],
+    ["1P 3M 5P 7M 9M", "major ninth", "maj9 \u03949 ^9"],
+    ["1P 3M 5P 7M 9M 13M", "major thirteenth", "maj13 Maj13 ^13"],
+    ["1P 3M 5P 6M", "sixth", "6 add6 add13 M6"],
+    ["1P 3M 5P 6M 9M", "sixth/ninth", "6/9 69 M69"],
+    ["1P 3M 6m 7M", "major seventh flat sixth", "M7b6 ^7b6"],
+    [
+      "1P 3M 5P 7M 11A",
+      "major seventh sharp eleventh",
+      "maj#4 \u0394#4 \u0394#11 M7#11 ^7#11 maj7#11"
+    ],
+    ["1P 3m 5P", "minor", "m min -"],
+    ["1P 3m 5P 7m", "minor seventh", "m7 min7 mi7 -7"],
+    [
+      "1P 3m 5P 7M",
+      "minor/major seventh",
+      "m/ma7 m/maj7 mM7 mMaj7 m/M7 -\u03947 m\u0394 -^7"
+    ],
+    ["1P 3m 5P 6M", "minor sixth", "m6 -6"],
+    ["1P 3m 5P 7m 9M", "minor ninth", "m9 -9"],
+    ["1P 3m 5P 7M 9M", "minor/major ninth", "mM9 mMaj9 -^9"],
+    ["1P 3m 5P 7m 9M 11P", "minor eleventh", "m11 -11"],
+    ["1P 3m 5P 7m 9M 13M", "minor thirteenth", "m13 -13"],
+    ["1P 3m 5d", "diminished", "dim \xB0 o"],
+    ["1P 3m 5d 7d", "diminished seventh", "dim7 \xB07 o7"],
+    ["1P 3m 5d 7m", "half-diminished", "m7b5 \xF8 -7b5 h7 h"],
+    ["1P 3M 5P 7m", "dominant seventh", "7 dom"],
+    ["1P 3M 5P 7m 9M", "dominant ninth", "9"],
+    ["1P 3M 5P 7m 9M 13M", "dominant thirteenth", "13"],
+    ["1P 3M 5P 7m 11A", "lydian dominant seventh", "7#11 7#4"],
+    ["1P 3M 5P 7m 9m", "dominant flat ninth", "7b9"],
+    ["1P 3M 5P 7m 9A", "dominant sharp ninth", "7#9"],
+    ["1P 3M 7m 9m", "altered", "alt7"],
+    ["1P 4P 5P", "suspended fourth", "sus4 sus"],
+    ["1P 2M 5P", "suspended second", "sus2"],
+    ["1P 4P 5P 7m", "suspended fourth seventh", "7sus4 7sus"],
+    ["1P 5P 7m 9M 11P", "eleventh", "11"],
+    [
+      "1P 4P 5P 7m 9m",
+      "suspended fourth flat ninth",
+      "b9sus phryg 7b9sus 7b9sus4"
+    ],
+    ["1P 5P", "fifth", "5"],
+    ["1P 3M 5A", "augmented", "aug + +5 ^#5"],
+    ["1P 3m 5A", "minor augmented", "m#5 -#5 m+"],
+    ["1P 3M 5A 7M", "augmented seventh", "maj7#5 maj7+5 +maj7 ^7#5"],
+    [
+      "1P 3M 5P 7M 9M 11A",
+      "major sharp eleventh (lydian)",
+      "maj9#11 \u03949#11 ^9#11"
+    ],
+    ["1P 2M 4P 5P", "", "sus24 sus4add9"],
+    ["1P 3M 5A 7M 9M", "", "maj9#5 Maj9#5"],
+    ["1P 3M 5A 7m", "", "7#5 +7 7+ 7aug aug7"],
+    ["1P 3M 5A 7m 9A", "", "7#5#9 7#9#5 7alt"],
+    ["1P 3M 5A 7m 9M", "", "9#5 9+"],
+    ["1P 3M 5A 7m 9M 11A", "", "9#5#11"],
+    ["1P 3M 5A 7m 9m", "", "7#5b9 7b9#5"],
+    ["1P 3M 5A 7m 9m 11A", "", "7#5b9#11"],
+    ["1P 3M 5A 9A", "", "+add#9"],
+    ["1P 3M 5A 9M", "", "M#5add9 +add9"],
+    ["1P 3M 5P 6M 11A", "", "M6#11 M6b5 6#11 6b5"],
+    ["1P 3M 5P 6M 7M 9M", "", "M7add13"],
+    ["1P 3M 5P 6M 9M 11A", "", "69#11"],
+    ["1P 3m 5P 6M 9M", "", "m69 -69"],
+    ["1P 3M 5P 6m 7m", "", "7b6"],
+    ["1P 3M 5P 7M 9A 11A", "", "maj7#9#11"],
+    ["1P 3M 5P 7M 9M 11A 13M", "", "M13#11 maj13#11 M13+4 M13#4"],
+    ["1P 3M 5P 7M 9m", "", "M7b9"],
+    ["1P 3M 5P 7m 11A 13m", "", "7#11b13 7b5b13"],
+    ["1P 3M 5P 7m 13M", "", "7add6 67 7add13"],
+    ["1P 3M 5P 7m 9A 11A", "", "7#9#11 7b5#9 7#9b5"],
+    ["1P 3M 5P 7m 9A 11A 13M", "", "13#9#11"],
+    ["1P 3M 5P 7m 9A 11A 13m", "", "7#9#11b13"],
+    ["1P 3M 5P 7m 9A 13M", "", "13#9"],
+    ["1P 3M 5P 7m 9A 13m", "", "7#9b13"],
+    ["1P 3M 5P 7m 9M 11A", "", "9#11 9+4 9#4"],
+    ["1P 3M 5P 7m 9M 11A 13M", "", "13#11 13+4 13#4"],
+    ["1P 3M 5P 7m 9M 11A 13m", "", "9#11b13 9b5b13"],
+    ["1P 3M 5P 7m 9m 11A", "", "7b9#11 7b5b9 7b9b5"],
+    ["1P 3M 5P 7m 9m 11A 13M", "", "13b9#11"],
+    ["1P 3M 5P 7m 9m 11A 13m", "", "7b9b13#11 7b9#11b13 7b5b9b13"],
+    ["1P 3M 5P 7m 9m 13M", "", "13b9"],
+    ["1P 3M 5P 7m 9m 13m", "", "7b9b13"],
+    ["1P 3M 5P 7m 9m 9A", "", "7b9#9"],
+    ["1P 3M 5P 9M", "", "Madd9 2 add9 add2"],
+    ["1P 3M 5P 9m", "", "Maddb9"],
+    ["1P 3M 5d", "", "Mb5"],
+    ["1P 3M 5d 6M 7m 9M", "", "13b5"],
+    ["1P 3M 5d 7M", "", "M7b5"],
+    ["1P 3M 5d 7M 9M", "", "M9b5"],
+    ["1P 3M 5d 7m", "", "7b5"],
+    ["1P 3M 5d 7m 9M", "", "9b5"],
+    ["1P 3M 7m", "", "7no5"],
+    ["1P 3M 7m 13m", "", "7b13"],
+    ["1P 3M 7m 9M", "", "9no5"],
+    ["1P 3M 7m 9M 13M", "", "13no5"],
+    ["1P 3M 7m 9M 13m", "", "9b13"],
+    ["1P 3m 4P 5P", "", "madd4"],
+    ["1P 3m 5P 6m 7M", "", "mMaj7b6"],
+    ["1P 3m 5P 6m 7M 9M", "", "mMaj9b6"],
+    ["1P 3m 5P 7m 11P", "", "m7add11 m7add4"],
+    ["1P 3m 5P 9M", "", "madd9"],
+    ["1P 3m 5d 6M 7M", "", "o7M7"],
+    ["1P 3m 5d 7M", "", "oM7"],
+    ["1P 3m 6m 7M", "", "mb6M7"],
+    ["1P 3m 6m 7m", "", "m7#5"],
+    ["1P 3m 6m 7m 9M", "", "m9#5"],
+    ["1P 3m 5A 7m 9M 11P", "", "m11A"],
+    ["1P 3m 6m 9m", "", "mb6b9"],
+    ["1P 2M 3m 5d 7m", "", "m9b5"],
+    ["1P 4P 5A 7M", "", "M7#5sus4"],
+    ["1P 4P 5A 7M 9M", "", "M9#5sus4"],
+    ["1P 4P 5A 7m", "", "7#5sus4"],
+    ["1P 4P 5P 7M", "", "M7sus4"],
+    ["1P 4P 5P 7M 9M", "", "M9sus4"],
+    ["1P 4P 5P 7m 9M", "", "9sus4 9sus"],
+    ["1P 4P 5P 7m 9M 13M", "", "13sus4 13sus"],
+    ["1P 4P 5P 7m 9m 13m", "", "7sus4b9b13 7b9b13sus4"],
+    ["1P 4P 7m 10m", "", "4 quartal"],
+    ["1P 5P 7m 9m 11P", "", "11b9"]
+  ];
+  const NoChordType = {
+    ...EmptyPcset,
+    name: "",
+    quality: "Unknown",
+    intervals: [],
+    aliases: []
+  };
+  let dictionary$1 = [];
+  let index$5 = {};
+  function get$5(type) {
+    return index$5[type] || NoChordType;
+  }
+  function all$1() {
+    return dictionary$1.slice();
+  }
+  function add$1(intervals, aliases, fullName) {
+    const quality = getQuality(intervals);
+    const chord2 = {
+      ...get$6(intervals),
+      name: fullName || "",
+      quality,
+      intervals,
+      aliases
+    };
+    dictionary$1.push(chord2);
+    if (chord2.name) {
+      index$5[chord2.name] = chord2;
+    }
+    index$5[chord2.setNum] = chord2;
+    index$5[chord2.chroma] = chord2;
+    chord2.aliases.forEach((alias) => addAlias$1(chord2, alias));
+  }
+  function addAlias$1(chord2, alias) {
+    index$5[alias] = chord2;
+  }
+  function getQuality(intervals) {
+    const has = (interval2) => intervals.indexOf(interval2) !== -1;
+    return has("5A") ? "Augmented" : has("3M") ? "Major" : has("5d") ? "Diminished" : has("3m") ? "Minor" : "Unknown";
+  }
+  CHORDS.forEach(([ivls, fullName, names2]) => add$1(ivls.split(" "), names2.split(" "), fullName));
+  dictionary$1.sort((a, b) => a.setNum - b.setNum);
+  const namedSet = (notes) => {
+    const pcToName = notes.reduce((record, n) => {
+      const chroma2 = note(n).chroma;
+      if (chroma2 !== void 0) {
+        record[chroma2] = record[chroma2] || note(n).name;
+      }
+      return record;
+    }, {});
+    return (chroma2) => pcToName[chroma2];
+  };
+  function detect(source) {
+    const notes = source.map((n) => note(n).pc).filter((x) => x);
+    if (note.length === 0) {
+      return [];
+    }
+    const found = findExactMatches(notes, 1);
+    return found.filter((chord2) => chord2.weight).sort((a, b) => b.weight - a.weight).map((chord2) => chord2.name);
+  }
+  function findExactMatches(notes, weight) {
+    const tonic = notes[0];
+    const tonicChroma = note(tonic).chroma;
+    const noteName = namedSet(notes);
+    const allModes = modes$1(notes, false);
+    const found = [];
+    allModes.forEach((mode, index2) => {
+      const chordTypes = all$1().filter((chordType) => chordType.chroma === mode);
+      chordTypes.forEach((chordType) => {
+        const chordName = chordType.aliases[0];
+        const baseNote = noteName(index2);
+        const isInversion = index2 !== tonicChroma;
+        if (isInversion) {
+          found.push({
+            weight: 0.5 * weight,
+            name: `${baseNote}${chordName}/${tonic}`
+          });
+        } else {
+          found.push({ weight: 1 * weight, name: `${baseNote}${chordName}` });
+        }
+      });
+    });
+    return found;
+  }
+  const SCALES = [
+    ["1P 2M 3M 5P 6M", "major pentatonic", "pentatonic"],
+    ["1P 3M 4P 5P 7M", "ionian pentatonic"],
+    ["1P 3M 4P 5P 7m", "mixolydian pentatonic", "indian"],
+    ["1P 2M 4P 5P 6M", "ritusen"],
+    ["1P 2M 4P 5P 7m", "egyptian"],
+    ["1P 3M 4P 5d 7m", "neopolitan major pentatonic"],
+    ["1P 3m 4P 5P 6m", "vietnamese 1"],
+    ["1P 2m 3m 5P 6m", "pelog"],
+    ["1P 2m 4P 5P 6m", "kumoijoshi"],
+    ["1P 2M 3m 5P 6m", "hirajoshi"],
+    ["1P 2m 4P 5d 7m", "iwato"],
+    ["1P 2m 4P 5P 7m", "in-sen"],
+    ["1P 3M 4A 5P 7M", "lydian pentatonic", "chinese"],
+    ["1P 3m 4P 6m 7m", "malkos raga"],
+    ["1P 3m 4P 5d 7m", "locrian pentatonic", "minor seven flat five pentatonic"],
+    ["1P 3m 4P 5P 7m", "minor pentatonic", "vietnamese 2"],
+    ["1P 3m 4P 5P 6M", "minor six pentatonic"],
+    ["1P 2M 3m 5P 6M", "flat three pentatonic", "kumoi"],
+    ["1P 2M 3M 5P 6m", "flat six pentatonic"],
+    ["1P 2m 3M 5P 6M", "scriabin"],
+    ["1P 3M 5d 6m 7m", "whole tone pentatonic"],
+    ["1P 3M 4A 5A 7M", "lydian #5P pentatonic"],
+    ["1P 3M 4A 5P 7m", "lydian dominant pentatonic"],
+    ["1P 3m 4P 5P 7M", "minor #7M pentatonic"],
+    ["1P 3m 4d 5d 7m", "super locrian pentatonic"],
+    ["1P 2M 3m 4P 5P 7M", "minor hexatonic"],
+    ["1P 2A 3M 5P 5A 7M", "augmented"],
+    ["1P 2M 3m 3M 5P 6M", "major blues"],
+    ["1P 2M 4P 5P 6M 7m", "piongio"],
+    ["1P 2m 3M 4A 6M 7m", "prometheus neopolitan"],
+    ["1P 2M 3M 4A 6M 7m", "prometheus"],
+    ["1P 2m 3M 5d 6m 7m", "mystery #1"],
+    ["1P 2m 3M 4P 5A 6M", "six tone symmetric"],
+    ["1P 2M 3M 4A 5A 7m", "whole tone", "messiaen's mode #1"],
+    ["1P 2m 4P 4A 5P 7M", "messiaen's mode #5"],
+    ["1P 3m 4P 5d 5P 7m", "minor blues", "blues"],
+    ["1P 2M 3M 4P 5d 6m 7m", "locrian major", "arabian"],
+    ["1P 2m 3M 4A 5P 6m 7M", "double harmonic lydian"],
+    ["1P 2M 3m 4P 5P 6m 7M", "harmonic minor"],
+    [
+      "1P 2m 2A 3M 4A 6m 7m",
+      "altered",
+      "super locrian",
+      "diminished whole tone",
+      "pomeroy"
+    ],
+    ["1P 2M 3m 4P 5d 6m 7m", "locrian #2", "half-diminished", "aeolian b5"],
+    [
+      "1P 2M 3M 4P 5P 6m 7m",
+      "mixolydian b6",
+      "melodic minor fifth mode",
+      "hindu"
+    ],
+    ["1P 2M 3M 4A 5P 6M 7m", "lydian dominant", "lydian b7", "overtone"],
+    ["1P 2M 3M 4A 5P 6M 7M", "lydian"],
+    ["1P 2M 3M 4A 5A 6M 7M", "lydian augmented"],
+    [
+      "1P 2m 3m 4P 5P 6M 7m",
+      "dorian b2",
+      "phrygian #6",
+      "melodic minor second mode"
+    ],
+    ["1P 2M 3m 4P 5P 6M 7M", "melodic minor"],
+    ["1P 2m 3m 4P 5d 6m 7m", "locrian"],
+    [
+      "1P 2m 3m 4d 5d 6m 7d",
+      "ultralocrian",
+      "superlocrian bb7",
+      "superlocrian diminished"
+    ],
+    ["1P 2m 3m 4P 5d 6M 7m", "locrian 6", "locrian natural 6", "locrian sharp 6"],
+    ["1P 2A 3M 4P 5P 5A 7M", "augmented heptatonic"],
+    [
+      "1P 2M 3m 4A 5P 6M 7m",
+      "dorian #4",
+      "ukrainian dorian",
+      "romanian minor",
+      "altered dorian"
+    ],
+    ["1P 2M 3m 4A 5P 6M 7M", "lydian diminished"],
+    ["1P 2m 3m 4P 5P 6m 7m", "phrygian"],
+    ["1P 2M 3M 4A 5A 7m 7M", "leading whole tone"],
+    ["1P 2M 3M 4A 5P 6m 7m", "lydian minor"],
+    ["1P 2m 3M 4P 5P 6m 7m", "phrygian dominant", "spanish", "phrygian major"],
+    ["1P 2m 3m 4P 5P 6m 7M", "balinese"],
+    ["1P 2m 3m 4P 5P 6M 7M", "neopolitan major"],
+    ["1P 2M 3m 4P 5P 6m 7m", "aeolian", "minor"],
+    ["1P 2M 3M 4P 5P 6m 7M", "harmonic major"],
+    ["1P 2m 3M 4P 5P 6m 7M", "double harmonic major", "gypsy"],
+    ["1P 2M 3m 4P 5P 6M 7m", "dorian"],
+    ["1P 2M 3m 4A 5P 6m 7M", "hungarian minor"],
+    ["1P 2A 3M 4A 5P 6M 7m", "hungarian major"],
+    ["1P 2m 3M 4P 5d 6M 7m", "oriental"],
+    ["1P 2m 3m 3M 4A 5P 7m", "flamenco"],
+    ["1P 2m 3m 4A 5P 6m 7M", "todi raga"],
+    ["1P 2M 3M 4P 5P 6M 7m", "mixolydian", "dominant"],
+    ["1P 2m 3M 4P 5d 6m 7M", "persian"],
+    ["1P 2M 3M 4P 5P 6M 7M", "major", "ionian"],
+    ["1P 2m 3M 5d 6m 7m 7M", "enigmatic"],
+    [
+      "1P 2M 3M 4P 5A 6M 7M",
+      "major augmented",
+      "major #5",
+      "ionian augmented",
+      "ionian #5"
+    ],
+    ["1P 2A 3M 4A 5P 6M 7M", "lydian #9"],
+    ["1P 2m 2M 4P 4A 5P 6m 7M", "messiaen's mode #4"],
+    ["1P 2m 3M 4P 4A 5P 6m 7M", "purvi raga"],
+    ["1P 2m 3m 3M 4P 5P 6m 7m", "spanish heptatonic"],
+    ["1P 2M 3M 4P 5P 6M 7m 7M", "bebop"],
+    ["1P 2M 3m 3M 4P 5P 6M 7m", "bebop minor"],
+    ["1P 2M 3M 4P 5P 5A 6M 7M", "bebop major"],
+    ["1P 2m 3m 4P 5d 5P 6m 7m", "bebop locrian"],
+    ["1P 2M 3m 4P 5P 6m 7m 7M", "minor bebop"],
+    ["1P 2M 3m 4P 5d 6m 6M 7M", "diminished", "whole-half diminished"],
+    ["1P 2M 3M 4P 5d 5P 6M 7M", "ichikosucho"],
+    ["1P 2M 3m 4P 5P 6m 6M 7M", "minor six diminished"],
+    [
+      "1P 2m 3m 3M 4A 5P 6M 7m",
+      "half-whole diminished",
+      "dominant diminished",
+      "messiaen's mode #2"
+    ],
+    ["1P 3m 3M 4P 5P 6M 7m 7M", "kafi raga"],
+    ["1P 2M 3M 4P 4A 5A 6A 7M", "messiaen's mode #6"],
+    ["1P 2M 3m 3M 4P 5d 5P 6M 7m", "composite blues"],
+    ["1P 2M 3m 3M 4A 5P 6m 7m 7M", "messiaen's mode #3"],
+    ["1P 2m 2M 3m 4P 4A 5P 6m 6M 7M", "messiaen's mode #7"],
+    ["1P 2m 2M 3m 3M 4P 5d 5P 6m 6M 7m 7M", "chromatic"]
+  ];
+  const NoScaleType = {
+    ...EmptyPcset,
+    intervals: [],
+    aliases: []
+  };
+  let dictionary = [];
+  let index$4 = {};
+  function get$4(type) {
+    return index$4[type] || NoScaleType;
+  }
+  function all() {
+    return dictionary.slice();
+  }
+  function add(intervals, name2, aliases = []) {
+    const scale = { ...get$6(intervals), name: name2, intervals, aliases };
+    dictionary.push(scale);
+    index$4[scale.name] = scale;
+    index$4[scale.setNum] = scale;
+    index$4[scale.chroma] = scale;
+    scale.aliases.forEach((alias) => addAlias(scale, alias));
+    return scale;
+  }
+  function addAlias(scale, alias) {
+    index$4[alias] = scale;
+  }
+  SCALES.forEach(([ivls, name2, ...aliases]) => add(ivls.split(" "), name2, aliases));
+  const NoChord = {
+    empty: true,
+    name: "",
+    symbol: "",
+    root: "",
+    rootDegree: 0,
+    type: "",
+    tonic: null,
+    setNum: NaN,
+    quality: "Unknown",
+    chroma: "",
+    normalized: "",
+    aliases: [],
+    notes: [],
+    intervals: []
+  };
+  const NUM_TYPES = /^(6|64|7|9|11|13)$/;
+  function tokenize$1(name2) {
+    const [letter, acc, oct, type] = tokenizeNote(name2);
+    if (letter === "") {
+      return ["", name2];
+    }
+    if (letter === "A" && type === "ug") {
+      return ["", "aug"];
+    }
+    if (!type && (oct === "4" || oct === "5")) {
+      return [letter + acc, oct];
+    }
+    if (NUM_TYPES.test(oct)) {
+      return [letter + acc, oct + type];
+    } else {
+      return [letter + acc + oct, type];
+    }
+  }
+  function get$3(src) {
+    if (src === "") {
+      return NoChord;
+    }
+    if (Array.isArray(src) && src.length === 2) {
+      return getChord(src[1], src[0]);
+    } else {
+      const [tonic, type] = tokenize$1(src);
+      const chord2 = getChord(type, tonic);
+      return chord2.empty ? getChord(src) : chord2;
+    }
+  }
+  function getChord(typeName, optionalTonic, optionalRoot) {
+    const type = get$5(typeName);
+    const tonic = note(optionalTonic || "");
+    const root = note(optionalRoot || "");
+    if (type.empty || optionalTonic && tonic.empty || optionalRoot && root.empty) {
+      return NoChord;
+    }
+    const rootInterval = distance(tonic.pc, root.pc);
+    const rootDegree = type.intervals.indexOf(rootInterval) + 1;
+    if (!root.empty && !rootDegree) {
+      return NoChord;
+    }
+    const intervals = Array.from(type.intervals);
+    for (let i = 1; i < rootDegree; i++) {
+      const num = intervals[0][0];
+      const quality = intervals[0][1];
+      const newNum = parseInt(num, 10) + 7;
+      intervals.push(`${newNum}${quality}`);
+      intervals.shift();
+    }
+    const notes = tonic.empty ? [] : intervals.map((i) => transpose$2(tonic, i));
+    typeName = type.aliases.indexOf(typeName) !== -1 ? typeName : type.aliases[0];
+    const symbol = `${tonic.empty ? "" : tonic.pc}${typeName}${root.empty || rootDegree <= 1 ? "" : "/" + root.pc}`;
+    const name2 = `${optionalTonic ? tonic.pc + " " : ""}${type.name}${rootDegree > 1 && optionalRoot ? " over " + root.pc : ""}`;
+    return {
+      ...type,
+      name: name2,
+      symbol,
+      type: type.name,
+      root: root.name,
+      intervals,
+      rootDegree,
+      tonic: tonic.name,
+      notes
+    };
+  }
+  const chord = deprecate("Chord.chord", "Chord.get", get$3);
+  function transpose$1(chordName, interval2) {
+    const [tonic, type] = tokenize$1(chordName);
+    if (!tonic) {
+      return chordName;
+    }
+    return transpose$2(tonic, interval2) + type;
+  }
+  function chordScales(name2) {
+    const s = get$3(name2);
+    const isChordIncluded = isSupersetOf(s.chroma);
+    return all().filter((scale) => isChordIncluded(scale.chroma)).map((scale) => scale.name);
+  }
+  function extended(chordName) {
+    const s = get$3(chordName);
+    const isSuperset = isSupersetOf(s.chroma);
+    return all$1().filter((chord2) => isSuperset(chord2.chroma)).map((chord2) => s.tonic + chord2.aliases[0]);
+  }
+  function reduced(chordName) {
+    const s = get$3(chordName);
+    const isSubset = isSubsetOf(s.chroma);
+    return all$1().filter((chord2) => isSubset(chord2.chroma)).map((chord2) => s.tonic + chord2.aliases[0]);
+  }
+  var index$3 = {
+    getChord,
+    get: get$3,
+    detect,
+    chordScales,
+    extended,
+    reduced,
+    tokenize: tokenize$1,
+    transpose: transpose$1,
+    chord
+  };
+  const L2 = Math.log(2);
+  const L440 = Math.log(440);
+  function freqToMidi(freq2) {
+    const v = 12 * (Math.log(freq2) - L440) / L2 + 69;
+    return Math.round(v * 100) / 100;
+  }
+  const SHARPS = "C C# D D# E F F# G G# A A# B".split(" ");
+  const FLATS = "C Db D Eb E F Gb G Ab A Bb B".split(" ");
+  function midiToNoteName(midi2, options = {}) {
+    if (isNaN(midi2) || midi2 === -Infinity || midi2 === Infinity)
+      return "";
+    midi2 = Math.round(midi2);
+    const pcs = options.sharps === true ? SHARPS : FLATS;
+    const pc = pcs[midi2 % 12];
+    if (options.pitchClass) {
+      return pc;
+    }
+    const o = Math.floor(midi2 / 12) - 1;
+    return pc + o;
+  }
+  const NAMES$1 = ["C", "D", "E", "F", "G", "A", "B"];
+  const toName = (n) => n.name;
+  const onlyNotes = (array) => array.map(note).filter((n) => !n.empty);
+  function names(array) {
+    if (array === void 0) {
+      return NAMES$1.slice();
+    } else if (!Array.isArray(array)) {
+      return [];
+    } else {
+      return onlyNotes(array).map(toName);
+    }
+  }
+  const get$2 = note;
+  const name = (note2) => get$2(note2).name;
+  const pitchClass = (note2) => get$2(note2).pc;
+  const accidentals = (note2) => get$2(note2).acc;
+  const octave = (note2) => get$2(note2).oct;
+  const midi = (note2) => get$2(note2).midi;
+  const freq = (note2) => get$2(note2).freq;
+  const chroma = (note2) => get$2(note2).chroma;
+  function fromMidi(midi2) {
+    return midiToNoteName(midi2);
+  }
+  function fromFreq(freq2) {
+    return midiToNoteName(freqToMidi(freq2));
+  }
+  function fromFreqSharps(freq2) {
+    return midiToNoteName(freqToMidi(freq2), { sharps: true });
+  }
+  function fromMidiSharps(midi2) {
+    return midiToNoteName(midi2, { sharps: true });
+  }
+  const transpose = transpose$2;
+  const tr = transpose$2;
+  const transposeBy = (interval2) => (note2) => transpose(note2, interval2);
+  const trBy = transposeBy;
+  const transposeFrom = (note2) => (interval2) => transpose(note2, interval2);
+  const trFrom = transposeFrom;
+  function transposeFifths(noteName, fifths) {
+    const note2 = get$2(noteName);
+    if (note2.empty) {
+      return "";
+    }
+    const [nFifths, nOcts] = note2.coord;
+    const transposed = nOcts === void 0 ? coordToNote([nFifths + fifths]) : coordToNote([nFifths + fifths, nOcts]);
+    return transposed.name;
+  }
+  const trFifths = transposeFifths;
+  const ascending = (a, b) => a.height - b.height;
+  const descending = (a, b) => b.height - a.height;
+  function sortedNames(notes, comparator) {
+    comparator = comparator || ascending;
+    return onlyNotes(notes).sort(comparator).map(toName);
+  }
+  function sortedUniqNames(notes) {
+    return sortedNames(notes, ascending).filter((n, i, a) => i === 0 || n !== a[i - 1]);
+  }
+  const simplify = (noteName) => {
+    const note2 = get$2(noteName);
+    if (note2.empty) {
+      return "";
+    }
+    return midiToNoteName(note2.midi || note2.chroma, {
+      sharps: note2.alt > 0,
+      pitchClass: note2.midi === null
+    });
+  };
+  function enharmonic(noteName, destName) {
+    const src = get$2(noteName);
+    if (src.empty) {
+      return "";
+    }
+    const dest = get$2(destName || midiToNoteName(src.midi || src.chroma, {
+      sharps: src.alt < 0,
+      pitchClass: true
+    }));
+    if (dest.empty || dest.chroma !== src.chroma) {
+      return "";
+    }
+    if (src.oct === void 0) {
+      return dest.pc;
+    }
+    const srcChroma = src.chroma - src.alt;
+    const destChroma = dest.chroma - dest.alt;
+    const destOctOffset = srcChroma > 11 || destChroma < 0 ? -1 : srcChroma < 0 || destChroma > 11 ? 1 : 0;
+    const destOct = src.oct + destOctOffset;
+    return dest.pc + destOct;
+  }
+  var index$2 = {
+    names,
+    get: get$2,
+    name,
+    pitchClass,
+    accidentals,
+    octave,
+    midi,
+    ascending,
+    descending,
+    sortedNames,
+    sortedUniqNames,
+    fromMidi,
+    fromMidiSharps,
+    freq,
+    fromFreq,
+    fromFreqSharps,
+    chroma,
+    transpose,
+    tr,
+    transposeBy,
+    trBy,
+    transposeFrom,
+    trFrom,
+    transposeFifths,
+    trFifths,
+    simplify,
+    enharmonic
+  };
+  const NoRomanNumeral = { empty: true, name: "", chordType: "" };
+  const cache = {};
+  function get$1(src) {
+    return typeof src === "string" ? cache[src] || (cache[src] = parse(src)) : typeof src === "number" ? get$1(NAMES[src] || "") : isPitch(src) ? fromPitch(src) : isNamed(src) ? get$1(src.name) : NoRomanNumeral;
+  }
+  function fromPitch(pitch) {
+    return get$1(altToAcc(pitch.alt) + NAMES[pitch.step]);
+  }
+  const REGEX = /^(#{1,}|b{1,}|x{1,}|)(IV|I{1,3}|VI{0,2}|iv|i{1,3}|vi{0,2})([^IViv]*)$/;
+  function tokenize(str) {
+    return REGEX.exec(str) || ["", "", "", ""];
+  }
+  const ROMANS = "I II III IV V VI VII";
+  const NAMES = ROMANS.split(" ");
+  function parse(src) {
+    const [name2, acc, roman, chordType] = tokenize(src);
+    if (!roman) {
+      return NoRomanNumeral;
+    }
+    const upperRoman = roman.toUpperCase();
+    const step = NAMES.indexOf(upperRoman);
+    const alt = accToAlt(acc);
+    const dir = 1;
+    return {
+      empty: false,
+      name: name2,
+      roman,
+      interval: interval({ step, alt, dir }).name,
+      acc,
+      chordType,
+      alt,
+      step,
+      major: roman === upperRoman,
+      oct: 0,
+      dir
+    };
+  }
+  Object.freeze([]);
+  const MODES = [
+    [0, 2773, 0, "ionian", "", "Maj7", "major"],
+    [1, 2902, 2, "dorian", "m", "m7"],
+    [2, 3418, 4, "phrygian", "m", "m7"],
+    [3, 2741, -1, "lydian", "", "Maj7"],
+    [4, 2774, 1, "mixolydian", "", "7"],
+    [5, 2906, 3, "aeolian", "m", "m7", "minor"],
+    [6, 3434, 5, "locrian", "dim", "m7b5"]
+  ];
+  const NoMode = {
+    ...EmptyPcset,
+    name: "",
+    alt: 0,
+    modeNum: NaN,
+    triad: "",
+    seventh: "",
+    aliases: []
+  };
+  const modes = MODES.map(toMode);
+  const index$1 = {};
+  modes.forEach((mode) => {
+    index$1[mode.name] = mode;
+    mode.aliases.forEach((alias) => {
+      index$1[alias] = mode;
+    });
+  });
+  function get(name2) {
+    return typeof name2 === "string" ? index$1[name2.toLowerCase()] || NoMode : name2 && name2.name ? get(name2.name) : NoMode;
+  }
+  function toMode(mode) {
+    const [modeNum, setNum, alt, name2, triad, seventh, alias] = mode;
+    const aliases = alias ? [alias] : [];
+    const chroma2 = Number(setNum).toString(2);
+    const intervals = get$4(name2).intervals;
+    return {
+      empty: false,
+      intervals,
+      modeNum,
+      chroma: chroma2,
+      normalized: chroma2,
+      name: name2,
+      setNum,
+      alt,
+      triad,
+      seventh,
+      aliases
+    };
+  }
+  function chords$1(chords2) {
+    return (modeName, tonic) => {
+      const mode = get(modeName);
+      if (mode.empty)
+        return [];
+      const triads = rotate(mode.modeNum, chords2);
+      const tonics = mode.intervals.map((i) => transpose$2(tonic, i));
+      return triads.map((triad, i) => tonics[i] + triad);
+    };
+  }
+  chords$1(MODES.map((x) => x[4]));
+  chords$1(MODES.map((x) => x[5]));
+  function fromRomanNumerals(tonic, chords2) {
+    const romanNumerals = chords2.map(get$1);
+    return romanNumerals.map((rn) => transpose$2(tonic, interval(rn)) + rn.chordType);
+  }
+  function toRomanNumerals(tonic, chords2) {
+    return chords2.map((chord2) => {
+      const [note2, chordType] = tokenize$1(chord2);
+      const intervalName = distance(tonic, note2);
+      const roman = get$1(interval(intervalName));
+      return roman.name + chordType;
     });
   }
-  function playBgm(name = "0", pitch = 69 - 24, len = 32, interval = 0.25, numberOfTracks = 4, soundEffectTypes = ["laser", "select", "hit", "hit"], volume2 = 1) {
-    generatedTrack = generateBgm(name, pitch, len, interval, numberOfTracks, soundEffectTypes, volume2);
-    add(generatedTrack);
-    play$1(generatedTrack, true);
+  var index = { fromRomanNumerals, toRomanNumerals };
+  const defaultOptions = {
+    seed: 0,
+    noteLength: 32,
+    partCount: 4,
+    drumPartRatio: 0.5
+  };
+  const random = new Random();
+  let baseRandomSeed$1 = 1;
+  function setSeed$1(_baseRandomSeed) {
+    baseRandomSeed$1 = _baseRandomSeed;
   }
-  function stopBgm() {
-    if (generatedTrack == null) {
-      return;
+  function generate(_options) {
+    const options = { ...defaultOptions, ..._options };
+    random.setSeed(baseRandomSeed$1 + options.seed);
+    const chordProgressionNotes = generateChordProgression(options.noteLength);
+    return times(options.partCount, () => {
+      const isDrum = random.get() < options.drumPartRatio;
+      if (isDrum) {
+        return generateDrumNote(options.noteLength);
+      } else {
+        return generateMelodyNote(options.noteLength, chordProgressionNotes);
+      }
+    });
+  }
+  function generateMelodyNote(noteLength, chordProgressionNotes) {
+    const pattern = createRandomPattern(noteLength, 1);
+    const continuingPattern = times(noteLength, () => random.get() < 0.8);
+    const randomChordPatterns = random.select([
+      [0, 2],
+      [0, 1, 2],
+      [0, 1, 2, 3]
+    ]);
+    let seType = random.select([
+      "tone",
+      "tone",
+      "tone",
+      "select",
+      "laser",
+      "synth",
+      "hit"
+    ]);
+    let volume2 = random.getInt(36, 50);
+    if (seType === "synth" || seType === "select") {
+      volume2 = Math.floor(volume2 * 0.6);
     }
-    stop(generatedTrack);
-    remove(generatedTrack);
-    generatedTrack = void 0;
-  }
-  function playJingle(name = "0", isSoundEffect = false, note = 69 - 12, len = 16, interval = 0.25, numberOfTracks = 4, volume2 = 1) {
-    const key = `${name}_${isSoundEffect}_${note}_${len}_${interval}_${numberOfTracks}_${volume2}`;
-    if (jingles[key] == null) {
-      const jingle = generateJingle(name, isSoundEffect, note, len, interval, numberOfTracks, volume2);
-      add(jingle);
-      jingles[key] = jingle;
+    const baseOctaveOffset = random.getInt(-1, 1);
+    const baseNoteDuration = 16;
+    let mml = `@${seType}@s${random.getInt(
+      999999999
+    )} v${volume2} l${baseNoteDuration} `;
+    let octave2 = -1;
+    let hasPrevNote = false;
+    for (let i = 0; i < noteLength; i++) {
+      if (!pattern[i]) {
+        mml += "r";
+        hasPrevNote = false;
+        continue;
+      }
+      if (continuingPattern[i] && hasPrevNote) {
+        mml += "^";
+        continue;
+      }
+      hasPrevNote = true;
+      const ns = chordProgressionNotes[i][random.select(randomChordPatterns)];
+      let o = Number.parseFloat(ns.charAt(ns.length - 1)) + baseOctaveOffset;
+      let n = ns.substring(0, ns.length - 1).replace("#", "+").replace("b", "-").toLowerCase();
+      if (o !== octave2) {
+        mml += ` o${o}`;
+        octave2 = o;
+      }
+      mml += n;
     }
-    play$1(jingles[key]);
+    return mml;
   }
-  function stopJingles() {
-    stopAll();
+  function generateDrumNote(noteLength) {
+    const pattern = createRandomPattern(noteLength, 3);
+    const continuingPattern = times(noteLength, () => random.get() < 0.4);
+    const seType = random.select(["hit", "hit", "click", "explosion"]);
+    let volume2 = random.getInt(36, 50);
+    if (seType === "click" || seType === "explosion") {
+      volume2 = Math.floor(volume2 * 0.5);
+    }
+    const baseNoteDuration = 16;
+    let mml = `@${seType}@d@s${random.getInt(
+      999999999
+    )} v${volume2} l${baseNoteDuration} `;
+    let hasPrevNote = false;
+    for (let i = 0; i < noteLength; i++) {
+      if (!pattern[i]) {
+        mml += "r";
+        hasPrevNote = false;
+        continue;
+      }
+      if (continuingPattern[i] && hasPrevNote) {
+        mml += "^";
+        continue;
+      }
+      hasPrevNote = true;
+      mml += "c";
+    }
+    return mml;
+  }
+  const chords = [
+    ["I", "IIIm", "VIm"],
+    ["IV", "IIm"],
+    ["V", "VIIm"]
+  ];
+  const nextChordsIndex = [
+    [0, 1, 2],
+    [1, 2, 0],
+    [2, 0]
+  ];
+  function generateChordProgression(len) {
+    const key = random.select(["C", "D", "Eb", "F", "G", "A", "Bb"]);
+    const octave2 = 4;
+    const chordChangeInterval = 4;
+    let chord2;
+    let chordsIndex;
+    let type;
+    let tonic;
+    return times(len, (i) => {
+      if (i % chordChangeInterval === 0) {
+        if (i === 0) {
+          chordsIndex = random.getInt(chords.length - 1);
+          chord2 = random.select(chords[chordsIndex]);
+        } else if (random.get() < 0.8 - i / chordChangeInterval % 2 * 0.5) {
+          chordsIndex = random.select(nextChordsIndex[chordsIndex]);
+          chord2 = random.select(chords[chordsIndex]);
+        }
+        const progression2 = index.fromRomanNumerals(`${key}${octave2}`, [
+          chord2
+        ])[0];
+        if (progression2.charAt(progression2.length - 1) === "m") {
+          type = "m7";
+          tonic = progression2.substring(0, progression2.length - 1);
+        } else {
+          type = "7";
+          tonic = progression2;
+        }
+      }
+      return index$3.getChord(type, tonic).notes;
+    });
+  }
+  function createRandomPattern(len, freq2) {
+    let pattern = times(len, () => false);
+    let interval2 = 4;
+    while (interval2 <= len) {
+      pattern = reversePattern(pattern, interval2, freq2);
+      interval2 *= 2;
+    }
+    return pattern;
+  }
+  function reversePattern(pattern, interval2, freq2) {
+    let pt = times(interval2, () => false);
+    times(freq2, () => {
+      pt[random.getInt(interval2)] = true;
+    });
+    return pattern.map((p, i) => pt[i % interval2] ? !p : p);
+  }
+  let baseRandomSeed;
+  function playSoundEffect(type, _options) {
+    const options = {
+      ...{ seed: 0, numberOfSounds: 2, volume: 1 },
+      ..._options
+    };
+    const key = `${type}_${JSON.stringify(options)}_${baseRandomSeed}`;
+    if (soundEffects[key] != null) {
+      play$2(soundEffects[key]);
+      return soundEffects[key];
+    }
+    let freq2;
+    if (options.freq != null) {
+      freq2 = options.freq;
+    } else if (options.pitch != null) {
+      freq2 = pitchToFreq(options.pitch);
+    } else if (options.note != null) {
+      freq2 = index$2.get(
+        options.note.toUpperCase().replace("+", "#").replace("-", "b")
+      ).freq;
+    }
+    let numberOfSounds = options.numberOfSounds;
+    let attackRatio = 1;
+    let sustainRatio = 1;
+    if (type === "synth") {
+      attackRatio = sustainRatio = 0.2;
+    } else if (type === "tone") {
+      attackRatio = sustainRatio = 0.1;
+      numberOfSounds = 1;
+    }
+    const se = get$9(
+      type,
+      options.seed + baseRandomSeed,
+      numberOfSounds,
+      options.volume,
+      freq2,
+      attackRatio,
+      sustainRatio
+    );
+    add$3(se);
+    soundEffects[key] = se;
+    play$2(se);
+    return se;
   }
   const mmlQuantizeInterval = 0.125;
   let soundEffects;
-  let mmlTrack;
+  let loopingTrack;
   function playMml(mmlStrings, _options) {
-    const options = __spreadValues(__spreadValues({}, { volume: 1, speed: 1, isLooping: true }), _options);
+    stopMml();
+    const options = { ...{ volume: 1, speed: 1, isLooping: true }, ..._options };
     let notesStepsCount = 0;
     const tracks2 = mmlStrings.map((ms) => fromMml(ms));
-    tracks2.forEach((t) => {
-      const s = getNotesStepsCount(t.mml);
+    tracks2.forEach((t2) => {
+      const s = getNotesStepsCount(t2.mml);
       if (s > notesStepsCount) {
         notesStepsCount = s;
       }
     });
-    const parts = tracks2.map((t) => {
-      const { mml, args } = t;
+    const parts = tracks2.map((t2) => {
+      const { mml, args } = t2;
       const sequence = mmlToQuantizedSequence(mml, notesStepsCount);
-      const se = getForSequence(sequence, args.isDrum, args.seed, args.type, args.volume * options.volume);
-      return get$1(mml, sequence, se);
+      const se = getForSequence(
+        sequence,
+        args.isDrum,
+        args.seed,
+        args.type,
+        args.volume * options.volume
+      );
+      return get$8(mml, sequence, se);
     });
-    mmlTrack = get(parts, notesStepsCount, options.speed);
-    add(mmlTrack);
-    play$1(mmlTrack, options.isLooping);
-  }
-  function stopMml() {
-    if (mmlTrack == null) {
-      return;
+    const t = get$7(parts, notesStepsCount, options.speed);
+    add$2(t);
+    play$1(t, options.isLooping);
+    if (options.isLooping) {
+      loopingTrack = t;
     }
-    stop(mmlTrack);
-    remove(mmlTrack);
-    mmlTrack = void 0;
+    return t;
   }
-  function playSoundEffect(type = void 0, _options) {
-    const options = __spreadValues(__spreadValues({}, { seed: void 0, numberOfSounds: 2, volume: 1, pitch: void 0 }), _options);
-    const key = `${type}_${JSON.stringify(options)}`;
-    if (soundEffects[key] == null) {
-      if (type == null) {
-        random.setSeed(options.seed);
-        type = types[random.getInt(8)];
+  function stopMml(_track) {
+    let t = _track;
+    if (t == null) {
+      if (loopingTrack != null) {
+        t = loopingTrack;
+        loopingTrack = void 0;
+      } else {
+        return;
       }
-      const se = get$2(type, options.seed == null ? baseRandomSeed : options.seed, options.numberOfSounds, options.volume, options.pitch == null ? void 0 : pitchToFreq(options.pitch));
-      add$1(se);
-      soundEffects[key] = se;
     }
-    play$2(soundEffects[key]);
+    stop(t);
+    remove(t);
+    loopingTrack = void 0;
+  }
+  function generateMml(option) {
+    return generate(option);
   }
   function update() {
-    update$1();
-    update$3();
+    const currentTime = audioContext.currentTime;
+    update$1(currentTime);
+    update$3(currentTime);
   }
   function init(baseRandomSeed2 = 1, audioContext2 = void 0) {
     setSeed(baseRandomSeed2);
@@ -2289,17 +3596,18 @@ var __publicField = (obj, key, value) => {
   }
   function reset() {
     init$1();
+    loopingTrack = void 0;
     jingles = {};
     init$2();
     soundEffects = {};
-    stopMml();
   }
   function setSeed(_baseRandomSeed = 1) {
     baseRandomSeed = _baseRandomSeed;
+    setSeed$2(baseRandomSeed);
     setSeed$1(baseRandomSeed);
   }
   function getNotesStepsCount(mml) {
-    const iter = new lib(mml);
+    const iter = new MMLIterator(mml);
     for (let ne of iter) {
       if (ne.type === "end") {
         return Math.floor(ne.time / mmlQuantizeInterval);
@@ -2308,7 +3616,7 @@ var __publicField = (obj, key, value) => {
   }
   function mmlToQuantizedSequence(mml, notesStepsCount) {
     const notes = [];
-    const iter = new lib(mml);
+    const iter = new MMLIterator(mml);
     for (let ne of iter) {
       if (ne.type === "note") {
         let endStep = Math.floor((ne.time + ne.duration) / mmlQuantizeInterval);
@@ -2324,6 +3632,59 @@ var __publicField = (obj, key, value) => {
     }
     return { notes };
   }
+  let jingles;
+  let generatedTrack;
+  function play(name2 = "0", numberOfSounds = 2, pitch, volume2 = 1) {
+    playSoundEffect(playPrefixes[name2[0]], {
+      seed: getHashFromString(name2),
+      numberOfSounds,
+      pitch,
+      volume: volume2
+    });
+  }
+  function playBgm(name2 = "0", pitch = 69 - 24, len = 32, interval2 = 0.25, numberOfTracks = 4, soundEffectTypes = ["laser", "select", "hit", "hit"], volume2 = 1) {
+    stopBgm();
+    generatedTrack = generateBgm(
+      name2,
+      pitch,
+      len,
+      interval2,
+      numberOfTracks,
+      soundEffectTypes,
+      volume2
+    );
+    add$2(generatedTrack);
+    play$1(generatedTrack, true);
+  }
+  function stopBgm() {
+    if (generatedTrack == null) {
+      return;
+    }
+    stop(generatedTrack);
+    remove(generatedTrack);
+    generatedTrack = void 0;
+  }
+  function playJingle(name2 = "0", isSoundEffect = false, note2 = 69 - 12, len = 16, interval2 = 0.25, numberOfTracks = 4, volume2 = 1) {
+    const key = `${name2}_${isSoundEffect}_${note2}_${len}_${interval2}_${numberOfTracks}_${volume2}`;
+    if (jingles[key] == null) {
+      const jingle = generateJingle(
+        name2,
+        isSoundEffect,
+        note2,
+        len,
+        interval2,
+        numberOfTracks,
+        volume2
+      );
+      add$2(jingle);
+      jingles[key] = jingle;
+    }
+    play$1(jingles[key]);
+  }
+  function stopJingles() {
+    stopAll();
+  }
+  exports2.generateMml = generateMml;
   exports2.init = init;
   exports2.play = play;
   exports2.playBgm = playBgm;
