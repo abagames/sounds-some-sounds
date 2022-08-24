@@ -1,6 +1,7 @@
 import MMLIterator from "mml-iterator";
 import * as track from "./track";
 import * as trackGenerator from "./trackGenerator";
+import * as mmlGenerator from "./mmlGenerator";
 import * as part from "./part";
 import * as soundEffect from "./soundEffect";
 import { getHashFromString, pitchToFreq } from "./util";
@@ -12,8 +13,11 @@ import {
   playEmpty,
   resumeAudioContext,
   start as startAudio,
+  audioContext,
 } from "./audio";
+import { Note } from "@tonaljs/tonal";
 
+export type { Type as SoundEffectType } from "./soundEffect";
 export {
   setTempo,
   setQuantize,
@@ -23,8 +27,179 @@ export {
   startAudio,
 };
 
-const random = soundEffect.random;
 let baseRandomSeed;
+
+export function playSoundEffect(
+  type: soundEffect.Type,
+  _options?: {
+    seed?: number;
+    numberOfSounds?: number;
+    pitch?: number;
+    freq?: number;
+    note?: string;
+    volume?: number;
+  }
+): soundEffect.SoundEffect {
+  const options = {
+    ...{ seed: 0, numberOfSounds: 2, volume: 1 },
+    ..._options,
+  };
+  const key = `${type}_${JSON.stringify(options)}_${baseRandomSeed}`;
+  if (soundEffects[key] != null) {
+    soundEffect.play(soundEffects[key]);
+    return soundEffects[key];
+  }
+  let freq: number;
+  if (options.freq != null) {
+    freq = options.freq;
+  } else if (options.pitch != null) {
+    freq = pitchToFreq(options.pitch);
+  } else if (options.note != null) {
+    freq = Note.get(
+      options.note.toUpperCase().replace("+", "#").replace("-", "b")
+    ).freq;
+  }
+  let numberOfSounds = options.numberOfSounds;
+  let attackRatio = 1;
+  let sustainRatio = 1;
+  if (type === "synth") {
+    attackRatio = sustainRatio = 0.2;
+  } else if (type === "tone") {
+    attackRatio = sustainRatio = 0.1;
+    numberOfSounds = 1;
+  }
+  const se = soundEffect.get(
+    type,
+    options.seed + baseRandomSeed,
+    numberOfSounds,
+    options.volume,
+    freq,
+    attackRatio,
+    sustainRatio
+  );
+  soundEffect.add(se);
+  soundEffects[key] = se;
+  soundEffect.play(se);
+  return se;
+}
+
+const mmlQuantizeInterval = 0.125;
+let soundEffects: { [key: string]: soundEffect.SoundEffect };
+let loopingTrack: track.Track;
+
+export function playMml(
+  mmlStrings: string[],
+  _options?: { volume?: number; speed?: number; isLooping?: boolean }
+): track.Track {
+  stopMml();
+  const options = { ...{ volume: 1, speed: 1, isLooping: true }, ..._options };
+  let notesStepsCount = 0;
+  const tracks = mmlStrings.map((ms) => soundEffect.fromMml(ms));
+  tracks.forEach((t) => {
+    const s = getNotesStepsCount(t.mml);
+    if (s > notesStepsCount) {
+      notesStepsCount = s;
+    }
+  });
+  const parts: part.Part[] = tracks.map((t) => {
+    const { mml, args } = t;
+    const sequence = mmlToQuantizedSequence(mml, notesStepsCount);
+    const se = soundEffect.getForSequence(
+      sequence,
+      args.isDrum,
+      args.seed,
+      args.type,
+      args.volume * options.volume
+    );
+    return part.get(mml, sequence, se);
+  });
+  const t = track.get(parts, notesStepsCount, options.speed);
+  track.add(t);
+  track.play(t, options.isLooping);
+  if (options.isLooping) {
+    loopingTrack = t;
+  }
+  return t;
+}
+
+export function stopMml(_track?: track.Track) {
+  let t = _track;
+  if (t == null) {
+    if (loopingTrack != null) {
+      t = loopingTrack;
+      loopingTrack = undefined;
+    } else {
+      return;
+    }
+  }
+  track.stop(t);
+  track.remove(t);
+  loopingTrack = undefined;
+}
+
+export function generateMml(option?: mmlGenerator.Option): string[] {
+  return mmlGenerator.generate(option);
+}
+
+export function update() {
+  const currentTime = audioContext.currentTime;
+  track.update(currentTime);
+  soundEffect.update(currentTime);
+}
+
+export function init(
+  baseRandomSeed = 1,
+  audioContext: AudioContext = undefined
+) {
+  setSeed(baseRandomSeed);
+  initAudio(audioContext);
+  reset();
+}
+
+export function reset() {
+  track.init();
+  loopingTrack = undefined;
+  jingles = {};
+  soundEffect.init();
+  soundEffects = {};
+}
+
+export function setSeed(_baseRandomSeed = 1) {
+  baseRandomSeed = _baseRandomSeed;
+  trackGenerator.setSeed(baseRandomSeed);
+  mmlGenerator.setSeed(baseRandomSeed);
+}
+
+function getNotesStepsCount(mml: string) {
+  const iter = new MMLIterator(mml);
+  for (let ne of iter) {
+    if (ne.type === "end") {
+      return Math.floor(ne.time / mmlQuantizeInterval);
+    }
+  }
+}
+
+function mmlToQuantizedSequence(mml: string, notesStepsCount: number) {
+  const notes = [];
+  const iter = new MMLIterator(mml);
+  for (let ne of iter) {
+    if (ne.type === "note") {
+      let endStep = Math.floor((ne.time + ne.duration) / mmlQuantizeInterval);
+      if (endStep >= notesStepsCount) {
+        endStep -= notesStepsCount;
+      }
+      notes.push({
+        pitch: ne.noteNumber,
+        quantizedStartStep: Math.floor(ne.time / mmlQuantizeInterval),
+        quantizedEndStep: endStep,
+      });
+    }
+  }
+  return { notes };
+}
+
+// For backward compatibility (v <= 2.0.0)
+
 let jingles: { [key: string]: track.Track };
 let generatedTrack: track.Track;
 
@@ -35,7 +210,7 @@ export function play(
   volume = 1
 ) {
   playSoundEffect(trackGenerator.playPrefixes[name[0]], {
-    seed: baseRandomSeed + getHashFromString(name),
+    seed: getHashFromString(name),
     numberOfSounds,
     pitch,
     volume,
@@ -51,6 +226,7 @@ export function playBgm(
   soundEffectTypes = ["laser", "select", "hit", "hit"],
   volume = 1
 ) {
+  stopBgm();
   generatedTrack = trackGenerator.generateBgm(
     name,
     pitch,
@@ -101,134 +277,4 @@ export function playJingle(
 
 export function stopJingles() {
   track.stopAll();
-}
-
-const mmlQuantizeInterval = 0.125;
-let soundEffects: { [key: string]: soundEffect.SoundEffect };
-let mmlTrack: track.Track;
-
-export function playMml(
-  mmlStrings: string[],
-  _options?: { volume?: number; speed?: number; isLooping?: boolean }
-) {
-  const options = { ...{ volume: 1, speed: 1, isLooping: true }, ..._options };
-  let notesStepsCount = 0;
-  const tracks = mmlStrings.map((ms) => soundEffect.fromMml(ms));
-  tracks.forEach((t) => {
-    const s = getNotesStepsCount(t.mml);
-    if (s > notesStepsCount) {
-      notesStepsCount = s;
-    }
-  });
-  const parts: part.Part[] = tracks.map((t) => {
-    const { mml, args } = t;
-    const sequence = mmlToQuantizedSequence(mml, notesStepsCount);
-    const se = soundEffect.getForSequence(
-      sequence,
-      args.isDrum,
-      args.seed,
-      args.type,
-      args.volume * options.volume
-    );
-    return part.get(mml, sequence, se);
-  });
-  mmlTrack = track.get(parts, notesStepsCount, options.speed);
-  track.add(mmlTrack);
-  track.play(mmlTrack, options.isLooping);
-}
-
-export function stopMml() {
-  if (mmlTrack == null) {
-    return;
-  }
-  track.stop(mmlTrack);
-  track.remove(mmlTrack);
-  mmlTrack = undefined;
-}
-
-export function playSoundEffect(
-  type: soundEffect.Type = undefined,
-  _options?: {
-    seed?: number;
-    numberOfSounds?: number;
-    pitch?: number;
-    volume?: number;
-  }
-) {
-  const options = {
-    ...{ seed: undefined, numberOfSounds: 2, volume: 1, pitch: undefined },
-    ..._options,
-  };
-  const key = `${type}_${JSON.stringify(options)}`;
-  if (soundEffects[key] == null) {
-    if (type == null) {
-      random.setSeed(options.seed);
-      type = soundEffect.types[random.getInt(8)];
-    }
-    const se = soundEffect.get(
-      type,
-      options.seed == null ? baseRandomSeed : options.seed,
-      options.numberOfSounds,
-      options.volume,
-      options.pitch == null ? undefined : pitchToFreq(options.pitch)
-    );
-    soundEffect.add(se);
-    soundEffects[key] = se;
-  }
-  soundEffect.play(soundEffects[key]);
-}
-
-export function update() {
-  track.update();
-  soundEffect.update();
-}
-
-export function init(
-  baseRandomSeed = 1,
-  audioContext: AudioContext = undefined
-) {
-  setSeed(baseRandomSeed);
-  initAudio(audioContext);
-  reset();
-}
-
-export function reset() {
-  track.init();
-  jingles = {};
-  soundEffect.init();
-  soundEffects = {};
-  stopMml();
-}
-
-export function setSeed(_baseRandomSeed = 1) {
-  baseRandomSeed = _baseRandomSeed;
-  trackGenerator.setSeed(baseRandomSeed);
-}
-
-function getNotesStepsCount(mml: string) {
-  const iter = new MMLIterator(mml);
-  for (let ne of iter) {
-    if (ne.type === "end") {
-      return Math.floor(ne.time / mmlQuantizeInterval);
-    }
-  }
-}
-
-function mmlToQuantizedSequence(mml: string, notesStepsCount: number) {
-  const notes = [];
-  const iter = new MMLIterator(mml);
-  for (let ne of iter) {
-    if (ne.type === "note") {
-      let endStep = Math.floor((ne.time + ne.duration) / mmlQuantizeInterval);
-      if (endStep >= notesStepsCount) {
-        endStep -= notesStepsCount;
-      }
-      notes.push({
-        pitch: ne.noteNumber,
-        quantizedStartStep: Math.floor(ne.time / mmlQuantizeInterval),
-        quantizedEndStep: endStep,
-      });
-    }
-  }
-  return { notes };
 }
