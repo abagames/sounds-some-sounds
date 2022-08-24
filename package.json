@@ -18,10 +18,11 @@
     "preview_demo": "vite preview --config vite_demo.config.js"
   },
   "devDependencies": {
-    "typescript": "^4.6.2",
-    "vite": "^2.8.6"
+    "typescript": "^4.7.4",
+    "vite": "^3.0.9"
   },
   "dependencies": {
+    "@tonaljs/tonal": "^4.6.5",
     "mml-iterator": "^1.1.0"
   }
 }
