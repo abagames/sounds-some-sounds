@@ -1,5 +1,5 @@
 // Play sound effect
-declare function playSoundEffect(
+export declare function playSoundEffect(
   // The list of SoundEffectType is as follows:
   // "coin", "laser", "explosion", "powerUp", "hit", "jump", "select",
   // "random"("lucky"), "click", "synth", "tone"
@@ -18,7 +18,7 @@ declare function playSoundEffect(
   }
 ): SoundEffect;
 // Play music described in MML
-declare function playMml(
+export declare function playMml(
   mmlStrings: string[],
   options?: {
     // Sound volume (default = 1)
@@ -30,9 +30,9 @@ declare function playMml(
   }
 ): Track;
 // Stop MML music
-declare function stopMml(track?: Track): void;
+export declare function stopMml(track?: Track): void;
 // Generate MML strings
-declare function generateMml(options?: {
+export declare function generateMml(options?: {
   // Random seed (default = 0)
   seed?: number;
   // Generated music length (16 notes = 1 bar) (default = 32)
@@ -43,7 +43,7 @@ declare function generateMml(options?: {
   drumPartRatio?: number;
 }): string[];
 // Initialize the library
-declare function init(
+export declare function init(
   // Used to generate sound effects and MMLs
   baseRandomSeed?: number,
   // When reusing an existing AudioContext
@@ -51,22 +51,22 @@ declare function init(
 ): void;
 // The startAudio function needs to be called from within
 // the user operation event handler to enable audio playback in the browser
-declare function startAudio(): void;
+export declare function startAudio(): void;
 // The update function needs to be called every
 // certain amount of time (typically 60 times per second)
-declare function update(): void;
+export declare function update(): void;
 // Set the tempo of the music
-declare function setTempo(tempo?: number): void;
+export declare function setTempo(tempo?: number): void;
 // Set the quantize timing of sound effects by the length of the note
-declare function setQuantize(noteLength?: number): void;
+export declare function setQuantize(noteLength?: number): void;
 // Set a master volume
-declare function setVolume(volume?: number): void;
+export declare function setVolume(volume?: number): void;
 // Reset all states
-declare function reset(): void;
+export declare function reset(): void;
 // Set a random seed number
-declare function setSeed(baseRandomSeed?: number): void;
+export declare function setSeed(baseRandomSeed?: number): void;
 
-declare type SoundEffectType =
+export declare type SoundEffectType =
   | "coin"
   | "laser"
   | "explosion"
@@ -80,7 +80,7 @@ declare type SoundEffectType =
   | "synth"
   | "tone";
 
-declare type SoundEffect = {
+export declare type SoundEffect = {
   type: SoundEffectType;
   params;
   volume: number;
@@ -93,13 +93,13 @@ declare type SoundEffect = {
   seed?: number;
 };
 
-declare type Note = {
+export declare type Note = {
   pitch: number;
   quantizedStartStep: number;
   quantizedEndStep: number;
 };
 
-declare type Part = {
+export declare type Part = {
   mml: string;
   sequence: { notes: Note[] };
   soundEffect: SoundEffect;
@@ -108,7 +108,7 @@ declare type Part = {
   visualizer?;
 };
 
-declare type Track = {
+export declare type Track = {
   parts: Part[];
   notesStepsCount: number;
   notesStepsIndex: number;
@@ -121,14 +121,14 @@ declare type Track = {
 
 // For backward compatibility (v <= 2.0.0)
 // Play the sound effect
-declare function play(
+export declare function play(
   name?: string,
   numberOfSounds?: number,
   pitch?: number,
   volume?: number
 ): void;
 // Play generated background music
-declare function playBgm(
+export declare function playBgm(
   name?: string,
   pitch?: number,
   len?: number,
@@ -138,9 +138,9 @@ declare function playBgm(
   volume?: number
 ): void;
 // Stop the background music
-declare function stopBgm(): void;
+export declare function stopBgm(): void;
 // Play generated jingle
-declare function playJingle(
+export declare function playJingle(
   name?: string,
   isSoundEffect?: boolean,
   note?: number,
@@ -150,7 +150,7 @@ declare function playJingle(
   volume?: number
 ): void;
 // Stop all jingles
-declare function stopJingles(): void;
+export declare function stopJingles(): void;
 // Utility functions for resuming AudioContext
-declare function playEmpty(): void;
-declare function resumeAudioContext(): void;
+export declare function playEmpty(): void;
+export declare function resumeAudioContext(): void;
