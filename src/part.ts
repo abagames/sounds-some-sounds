@@ -1,9 +1,15 @@
 import { Track } from "./track";
 import * as soundEffect from "./soundEffect";
 
+type Note = {
+  pitch: number;
+  quantizedStartStep: number;
+  quantizedEndStep: number;
+};
+
 export type Part = {
   mml: string;
-  sequence;
+  sequence: { notes: Note[] };
   soundEffect: soundEffect.SoundEffect;
   noteIndex: number;
   endStep: number;
@@ -12,7 +18,7 @@ export type Part = {
 
 export function get(
   mml: string,
-  sequence,
+  sequence: { notes: Note[] },
   soundEffect: soundEffect.SoundEffect,
   visualizer?
 ): Part {
