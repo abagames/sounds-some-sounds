@@ -7,7 +7,7 @@ Add sounds to your game in a minute.
 Load [build/index.js](https://github.com/abagames/sounds-some-sounds/blob/master/build/index.js) script,
 
 ```html
-<script src="https://unpkg.com/sounds-some-sounds/build/index.js"></script>
+<script src="https://unpkg.com/sounds-some-sounds@3.0.0/build/index.js"></script>
 ```
 
 or install from npm.
@@ -20,11 +20,11 @@ or install from npm.
 import * as sss from "sounds-some-sounds";
 ```
 
-Initialize the sss (sounds-some-sounds) library with `init()` function. The first argument allows you to set a random number seed for sound generation. Generated SEs (sound effects) and a BGM can be changed by setting the another random number seed.
+Initialize the sss (sounds-some-sounds) library with `init()` function. The first argument allows you to set a random number seed for sound generation. Generated sound effects and musics can be changed by setting the another random number seed.
 
 ```js
 addEventListener("load", () => {
-  sss.init(31);
+  sss.init(42);
 ```
 
 Since Safari and Chrome requires playing the first sound within the event handler of a user operation, `startAudio()` should be called in the event handler.
@@ -36,12 +36,6 @@ addEventListener("touchstart", () => {
 // 'mousedown' or 'keydown' event as well.
 ```
 
-Call `playBgm()` to start a BGM.
-
-```js
-sss.playBgm();
-```
-
 `update()` should be called per a frame for updating sounds.
 
 ```js
@@ -51,35 +45,23 @@ function update() {
   sss.update();
 ```
 
-Call `play()` to play an SE. The first argument is the name of the SE. The SEs having the same name have the same sound. You can change the generated sound by changing the name.
+Call `playSoundEffect()` to play an sound effect.
 
-If the name starts with 'c', 'l', 'e', 'p', 'h', 'j', 's' or 'r',
-corresponding [jsfx](https://github.com/loov/jsfx) Preset SE
-(Coin, Laser, Explosion, Powerup, Hit, Jump, Select and Random (Lucky)) is generated.
-You can hear these sounds at the [demo page](https://abagames.github.io/sounds-some-sounds/index.html).
-
-The second argument is the number of generated sounds played at a time. As the number gets larger, the sound becomes louder and more complicated.
-
-```javascript
-// play the jsfx.Preset.'s'elect SE
-sss.play("s1");
+```js
+sss.playSoundEffect("coin");
 ```
 
-SEs are automatically quantized to the BGM. The quantize interval can be changed with the `setQuantize()` function (`setQuantize(0)` disables quantization).
+You can specify the type of the sound effect with the first argument. The type corresponds to the [jsfx](https://github.com/loov/jsfx) preset sound effects (Coin, Laser, Explosion, Powerup, Hit, Jump, Select and Random (Lucky)). You can hear these sounds at the [demo page](https://abagames.github.io/sounds-some-sounds/index.html).
 
-You can also play a jingle (short melody) with `playJingle()`.
+Use `playMml()` and `generateMml()` to start a automatically generated background music.
 
-```javascript
-// play an opening jingle (short melody) with the jsfx.Preset.'s'elect
-sss.playJingle("s0");
+```js
+sss.playMml(sss.generateMml());
 ```
 
-```javascript
-// play the jsfx.Preset.'l'aser jingle as a SE (sound effect)
-sss.playJingle("l1", true);
-```
+`playMml()` plays music described in [MML (Music Macro Language)](https://github.com/mohayonao/mml-iterator). `generateMml()` generate MML with melody and drums procedurally.
 
-`playMml()` function plays music described in [MML (Music Macro Language)](https://github.com/mohayonao/mml-iterator). You can use MML automatically composed by [good-old-game-sound-generator](https://github.com/abagames/good-old-game-sound-generator).
+You can also specify the MML string manually.
 
 ```javascript
 sss.playMml([
@@ -95,87 +77,76 @@ sss.playMml([
 ]);
 ```
 
+Sound effects are automatically quantized to the background music. The quantize interval can be changed with the `setQuantize()` function. `setQuantize(0)` disables quantization.
+
 ## Functions
 
 ```typescript
-// Play the sound effect
-function play(
-  name?: string,
-  numberOfSounds?: number,
-  pitch?: number,
-  volume?: number
-): void;
+// Play sound effect
 function playSoundEffect(
-  type?:
-    | "coin"
-    | "laser"
-    | "explosion"
-    | "powerUp"
-    | "hit"
-    | "jump"
-    | "select"
-    | "random"
-    | "synth"
-    | "tone"
-    | "click",
-  _options?: {
+  // The list of SoundEffectType is as follows:
+  // "coin", "laser", "explosion", "powerUp", "hit", "jump", "select",
+  // "random"("lucky"), "click", "synth", "tone"
+  type: SoundEffectType,
+  options?: {
+    // Random seed (default = 0)
     seed?: number;
+    // Number of simultaneous sounds (default = 2)
     numberOfSounds?: number;
-    pitch?: number;
+    // Sound volume (default = 1)
     volume?: number;
+    // To set the pitch of the sound, set one of the following 3 parameters
+    pitch?: number; // MIDI note number
+    freq?: number; // Frequency (Hz)
+    note?: string; // Note string (e.g. "C4", "F#3", "Ab5")
   }
-): void;
-// Play generated background music
-function playBgm(
-  name?: string,
-  pitch?: number,
-  len?: number,
-  interval?: number,
-  numberOfTracks?: number,
-  soundEffectTypes?: string[],
-  volume?: number
-): void;
-// Stop the background music
-function stopBgm(): void;
-// Play generated jingle
-function playJingle(
-  name?: string,
-  isSoundEffect?: boolean,
-  note?: number,
-  len?: number,
-  interval?: number,
-  numberOfTracks?: number,
-  volume?: number
-): void;
-// Stop all jingles
-function stopJingles(): void;
+): SoundEffect;
 // Play music described in MML
 function playMml(
   mmlStrings: string[],
-  _options?: { volume?: number; speed?: number; isLooping?: boolean }
-): void;
+  options?: {
+    // Sound volume (default = 1)
+    volume?: number;
+    // Playback speed (default = 1)
+    speed?: number;
+    // Looping at the end of the music (default = true)
+    isLooping?: boolean;
+  }
+): Track;
 // Stop MML music
-function stopMml(): void;
-// The update function needs to be called every
-// certain amount of time (typically 60 times per second)
-function update(): void;
-// Initialize the library (baseRandomSeed represents
-// the seed of the random number used to generate the sound effect)
-function init(baseRandomSeed?: number, audioContext?: AudioContext): void;
+function stopMml(track?: Track): void;
+// Generate MML strings
+function generateMml(options?: {
+  // Random seed (default = 0)
+  seed?: number;
+  // Generated music length (16 notes = 1 bar) (default = 32)
+  noteLength?: number;
+  // Number of simultaneous parts (default = 4)
+  partCount?: number;
+  // Probability of drum part generation (default = 0.5)
+  drumPartRatio?: number;
+}): string[];
+// Initialize the library
+function init(
+  // Used to generate sound effects and MMLs
+  baseRandomSeed?: number,
+  // When reusing an existing AudioContext
+  audioContext?: AudioContext
+): void;
 // The startAudio function needs to be called from within
 // the user operation event handler to enable audio playback in the browser
 function startAudio(): void;
+// The update function needs to be called every
+// certain amount of time (typically 60 times per second)
+function update(): void;
 // Set the tempo of the music
 function setTempo(tempo?: number): void;
 // Set the quantize timing of sound effects by the length of the note
 function setQuantize(noteLength?: number): void;
 // Set a master volume
 function setVolume(volume?: number): void;
-// Rest all states
+// Reset all states
 function reset(): void;
-// Set a random number seed
+// Set a random seed number
 function setSeed(baseRandomSeed?: number): void;
-
-function playEmpty(): void;
-function resumeAudioContext(): void;
 ```
