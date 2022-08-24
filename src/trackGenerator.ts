@@ -19,6 +19,9 @@ export const playPrefixes = {
   s: "select",
   u: "random",
   r: "random",
+  i: "click",
+  y: "synth",
+  t: "tone",
 };
 const random = soundEffect.random;
 let baseRandomSeed = 1;
