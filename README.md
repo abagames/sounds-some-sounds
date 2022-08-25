@@ -10,7 +10,7 @@ Load [build/index.js](https://github.com/abagames/sounds-some-sounds/blob/master
 <script src="https://unpkg.com/sounds-some-sounds@3.0.0/build/index.js"></script>
 ```
 
-or install from npm.
+or install from npm and import.
 
 ```
 > npm i sounds-some-sounds
@@ -20,20 +20,20 @@ or install from npm.
 import * as sss from "sounds-some-sounds";
 ```
 
-Initialize the sss (sounds-some-sounds) library with `init()` function. The first argument allows you to set a random number seed for sound generation. Generated sound effects and musics can be changed by setting the another random number seed.
+Initialize the library with `init()` function. The first argument allows you to set a random number seed for sound generation. Generated sound effects and music can be changed by setting another random number seed.
 
 ```js
 addEventListener("load", () => {
   sss.init(42);
+  update();
 ```
 
-Since Safari and Chrome requires playing the first sound within the event handler of a user operation, `startAudio()` should be called in the event handler.
+Since Safari and Chrome require playing the first sound within the event handler of a user operation, `startAudio()` should be called in the event handler.
 
 ```js
 addEventListener("touchstart", () => {
   sss.startAudio();
-// It is better to call this function from within
-// 'mousedown' or 'keydown' event as well.
+// It should also be called in 'mousedown' and 'keydown' events.
 ```
 
 `update()` should be called per a frame for updating sounds.
@@ -45,15 +45,15 @@ function update() {
   sss.update();
 ```
 
-Call `playSoundEffect()` to play an sound effect.
+Call `playSoundEffect()` to play a sound effect.
 
 ```js
 sss.playSoundEffect("coin");
 ```
 
-You can specify the type of the sound effect with the first argument. The type corresponds to the [jsfx](https://github.com/loov/jsfx) preset sound effects (Coin, Laser, Explosion, Powerup, Hit, Jump, Select and Random (Lucky)). You can hear these sounds at the [demo page](https://abagames.github.io/sounds-some-sounds/index.html).
+You can specify the type of sound effect with the first argument. The type corresponds to the [jsfx](https://github.com/loov/jsfx) preset sound effects (Coin, Laser, Explosion, Powerup, Hit, Jump, Select and Random (Lucky)). You can hear these sounds on the [demo page](https://abagames.github.io/sounds-some-sounds/index.html).
 
-Use `playMml()` and `generateMml()` to start a automatically generated background music.
+Use `playMml()` and `generateMml()` to play an automatically generated background music.
 
 ```js
 sss.playMml(sss.generateMml());
