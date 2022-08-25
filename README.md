@@ -4,7 +4,7 @@ Add sounds to your game in a minute.
 
 ## How to use
 
-Load [build/index.js](https://github.com/abagames/sounds-some-sounds/blob/master/build/index.js) script,
+Load [build/index.js](https://raw.githubusercontent.com/abagames/sounds-some-sounds/master/build/index.js) script,
 
 ```html
 <script src="https://unpkg.com/sounds-some-sounds@3.0.0/build/index.js"></script>
