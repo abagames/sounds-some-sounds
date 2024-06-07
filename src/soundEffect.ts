@@ -34,7 +34,7 @@ export const types = [
   "synth",
   "tone",
 ] as const;
-export type Type = typeof types[number];
+export type Type = (typeof types)[number];
 const typeFunctionNames = {
   coin: "Coin",
   laser: "Laser",
@@ -136,7 +136,7 @@ export function getForSequence(
   random.setSeed(seed);
   let se: SoundEffect;
   if (isDrum) {
-    let t = random.select(["hit", "hit", "click", "click", "explosion"]);
+    let t = random.select(["hit", "click", "explosion"]);
     if (type != null) {
       t = type;
     }
@@ -162,7 +162,7 @@ export function getForSequence(
       t,
       random.getInt(999999999),
       t !== "select" ? 1 : 2,
-      volume != null ? volume : t === "tone" ? 0.3 : t === "synth" ? 0.4 : 0.25,
+      volume != null ? volume : 0.3,
       261.6,
       t !== "select" ? 0.1 : 1,
       t !== "select" ? 2 : 1

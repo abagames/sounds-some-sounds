@@ -1,6 +1,6 @@
 import { Progression, Chord } from "@tonaljs/tonal";
 import { Random } from "./random";
-import { times } from "./util";
+import { times, clamp } from "./util";
 
 export type Option = {
   seed?: number;
@@ -32,7 +32,9 @@ export function generate(_options?: Option) {
     if (isDrum) {
       return generateDrumNote(options.noteLength);
     } else {
-      return generateMelodyNote(options.noteLength, chordProgressionNotes);
+      return random.get() < 0.5
+        ? generateMelodyNote(options.noteLength, chordProgressionNotes)
+        : generateChordNote(options.noteLength, chordProgressionNotes);
     }
   });
 }
@@ -41,47 +43,87 @@ function generateMelodyNote(
   noteLength: number,
   chordProgressionNotes: string[][]
 ) {
-  const pattern = createRandomPattern(noteLength, 1);
-  const continuingPattern = times(noteLength, () => random.get() < 0.8);
-  const randomChordPatterns = random.select([
-    [0, 2],
-    [0, 1, 2],
-    [0, 1, 2, 3],
-  ]);
-  let seType = random.select([
-    "tone",
-    "tone",
-    "tone",
-    "select",
-    "laser",
-    "synth",
-    "hit",
-  ]);
-  let volume = random.getInt(36, 50);
-  if (seType === "synth" || seType === "select") {
-    volume = Math.floor(volume * 0.6);
-  }
-  const baseOctaveOffset = random.getInt(-1, 1);
+  const seType = random.select(["tone", "synth"]);
+  const volume = 32;
   const baseNoteDuration = 16;
   let mml = `@${seType}@s${random.getInt(
     999999999
   )} v${volume} l${baseNoteDuration} `;
+  const pattern = createRandomPattern(noteLength, 4, 8, 3);
+  let octaveOffset = random.getInt(-1, 1);
   let octave = -1;
-  let hasPrevNote = false;
   for (let i = 0; i < noteLength; i++) {
+    if (random.get() < 0.1) {
+      octaveOffset += random.getInt(-1, 2);
+    }
     if (!pattern[i]) {
       mml += "r";
-      hasPrevNote = false;
       continue;
     }
-    if (continuingPattern[i] && hasPrevNote) {
-      mml += "^";
+    const ns = chordProgressionNotes[i][random.getInt(4)];
+    let o = clamp(
+      Number.parseFloat(ns.charAt(ns.length - 1)) + octaveOffset,
+      2,
+      7
+    );
+    const n = ns
+      .substring(0, ns.length - 1)
+      .replace("#", "+")
+      .replace("b", "-")
+      .toLowerCase();
+    if (o !== octave) {
+      mml += ` o${o}`;
+      octave = o;
+    }
+    mml += n;
+  }
+  return mml;
+}
+
+function generateChordNote(
+  noteLength: number,
+  chordProgressionNotes: string[][]
+) {
+  const seType = random.select(["tone", "synth", "select"]);
+  const isArpeggio = random.get() < 0.3;
+  const volume = isArpeggio ? 24 : 30;
+  const baseNoteDuration = 16;
+  let mml = `@${seType}@s${random.getInt(
+    999999999
+  )} v${volume} l${baseNoteDuration} `;
+  const arpeggioInterval = random.select([4, 8, 16]);
+  const arpeggioPattern = times(arpeggioInterval, () => random.getInt(4));
+  const interval = random.select([2, 4, 8]);
+  const pattern = isArpeggio
+    ? times(noteLength, () => true)
+    : createRandomPattern(
+        noteLength,
+        random.select([1, 1, interval / 2]),
+        interval,
+        2
+      );
+  let baseOctave = random.getInt(-1, 1);
+  const isReciprocatingOctave = random.get() < (isArpeggio ? 0.3 : 0.8);
+  let octaveOffset = 0;
+  let octave = -1;
+  for (let i = 0; i < noteLength; i++) {
+    if (isReciprocatingOctave && i % interval === 0) {
+      octaveOffset = (octaveOffset + 1) % 2;
+    }
+    if (!pattern[i]) {
+      mml += "r";
       continue;
     }
-    hasPrevNote = true;
-    const ns = chordProgressionNotes[i][random.select(randomChordPatterns)];
-    let o = Number.parseFloat(ns.charAt(ns.length - 1)) + baseOctaveOffset;
-    let n = ns
+    const ns =
+      chordProgressionNotes[i][
+        isArpeggio ? arpeggioPattern[i % arpeggioInterval] : 0
+      ];
+    let o = clamp(
+      Number.parseFloat(ns.charAt(ns.length - 1)) + baseOctave + octaveOffset,
+      2,
+      7
+    );
+    const n = ns
       .substring(0, ns.length - 1)
       .replace("#", "+")
       .replace("b", "-")
@@ -96,30 +138,20 @@ function generateMelodyNote(
 }
 
 function generateDrumNote(noteLength: number) {
-  const pattern = createRandomPattern(noteLength, 3);
-  const continuingPattern = times(noteLength, () => random.get() < 0.4);
-  const seType = random.select(["hit", "hit", "click", "explosion"]);
-  let volume = random.getInt(36, 50);
-  if (seType === "click" || seType === "explosion") {
-    volume = Math.floor(volume * 0.5);
-  }
+  const volume = 36;
   const baseNoteDuration = 16;
+  const seType = random.select(["hit", "click", "explosion"]);
   let mml = `@${seType}@d@s${random.getInt(
     999999999
-  )} v${volume} l${baseNoteDuration} `;
-  let hasPrevNote = false;
+  )} v${volume} l${baseNoteDuration} o2 `;
+  const pattern = createRandomPattern(
+    noteLength,
+    random.getInt(1, 3),
+    random.select([4, 8]),
+    3
+  );
   for (let i = 0; i < noteLength; i++) {
-    if (!pattern[i]) {
-      mml += "r";
-      hasPrevNote = false;
-      continue;
-    }
-    if (continuingPattern[i] && hasPrevNote) {
-      mml += "^";
-      continue;
-    }
-    hasPrevNote = true;
-    mml += "c";
+    mml += pattern[i] ? "c" : "r";
   }
   return mml;
 }
@@ -167,10 +199,17 @@ function generateChordProgression(len: number): string[][] {
   });
 }
 
-function createRandomPattern(len: number, freq: number) {
+function createRandomPattern(
+  len: number,
+  freq: number,
+  interval: number,
+  loop: number
+) {
   let pattern = times(len, () => false);
-  let interval = 4;
-  while (interval <= len) {
+  for (let i = 0; i < loop; i++) {
+    if (interval > len) {
+      break;
+    }
     pattern = reversePattern(pattern, interval, freq);
     interval *= 2;
   }
