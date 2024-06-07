@@ -7,7 +7,7 @@ Add sounds to your game in a minute.
 Load [build/index.js](https://raw.githubusercontent.com/abagames/sounds-some-sounds/master/build/index.js) script,
 
 ```html
-<script src="https://unpkg.com/sounds-some-sounds@3.0.0/build/index.js"></script>
+<script src="https://unpkg.com/sounds-some-sounds@3.1.0/build/index.js"></script>
 ```
 
 or install from npm and import.
@@ -85,8 +85,8 @@ Sound effects are automatically quantized to the background music. The quantize 
 // Play sound effect
 function playSoundEffect(
   // The list of SoundEffectType is as follows:
-  // "coin", "laser", "explosion", "powerUp", "hit", "jump", "select",
-  // "random"("lucky"), "click", "synth", "tone"
+  // "coin", "jump", "powerUp", "laser", "hit", "select", "click", "explosion", "random",
+  // "synth", "tone"
   type: SoundEffectType,
   options?: {
     // Random seed (default = 0)
