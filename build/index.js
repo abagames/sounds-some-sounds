@@ -1093,7 +1093,7 @@ var __publicField = (obj, key, value) => {
           for (; i < end; i += 1) {
             block[i] *= vol;
             vol += grad;
-            vol = clamp(vol, 0, 10);
+            vol = clamp2(vol, 0, 10);
           }
           E.S = vol;
           E.N -= N;
@@ -1146,7 +1146,7 @@ var __publicField = (obj, key, value) => {
       },
       Laser: function() {
         var p = EmptyParams();
-        p.Generator.Func = rchoose(["square", "saw", "sine"]);
+        p.Generator.Func = rchoose(["saw", "sine"]);
         if (runif() < 0.33) {
           p.Frequency.Start = runif(880, 440);
           p.Frequency.Min = runif(0.1);
@@ -1236,7 +1236,7 @@ var __publicField = (obj, key, value) => {
       },
       Hit: function() {
         var p = EmptyParams();
-        p.Generator.Func = rchoose(["square", "saw", "noise"]);
+        p.Generator.Func = rchoose(["saw", "noise"]);
         p.Generator.A = runif(0.6);
         p.Generator.ASlide = runif(1, -0.5);
         p.Frequency.Start = runif(880, 220);
@@ -1274,6 +1274,7 @@ var __publicField = (obj, key, value) => {
         p.Volume.Sustain = runif(0.1, 0.1);
         p.Volume.Decay = runif(0.2);
         p.Filter.HP = 0.2;
+        p.Volume.Master = 0.4;
         RemoveEmptyParams(p);
         return p;
       },
@@ -1318,11 +1319,12 @@ var __publicField = (obj, key, value) => {
         p.Generator.Func = "square";
         p.Frequency.Start = 261.6;
         p.Volume.Sustain = 0.6441;
+        p.Volume.Master = 0.7;
         RemoveEmptyParams(p);
         return p;
       },
       Click: function() {
-        var p = runif() > 0.5 ? jsfx2.Preset.Hit() : jsfx2.Preset.Explosion();
+        var p = jsfx2.Preset.Hit();
         if (runif() < 0.5) {
           p.Frequency.Slide = -0.5 + runif(1);
         }
@@ -1470,7 +1472,7 @@ var __publicField = (obj, key, value) => {
         throw new Error(message);
       }
     }
-    function clamp(v, min, max) {
+    function clamp2(v, min, max) {
       v = +v;
       min = +min;
       max = +max;
@@ -1652,8 +1654,8 @@ var __publicField = (obj, key, value) => {
     }
     return result;
   }
-  function pitchToFreq(pitch) {
-    return 440 * Math.pow(2, (pitch - 69) / 12);
+  function pitchToFreq(pitch2) {
+    return 440 * Math.pow(2, (pitch2 - 69) / 12);
   }
   function getHashFromString(str) {
     let hash = 0;
@@ -1664,6 +1666,9 @@ var __publicField = (obj, key, value) => {
       hash |= 0;
     }
     return hash;
+  }
+  function clamp(v, low = 0, high = 1) {
+    return Math.max(low, Math.min(v, high));
   }
   const types = [
     "coin",
@@ -1756,7 +1761,7 @@ var __publicField = (obj, key, value) => {
     random2.setSeed(seed);
     let se;
     if (isDrum) {
-      let t = random2.select(["hit", "hit", "click", "click", "explosion"]);
+      let t = random2.select(["hit", "click", "explosion"]);
       if (type != null) {
         t = type;
       }
@@ -1779,7 +1784,7 @@ var __publicField = (obj, key, value) => {
         t,
         random2.getInt(999999999),
         t !== "select" ? 1 : 2,
-        volume2 != null ? volume2 : t === "tone" ? 0.3 : t === "synth" ? 0.4 : 0.25,
+        volume2 != null ? volume2 : 0.3,
         261.6,
         t !== "select" ? 0.1 : 1,
         t !== "select" ? 2 : 1
@@ -1804,7 +1809,7 @@ var __publicField = (obj, key, value) => {
     });
     return sl / nc;
   }
-  function add$3(se) {
+  function add$6(se) {
     soundEffects$1.push(se);
   }
   function playSoundEffect$1(soundEffect) {
@@ -1950,7 +1955,7 @@ var __publicField = (obj, key, value) => {
     track.noteInterval = noteInterval;
     track.nextNotesTime = getQuantizedTime(audioContext.currentTime) - noteInterval;
   }
-  function add$2(track) {
+  function add$5(track) {
     tracks.push(track);
   }
   function remove(track) {
@@ -2019,7 +2024,7 @@ var __publicField = (obj, key, value) => {
   function setSeed$2(_baseRandomSeed) {
     baseRandomSeed$2 = _baseRandomSeed;
   }
-  function generateBgm(name2, pitch, len, interval2, numberOfTracks, soundEffectTypes, volume2) {
+  function generateBgm(name2, pitch2, len, interval2, numberOfTracks, soundEffectTypes, volume2) {
     random$1.setSeed(baseRandomSeed$2 + getHashFromString(name2));
     initProgression();
     prevTrack = null;
@@ -2040,7 +2045,7 @@ var __publicField = (obj, key, value) => {
       return generatePart(
         len,
         param,
-        pitch,
+        pitch2,
         0.7,
         randomness,
         chordOffset,
@@ -2111,10 +2116,10 @@ var __publicField = (obj, key, value) => {
     return get$7(parts, gps[0].notes.length * 2, speedRatio);
   }
   let prevTrack;
-  function generatePart(len = 32, soundEffectName, pitch = 60, durationRatio = 1, chordOffset = 0, randomness = 0, velocityRatio = 1, hasSameNoteWithPrevPart = false, isLimitNoteWidth = false, isLimitNoteResolution = false, isRepeatHalf = false, restRatio = null, volume2 = 0.1) {
+  function generatePart(len = 32, soundEffectName, pitch2 = 60, durationRatio = 1, chordOffset = 0, randomness = 0, velocityRatio = 1, hasSameNoteWithPrevPart = false, isLimitNoteWidth = false, isLimitNoteResolution = false, isRepeatHalf = false, restRatio = null, volume2 = 0.1) {
     const generatedPart = getGeneratedPart(
       soundEffectName,
-      pitchToFreq(pitch),
+      pitchToFreq(pitch2),
       durationRatio,
       volume2
     );
@@ -2279,70 +2284,903 @@ var __publicField = (obj, key, value) => {
       )
     };
   }
-  const fillStr = (s, n) => Array(Math.abs(n) + 1).join(s);
-  function deprecate(original, alternative, fn) {
-    return function(...args) {
-      console.warn(`${original} is deprecated. Use ${alternative}.`);
-      return fn.apply(this, args);
-    };
+  function isNamedPitch$5(src) {
+    return src !== null && typeof src === "object" && "name" in src && typeof src.name === "string" ? true : false;
   }
-  function isNamed(src) {
-    return src !== null && typeof src === "object" && typeof src.name === "string" ? true : false;
+  function isPitch$5(pitch2) {
+    return pitch2 !== null && typeof pitch2 === "object" && "step" in pitch2 && typeof pitch2.step === "number" && "alt" in pitch2 && typeof pitch2.alt === "number" && !isNaN(pitch2.step) && !isNaN(pitch2.alt) ? true : false;
   }
-  function isPitch(pitch) {
-    return pitch !== null && typeof pitch === "object" && typeof pitch.step === "number" && typeof pitch.alt === "number" ? true : false;
-  }
-  const FIFTHS = [0, 2, 4, -1, 1, 3, 5];
-  const STEPS_TO_OCTS = FIFTHS.map((fifths) => Math.floor(fifths * 7 / 12));
-  function encode(pitch) {
-    const { step, alt, oct, dir = 1 } = pitch;
-    const f = FIFTHS[step] + 7 * alt;
+  var FIFTHS$5 = [0, 2, 4, -1, 1, 3, 5];
+  var STEPS_TO_OCTS$5 = FIFTHS$5.map(
+    (fifths) => Math.floor(fifths * 7 / 12)
+  );
+  function coordinates$5(pitch2) {
+    const { step, alt, oct, dir = 1 } = pitch2;
+    const f = FIFTHS$5[step] + 7 * alt;
     if (oct === void 0) {
       return [dir * f];
     }
-    const o = oct - STEPS_TO_OCTS[step] - 4 * alt;
+    const o = oct - STEPS_TO_OCTS$5[step] - 4 * alt;
     return [dir * f, dir * o];
   }
-  const FIFTHS_TO_STEPS = [3, 0, 4, 1, 5, 2, 6];
-  function decode(coord) {
+  var FIFTHS_TO_STEPS$2 = [3, 0, 4, 1, 5, 2, 6];
+  function pitch$2(coord) {
+    const [f, o, dir] = coord;
+    const step = FIFTHS_TO_STEPS$2[unaltered$2(f)];
+    const alt = Math.floor((f + 1) / 7);
+    if (o === void 0) {
+      return { step, alt, dir };
+    }
+    const oct = o + 4 * alt + STEPS_TO_OCTS$5[step];
+    return { step, alt, oct, dir };
+  }
+  function unaltered$2(f) {
+    const i = (f + 1) % 7;
+    return i < 0 ? 7 + i : i;
+  }
+  var fillStr$6 = (s, n) => Array(Math.abs(n) + 1).join(s);
+  var NoInterval$4 = Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  var INTERVAL_TONAL_REGEX$4 = "([-+]?\\d+)(d{1,4}|m|M|P|A{1,4})";
+  var INTERVAL_SHORTHAND_REGEX$4 = "(AA|A|P|M|m|d|dd)([-+]?\\d+)";
+  var REGEX$8 = new RegExp(
+    "^" + INTERVAL_TONAL_REGEX$4 + "|" + INTERVAL_SHORTHAND_REGEX$4 + "$"
+  );
+  function tokenizeInterval$4(str) {
+    const m = REGEX$8.exec(`${str}`);
+    if (m === null) {
+      return ["", ""];
+    }
+    return m[1] ? [m[1], m[2]] : [m[4], m[3]];
+  }
+  var cache$8 = {};
+  function interval$4(src) {
+    return typeof src === "string" ? cache$8[src] || (cache$8[src] = parse$7(src)) : isPitch$5(src) ? interval$4(pitchName$6(src)) : isNamedPitch$5(src) ? interval$4(src.name) : NoInterval$4;
+  }
+  var SIZES$4 = [0, 2, 4, 5, 7, 9, 11];
+  var TYPES$4 = "PMMPPMM";
+  function parse$7(str) {
+    const tokens = tokenizeInterval$4(str);
+    if (tokens[0] === "") {
+      return NoInterval$4;
+    }
+    const num = +tokens[0];
+    const q = tokens[1];
+    const step = (Math.abs(num) - 1) % 7;
+    const t = TYPES$4[step];
+    if (t === "M" && q === "P") {
+      return NoInterval$4;
+    }
+    const type = t === "M" ? "majorable" : "perfectable";
+    const name2 = "" + num + q;
+    const dir = num < 0 ? -1 : 1;
+    const simple = num === 8 || num === -8 ? num : dir * (step + 1);
+    const alt = qToAlt$4(type, q);
+    const oct = Math.floor((Math.abs(num) - 1) / 7);
+    const semitones = dir * (SIZES$4[step] + alt + 12 * oct);
+    const chroma2 = (dir * (SIZES$4[step] + alt) % 12 + 12) % 12;
+    const coord = coordinates$5({ step, alt, oct, dir });
+    return {
+      empty: false,
+      name: name2,
+      num,
+      q,
+      step,
+      alt,
+      dir,
+      type,
+      simple,
+      semitones,
+      chroma: chroma2,
+      coord,
+      oct
+    };
+  }
+  function coordToInterval$1(coord, forceDescending) {
+    const [f, o = 0] = coord;
+    const isDescending = f * 7 + o * 12 < 0;
+    const ivl = forceDescending || isDescending ? [-f, -o, -1] : [f, o, 1];
+    return interval$4(pitch$2(ivl));
+  }
+  function qToAlt$4(type, q) {
+    return q === "M" && type === "majorable" || q === "P" && type === "perfectable" ? 0 : q === "m" && type === "majorable" ? -1 : /^A+$/.test(q) ? q.length : /^d+$/.test(q) ? -1 * (type === "perfectable" ? q.length : q.length + 1) : 0;
+  }
+  function pitchName$6(props) {
+    const { step, alt, oct = 0, dir } = props;
+    if (!dir) {
+      return "";
+    }
+    const calcNum = step + 1 + 7 * oct;
+    const num = calcNum === 0 ? step + 1 : calcNum;
+    const d = dir < 0 ? "-" : "";
+    const type = TYPES$4[step] === "M" ? "majorable" : "perfectable";
+    const name2 = d + num + altToQ$4(type, alt);
+    return name2;
+  }
+  function altToQ$4(type, alt) {
+    if (alt === 0) {
+      return type === "majorable" ? "M" : "P";
+    } else if (alt === -1 && type === "majorable") {
+      return "m";
+    } else if (alt > 0) {
+      return fillStr$6("A", alt);
+    } else {
+      return fillStr$6("d", type === "perfectable" ? alt : alt + 1);
+    }
+  }
+  function isNamedPitch$4(src) {
+    return src !== null && typeof src === "object" && "name" in src && typeof src.name === "string" ? true : false;
+  }
+  function isPitch$4(pitch2) {
+    return pitch2 !== null && typeof pitch2 === "object" && "step" in pitch2 && typeof pitch2.step === "number" && "alt" in pitch2 && typeof pitch2.alt === "number" && !isNaN(pitch2.step) && !isNaN(pitch2.alt) ? true : false;
+  }
+  var FIFTHS$4 = [0, 2, 4, -1, 1, 3, 5];
+  var STEPS_TO_OCTS$4 = FIFTHS$4.map(
+    (fifths) => Math.floor(fifths * 7 / 12)
+  );
+  function coordinates$4(pitch2) {
+    const { step, alt, oct, dir = 1 } = pitch2;
+    const f = FIFTHS$4[step] + 7 * alt;
+    if (oct === void 0) {
+      return [dir * f];
+    }
+    const o = oct - STEPS_TO_OCTS$4[step] - 4 * alt;
+    return [dir * f, dir * o];
+  }
+  var FIFTHS_TO_STEPS$1 = [3, 0, 4, 1, 5, 2, 6];
+  function pitch$1(coord) {
+    const [f, o, dir] = coord;
+    const step = FIFTHS_TO_STEPS$1[unaltered$1(f)];
+    const alt = Math.floor((f + 1) / 7);
+    if (o === void 0) {
+      return { step, alt, dir };
+    }
+    const oct = o + 4 * alt + STEPS_TO_OCTS$4[step];
+    return { step, alt, oct, dir };
+  }
+  function unaltered$1(f) {
+    const i = (f + 1) % 7;
+    return i < 0 ? 7 + i : i;
+  }
+  var fillStr$5 = (s, n) => Array(Math.abs(n) + 1).join(s);
+  var NoNote$1 = Object.freeze({
+    empty: true,
+    name: "",
+    letter: "",
+    acc: "",
+    pc: "",
+    step: NaN,
+    alt: NaN,
+    chroma: NaN,
+    height: NaN,
+    coord: [],
+    midi: null,
+    freq: null
+  });
+  var cache$7 = /* @__PURE__ */ new Map();
+  var stepToLetter$1 = (step) => "CDEFGAB".charAt(step);
+  var altToAcc$1 = (alt) => alt < 0 ? fillStr$5("b", -alt) : fillStr$5("#", alt);
+  var accToAlt$1 = (acc) => acc[0] === "b" ? -acc.length : acc.length;
+  function note$1(src) {
+    const stringSrc = JSON.stringify(src);
+    const cached = cache$7.get(stringSrc);
+    if (cached) {
+      return cached;
+    }
+    const value = typeof src === "string" ? parse$6(src) : isPitch$4(src) ? note$1(pitchName$5(src)) : isNamedPitch$4(src) ? note$1(src.name) : NoNote$1;
+    cache$7.set(stringSrc, value);
+    return value;
+  }
+  var REGEX$7 = /^([a-gA-G]?)(#{1,}|b{1,}|x{1,}|)(-?\d*)\s*(.*)$/;
+  function tokenizeNote$1(str) {
+    const m = REGEX$7.exec(str);
+    return m ? [m[1].toUpperCase(), m[2].replace(/x/g, "##"), m[3], m[4]] : ["", "", "", ""];
+  }
+  function coordToNote$1(noteCoord) {
+    return note$1(pitch$1(noteCoord));
+  }
+  var mod$1 = (n, m) => (n % m + m) % m;
+  var SEMI$1 = [0, 2, 4, 5, 7, 9, 11];
+  function parse$6(noteName) {
+    const tokens = tokenizeNote$1(noteName);
+    if (tokens[0] === "" || tokens[3] !== "") {
+      return NoNote$1;
+    }
+    const letter = tokens[0];
+    const acc = tokens[1];
+    const octStr = tokens[2];
+    const step = (letter.charCodeAt(0) + 3) % 7;
+    const alt = accToAlt$1(acc);
+    const oct = octStr.length ? +octStr : void 0;
+    const coord = coordinates$4({ step, alt, oct });
+    const name2 = letter + acc + octStr;
+    const pc = letter + acc;
+    const chroma2 = (SEMI$1[step] + alt + 120) % 12;
+    const height = oct === void 0 ? mod$1(SEMI$1[step] + alt, 12) - 12 * 99 : SEMI$1[step] + alt + 12 * (oct + 1);
+    const midi2 = height >= 0 && height <= 127 ? height : null;
+    const freq2 = oct === void 0 ? null : Math.pow(2, (height - 69) / 12) * 440;
+    return {
+      empty: false,
+      acc,
+      alt,
+      chroma: chroma2,
+      coord,
+      freq: freq2,
+      height,
+      letter,
+      midi: midi2,
+      name: name2,
+      oct,
+      pc,
+      step
+    };
+  }
+  function pitchName$5(props) {
+    const { step, alt, oct } = props;
+    const letter = stepToLetter$1(step);
+    if (!letter) {
+      return "";
+    }
+    const pc = letter + altToAcc$1(alt);
+    return oct || oct === 0 ? pc + oct : pc;
+  }
+  function transpose$3(noteName, intervalName) {
+    const note2 = note$1(noteName);
+    const intervalCoord = Array.isArray(intervalName) ? intervalName : interval$4(intervalName).coord;
+    if (note2.empty || !intervalCoord || intervalCoord.length < 2) {
+      return "";
+    }
+    const noteCoord = note2.coord;
+    const tr2 = noteCoord.length === 1 ? [noteCoord[0] + intervalCoord[0]] : [noteCoord[0] + intervalCoord[0], noteCoord[1] + intervalCoord[1]];
+    return coordToNote$1(tr2).name;
+  }
+  function distance$1(fromNote, toNote) {
+    const from = note$1(fromNote);
+    const to = note$1(toNote);
+    if (from.empty || to.empty) {
+      return "";
+    }
+    const fcoord = from.coord;
+    const tcoord = to.coord;
+    const fifths = tcoord[0] - fcoord[0];
+    const octs = fcoord.length === 2 && tcoord.length === 2 ? tcoord[1] - fcoord[1] : -Math.floor(fifths * 7 / 12);
+    const forceDescending = to.height === from.height && to.midi !== null && from.midi !== null && from.step > to.step;
+    return coordToInterval$1([fifths, octs], forceDescending).name;
+  }
+  Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  function rotate(times2, arr) {
+    const len = arr.length;
+    const n = (times2 % len + len) % len;
+    return arr.slice(n, len).concat(arr.slice(0, n));
+  }
+  function compact(arr) {
+    return arr.filter((n) => n === 0 || n);
+  }
+  function isNamedPitch$3(src) {
+    return src !== null && typeof src === "object" && "name" in src && typeof src.name === "string" ? true : false;
+  }
+  function isPitch$3(pitch2) {
+    return pitch2 !== null && typeof pitch2 === "object" && "step" in pitch2 && typeof pitch2.step === "number" && "alt" in pitch2 && typeof pitch2.alt === "number" && !isNaN(pitch2.step) && !isNaN(pitch2.alt) ? true : false;
+  }
+  var FIFTHS$3 = [0, 2, 4, -1, 1, 3, 5];
+  var STEPS_TO_OCTS$3 = FIFTHS$3.map(
+    (fifths) => Math.floor(fifths * 7 / 12)
+  );
+  function coordinates$3(pitch2) {
+    const { step, alt, oct, dir = 1 } = pitch2;
+    const f = FIFTHS$3[step] + 7 * alt;
+    if (oct === void 0) {
+      return [dir * f];
+    }
+    const o = oct - STEPS_TO_OCTS$3[step] - 4 * alt;
+    return [dir * f, dir * o];
+  }
+  var fillStr$4 = (s, n) => Array(Math.abs(n) + 1).join(s);
+  var NoInterval$3 = Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  var INTERVAL_TONAL_REGEX$3 = "([-+]?\\d+)(d{1,4}|m|M|P|A{1,4})";
+  var INTERVAL_SHORTHAND_REGEX$3 = "(AA|A|P|M|m|d|dd)([-+]?\\d+)";
+  var REGEX$6 = new RegExp(
+    "^" + INTERVAL_TONAL_REGEX$3 + "|" + INTERVAL_SHORTHAND_REGEX$3 + "$"
+  );
+  function tokenizeInterval$3(str) {
+    const m = REGEX$6.exec(`${str}`);
+    if (m === null) {
+      return ["", ""];
+    }
+    return m[1] ? [m[1], m[2]] : [m[4], m[3]];
+  }
+  var cache$6 = {};
+  function interval$3(src) {
+    return typeof src === "string" ? cache$6[src] || (cache$6[src] = parse$5(src)) : isPitch$3(src) ? interval$3(pitchName$4(src)) : isNamedPitch$3(src) ? interval$3(src.name) : NoInterval$3;
+  }
+  var SIZES$3 = [0, 2, 4, 5, 7, 9, 11];
+  var TYPES$3 = "PMMPPMM";
+  function parse$5(str) {
+    const tokens = tokenizeInterval$3(str);
+    if (tokens[0] === "") {
+      return NoInterval$3;
+    }
+    const num = +tokens[0];
+    const q = tokens[1];
+    const step = (Math.abs(num) - 1) % 7;
+    const t = TYPES$3[step];
+    if (t === "M" && q === "P") {
+      return NoInterval$3;
+    }
+    const type = t === "M" ? "majorable" : "perfectable";
+    const name2 = "" + num + q;
+    const dir = num < 0 ? -1 : 1;
+    const simple = num === 8 || num === -8 ? num : dir * (step + 1);
+    const alt = qToAlt$3(type, q);
+    const oct = Math.floor((Math.abs(num) - 1) / 7);
+    const semitones = dir * (SIZES$3[step] + alt + 12 * oct);
+    const chroma2 = (dir * (SIZES$3[step] + alt) % 12 + 12) % 12;
+    const coord = coordinates$3({ step, alt, oct, dir });
+    return {
+      empty: false,
+      name: name2,
+      num,
+      q,
+      step,
+      alt,
+      dir,
+      type,
+      simple,
+      semitones,
+      chroma: chroma2,
+      coord,
+      oct
+    };
+  }
+  function qToAlt$3(type, q) {
+    return q === "M" && type === "majorable" || q === "P" && type === "perfectable" ? 0 : q === "m" && type === "majorable" ? -1 : /^A+$/.test(q) ? q.length : /^d+$/.test(q) ? -1 * (type === "perfectable" ? q.length : q.length + 1) : 0;
+  }
+  function pitchName$4(props) {
+    const { step, alt, oct = 0, dir } = props;
+    if (!dir) {
+      return "";
+    }
+    const calcNum = step + 1 + 7 * oct;
+    const num = calcNum === 0 ? step + 1 : calcNum;
+    const d = dir < 0 ? "-" : "";
+    const type = TYPES$3[step] === "M" ? "majorable" : "perfectable";
+    const name2 = d + num + altToQ$3(type, alt);
+    return name2;
+  }
+  function altToQ$3(type, alt) {
+    if (alt === 0) {
+      return type === "majorable" ? "M" : "P";
+    } else if (alt === -1 && type === "majorable") {
+      return "m";
+    } else if (alt > 0) {
+      return fillStr$4("A", alt);
+    } else {
+      return fillStr$4("d", type === "perfectable" ? alt : alt + 1);
+    }
+  }
+  var EmptyPcset = {
+    empty: true,
+    name: "",
+    setNum: 0,
+    chroma: "000000000000",
+    normalized: "000000000000",
+    intervals: []
+  };
+  var setNumToChroma = (num2) => Number(num2).toString(2).padStart(12, "0");
+  var chromaToNumber = (chroma2) => parseInt(chroma2, 2);
+  var REGEX$5 = /^[01]{12}$/;
+  function isChroma(set) {
+    return REGEX$5.test(set);
+  }
+  var isPcsetNum = (set) => typeof set === "number" && set >= 0 && set <= 4095;
+  var isPcset = (set) => set && isChroma(set.chroma);
+  var cache$5 = { [EmptyPcset.chroma]: EmptyPcset };
+  function get$6(src) {
+    const chroma2 = isChroma(src) ? src : isPcsetNum(src) ? setNumToChroma(src) : Array.isArray(src) ? listToChroma(src) : isPcset(src) ? src.chroma : EmptyPcset.chroma;
+    return cache$5[chroma2] = cache$5[chroma2] || chromaToPcset(chroma2);
+  }
+  var IVLS = [
+    "1P",
+    "2m",
+    "2M",
+    "3m",
+    "3M",
+    "4P",
+    "5d",
+    "5P",
+    "6m",
+    "6M",
+    "7m",
+    "7M"
+  ];
+  function chromaToIntervals(chroma2) {
+    const intervals2 = [];
+    for (let i = 0; i < 12; i++) {
+      if (chroma2.charAt(i) === "1")
+        intervals2.push(IVLS[i]);
+    }
+    return intervals2;
+  }
+  function modes$1(set, normalize = true) {
+    const pcs = get$6(set);
+    const binary = pcs.chroma.split("");
+    return compact(
+      binary.map((_, i) => {
+        const r = rotate(i, binary);
+        return normalize && r[0] === "0" ? null : r.join("");
+      })
+    );
+  }
+  function isSubsetOf(set) {
+    const s = get$6(set).setNum;
+    return (notes2) => {
+      const o = get$6(notes2).setNum;
+      return s && s !== o && (o & s) === o;
+    };
+  }
+  function isSupersetOf(set) {
+    const s = get$6(set).setNum;
+    return (notes2) => {
+      const o = get$6(notes2).setNum;
+      return s && s !== o && (o | s) === o;
+    };
+  }
+  function chromaRotations(chroma2) {
+    const binary = chroma2.split("");
+    return binary.map((_, i) => rotate(i, binary).join(""));
+  }
+  function chromaToPcset(chroma2) {
+    const setNum = chromaToNumber(chroma2);
+    const normalizedNum = chromaRotations(chroma2).map(chromaToNumber).filter((n) => n >= 2048).sort()[0];
+    const normalized = setNumToChroma(normalizedNum);
+    const intervals2 = chromaToIntervals(chroma2);
+    return {
+      empty: false,
+      name: "",
+      setNum,
+      chroma: chroma2,
+      normalized,
+      intervals: intervals2
+    };
+  }
+  function listToChroma(set) {
+    if (set.length === 0) {
+      return EmptyPcset.chroma;
+    }
+    let pitch2;
+    const binary = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    for (let i = 0; i < set.length; i++) {
+      pitch2 = note$1(set[i]);
+      if (pitch2.empty)
+        pitch2 = interval$3(set[i]);
+      if (!pitch2.empty)
+        binary[pitch2.chroma] = 1;
+    }
+    return binary.join("");
+  }
+  var CHORDS$3 = [
+    ["1P 3M 5P", "major", "M ^  maj"],
+    ["1P 3M 5P 7M", "major seventh", "maj7 \u0394 ma7 M7 Maj7 ^7"],
+    ["1P 3M 5P 7M 9M", "major ninth", "maj9 \u03949 ^9"],
+    ["1P 3M 5P 7M 9M 13M", "major thirteenth", "maj13 Maj13 ^13"],
+    ["1P 3M 5P 6M", "sixth", "6 add6 add13 M6"],
+    ["1P 3M 5P 6M 9M", "sixth added ninth", "6add9 6/9 69 M69"],
+    ["1P 3M 6m 7M", "major seventh flat sixth", "M7b6 ^7b6"],
+    [
+      "1P 3M 5P 7M 11A",
+      "major seventh sharp eleventh",
+      "maj#4 \u0394#4 \u0394#11 M7#11 ^7#11 maj7#11"
+    ],
+    ["1P 3m 5P", "minor", "m min -"],
+    ["1P 3m 5P 7m", "minor seventh", "m7 min7 mi7 -7"],
+    [
+      "1P 3m 5P 7M",
+      "minor/major seventh",
+      "m/ma7 m/maj7 mM7 mMaj7 m/M7 -\u03947 m\u0394 -^7 -maj7"
+    ],
+    ["1P 3m 5P 6M", "minor sixth", "m6 -6"],
+    ["1P 3m 5P 7m 9M", "minor ninth", "m9 -9"],
+    ["1P 3m 5P 7M 9M", "minor/major ninth", "mM9 mMaj9 -^9"],
+    ["1P 3m 5P 7m 9M 11P", "minor eleventh", "m11 -11"],
+    ["1P 3m 5P 7m 9M 13M", "minor thirteenth", "m13 -13"],
+    ["1P 3m 5d", "diminished", "dim \xB0 o"],
+    ["1P 3m 5d 7d", "diminished seventh", "dim7 \xB07 o7"],
+    ["1P 3m 5d 7m", "half-diminished", "m7b5 \xF8 -7b5 h7 h"],
+    ["1P 3M 5P 7m", "dominant seventh", "7 dom"],
+    ["1P 3M 5P 7m 9M", "dominant ninth", "9"],
+    ["1P 3M 5P 7m 9M 13M", "dominant thirteenth", "13"],
+    ["1P 3M 5P 7m 11A", "lydian dominant seventh", "7#11 7#4"],
+    ["1P 3M 5P 7m 9m", "dominant flat ninth", "7b9"],
+    ["1P 3M 5P 7m 9A", "dominant sharp ninth", "7#9"],
+    ["1P 3M 7m 9m", "altered", "alt7"],
+    ["1P 4P 5P", "suspended fourth", "sus4 sus"],
+    ["1P 2M 5P", "suspended second", "sus2"],
+    ["1P 4P 5P 7m", "suspended fourth seventh", "7sus4 7sus"],
+    ["1P 5P 7m 9M 11P", "eleventh", "11"],
+    [
+      "1P 4P 5P 7m 9m",
+      "suspended fourth flat ninth",
+      "b9sus phryg 7b9sus 7b9sus4"
+    ],
+    ["1P 5P", "fifth", "5"],
+    ["1P 3M 5A", "augmented", "aug + +5 ^#5"],
+    ["1P 3m 5A", "minor augmented", "m#5 -#5 m+"],
+    ["1P 3M 5A 7M", "augmented seventh", "maj7#5 maj7+5 +maj7 ^7#5"],
+    [
+      "1P 3M 5P 7M 9M 11A",
+      "major sharp eleventh (lydian)",
+      "maj9#11 \u03949#11 ^9#11"
+    ],
+    ["1P 2M 4P 5P", "", "sus24 sus4add9"],
+    ["1P 3M 5A 7M 9M", "", "maj9#5 Maj9#5"],
+    ["1P 3M 5A 7m", "", "7#5 +7 7+ 7aug aug7"],
+    ["1P 3M 5A 7m 9A", "", "7#5#9 7#9#5 7alt"],
+    ["1P 3M 5A 7m 9M", "", "9#5 9+"],
+    ["1P 3M 5A 7m 9M 11A", "", "9#5#11"],
+    ["1P 3M 5A 7m 9m", "", "7#5b9 7b9#5"],
+    ["1P 3M 5A 7m 9m 11A", "", "7#5b9#11"],
+    ["1P 3M 5A 9A", "", "+add#9"],
+    ["1P 3M 5A 9M", "", "M#5add9 +add9"],
+    ["1P 3M 5P 6M 11A", "", "M6#11 M6b5 6#11 6b5"],
+    ["1P 3M 5P 6M 7M 9M", "", "M7add13"],
+    ["1P 3M 5P 6M 9M 11A", "", "69#11"],
+    ["1P 3m 5P 6M 9M", "", "m69 -69"],
+    ["1P 3M 5P 6m 7m", "", "7b6"],
+    ["1P 3M 5P 7M 9A 11A", "", "maj7#9#11"],
+    ["1P 3M 5P 7M 9M 11A 13M", "", "M13#11 maj13#11 M13+4 M13#4"],
+    ["1P 3M 5P 7M 9m", "", "M7b9"],
+    ["1P 3M 5P 7m 11A 13m", "", "7#11b13 7b5b13"],
+    ["1P 3M 5P 7m 13M", "", "7add6 67 7add13"],
+    ["1P 3M 5P 7m 9A 11A", "", "7#9#11 7b5#9 7#9b5"],
+    ["1P 3M 5P 7m 9A 11A 13M", "", "13#9#11"],
+    ["1P 3M 5P 7m 9A 11A 13m", "", "7#9#11b13"],
+    ["1P 3M 5P 7m 9A 13M", "", "13#9"],
+    ["1P 3M 5P 7m 9A 13m", "", "7#9b13"],
+    ["1P 3M 5P 7m 9M 11A", "", "9#11 9+4 9#4"],
+    ["1P 3M 5P 7m 9M 11A 13M", "", "13#11 13+4 13#4"],
+    ["1P 3M 5P 7m 9M 11A 13m", "", "9#11b13 9b5b13"],
+    ["1P 3M 5P 7m 9m 11A", "", "7b9#11 7b5b9 7b9b5"],
+    ["1P 3M 5P 7m 9m 11A 13M", "", "13b9#11"],
+    ["1P 3M 5P 7m 9m 11A 13m", "", "7b9b13#11 7b9#11b13 7b5b9b13"],
+    ["1P 3M 5P 7m 9m 13M", "", "13b9"],
+    ["1P 3M 5P 7m 9m 13m", "", "7b9b13"],
+    ["1P 3M 5P 7m 9m 9A", "", "7b9#9"],
+    ["1P 3M 5P 9M", "", "Madd9 2 add9 add2"],
+    ["1P 3M 5P 9m", "", "Maddb9"],
+    ["1P 3M 5d", "", "Mb5"],
+    ["1P 3M 5d 6M 7m 9M", "", "13b5"],
+    ["1P 3M 5d 7M", "", "M7b5"],
+    ["1P 3M 5d 7M 9M", "", "M9b5"],
+    ["1P 3M 5d 7m", "", "7b5"],
+    ["1P 3M 5d 7m 9M", "", "9b5"],
+    ["1P 3M 7m", "", "7no5"],
+    ["1P 3M 7m 13m", "", "7b13"],
+    ["1P 3M 7m 9M", "", "9no5"],
+    ["1P 3M 7m 9M 13M", "", "13no5"],
+    ["1P 3M 7m 9M 13m", "", "9b13"],
+    ["1P 3m 4P 5P", "", "madd4"],
+    ["1P 3m 5P 6m 7M", "", "mMaj7b6"],
+    ["1P 3m 5P 6m 7M 9M", "", "mMaj9b6"],
+    ["1P 3m 5P 7m 11P", "", "m7add11 m7add4"],
+    ["1P 3m 5P 9M", "", "madd9"],
+    ["1P 3m 5d 6M 7M", "", "o7M7"],
+    ["1P 3m 5d 7M", "", "oM7"],
+    ["1P 3m 6m 7M", "", "mb6M7"],
+    ["1P 3m 6m 7m", "", "m7#5"],
+    ["1P 3m 6m 7m 9M", "", "m9#5"],
+    ["1P 3m 5A 7m 9M 11P", "", "m11A"],
+    ["1P 3m 6m 9m", "", "mb6b9"],
+    ["1P 2M 3m 5d 7m", "", "m9b5"],
+    ["1P 4P 5A 7M", "", "M7#5sus4"],
+    ["1P 4P 5A 7M 9M", "", "M9#5sus4"],
+    ["1P 4P 5A 7m", "", "7#5sus4"],
+    ["1P 4P 5P 7M", "", "M7sus4"],
+    ["1P 4P 5P 7M 9M", "", "M9sus4"],
+    ["1P 4P 5P 7m 9M", "", "9sus4 9sus"],
+    ["1P 4P 5P 7m 9M 13M", "", "13sus4 13sus"],
+    ["1P 4P 5P 7m 9m 13m", "", "7sus4b9b13 7b9b13sus4"],
+    ["1P 4P 7m 10m", "", "4 quartal"],
+    ["1P 5P 7m 9m 11P", "", "11b9"]
+  ];
+  var data_default$4 = CHORDS$3;
+  ({
+    ...EmptyPcset,
+    name: "",
+    quality: "Unknown",
+    intervals: [],
+    aliases: []
+  });
+  var dictionary$4 = [];
+  var index$5 = {};
+  function all$2() {
+    return dictionary$4.slice();
+  }
+  function add$4(intervals, aliases, fullName) {
+    const quality = getQuality$3(intervals);
+    const chord2 = {
+      ...get$6(intervals),
+      name: fullName || "",
+      quality,
+      intervals,
+      aliases
+    };
+    dictionary$4.push(chord2);
+    if (chord2.name) {
+      index$5[chord2.name] = chord2;
+    }
+    index$5[chord2.setNum] = chord2;
+    index$5[chord2.chroma] = chord2;
+    chord2.aliases.forEach((alias) => addAlias$4(chord2, alias));
+  }
+  function addAlias$4(chord2, alias) {
+    index$5[alias] = chord2;
+  }
+  function getQuality$3(intervals) {
+    const has = (interval2) => intervals.indexOf(interval2) !== -1;
+    return has("5A") ? "Augmented" : has("3M") ? "Major" : has("5d") ? "Diminished" : has("3m") ? "Minor" : "Unknown";
+  }
+  data_default$4.forEach(
+    ([ivls, fullName, names2]) => add$4(ivls.split(" "), names2.split(" "), fullName)
+  );
+  dictionary$4.sort((a, b) => a.setNum - b.setNum);
+  var namedSet = (notes) => {
+    const pcToName = notes.reduce((record, n) => {
+      const chroma2 = note$1(n).chroma;
+      if (chroma2 !== void 0) {
+        record[chroma2] = record[chroma2] || note$1(n).name;
+      }
+      return record;
+    }, {});
+    return (chroma2) => pcToName[chroma2];
+  };
+  function detect(source, options = {}) {
+    const notes = source.map((n) => note$1(n).pc).filter((x) => x);
+    if (note$1.length === 0) {
+      return [];
+    }
+    const found = findMatches(notes, 1, options);
+    return found.filter((chord2) => chord2.weight).sort((a, b) => b.weight - a.weight).map((chord2) => chord2.name);
+  }
+  var BITMASK = {
+    anyThirds: 384,
+    perfectFifth: 16,
+    nonPerfectFifths: 40,
+    anySeventh: 3
+  };
+  var testChromaNumber = (bitmask) => (chromaNumber) => Boolean(chromaNumber & bitmask);
+  var hasAnyThird = testChromaNumber(BITMASK.anyThirds);
+  var hasPerfectFifth = testChromaNumber(BITMASK.perfectFifth);
+  var hasAnySeventh = testChromaNumber(BITMASK.anySeventh);
+  var hasNonPerfectFifth = testChromaNumber(BITMASK.nonPerfectFifths);
+  function hasAnyThirdAndPerfectFifthAndAnySeventh(chordType) {
+    const chromaNumber = parseInt(chordType.chroma, 2);
+    return hasAnyThird(chromaNumber) && hasPerfectFifth(chromaNumber) && hasAnySeventh(chromaNumber);
+  }
+  function withPerfectFifth(chroma2) {
+    const chromaNumber = parseInt(chroma2, 2);
+    return hasNonPerfectFifth(chromaNumber) ? chroma2 : (chromaNumber | 16).toString(2);
+  }
+  function findMatches(notes, weight, options) {
+    const tonic = notes[0];
+    const tonicChroma = note$1(tonic).chroma;
+    const noteName = namedSet(notes);
+    const allModes = modes$1(notes, false);
+    const found = [];
+    allModes.forEach((mode, index2) => {
+      const modeWithPerfectFifth = options.assumePerfectFifth && withPerfectFifth(mode);
+      const chordTypes = all$2().filter((chordType) => {
+        if (options.assumePerfectFifth && hasAnyThirdAndPerfectFifthAndAnySeventh(chordType)) {
+          return chordType.chroma === modeWithPerfectFifth;
+        }
+        return chordType.chroma === mode;
+      });
+      chordTypes.forEach((chordType) => {
+        const chordName = chordType.aliases[0];
+        const baseNote = noteName(index2);
+        const isInversion = index2 !== tonicChroma;
+        if (isInversion) {
+          found.push({
+            weight: 0.5 * weight,
+            name: `${baseNote}${chordName}/${tonic}`
+          });
+        } else {
+          found.push({ weight: 1 * weight, name: `${baseNote}${chordName}` });
+        }
+      });
+    });
+    return found;
+  }
+  function isNamedPitch$2(src) {
+    return src !== null && typeof src === "object" && "name" in src && typeof src.name === "string" ? true : false;
+  }
+  function isPitch$2(pitch2) {
+    return pitch2 !== null && typeof pitch2 === "object" && "step" in pitch2 && typeof pitch2.step === "number" && "alt" in pitch2 && typeof pitch2.alt === "number" ? true : false;
+  }
+  var FIFTHS$2 = [0, 2, 4, -1, 1, 3, 5];
+  var STEPS_TO_OCTS$2 = FIFTHS$2.map(
+    (fifths) => Math.floor(fifths * 7 / 12)
+  );
+  function coordinates$2(pitch2) {
+    const { step, alt, oct, dir = 1 } = pitch2;
+    const f = FIFTHS$2[step] + 7 * alt;
+    if (oct === void 0) {
+      return [dir * f];
+    }
+    const o = oct - STEPS_TO_OCTS$2[step] - 4 * alt;
+    return [dir * f, dir * o];
+  }
+  var FIFTHS_TO_STEPS = [3, 0, 4, 1, 5, 2, 6];
+  function pitch(coord) {
     const [f, o, dir] = coord;
     const step = FIFTHS_TO_STEPS[unaltered(f)];
     const alt = Math.floor((f + 1) / 7);
     if (o === void 0) {
       return { step, alt, dir };
     }
-    const oct = o + 4 * alt + STEPS_TO_OCTS[step];
+    const oct = o + 4 * alt + STEPS_TO_OCTS$2[step];
     return { step, alt, oct, dir };
   }
   function unaltered(f) {
     const i = (f + 1) % 7;
     return i < 0 ? 7 + i : i;
   }
-  const NoNote = { empty: true, name: "", pc: "", acc: "" };
-  const cache$1$1 = /* @__PURE__ */ new Map();
-  const stepToLetter = (step) => "CDEFGAB".charAt(step);
-  const altToAcc = (alt) => alt < 0 ? fillStr("b", -alt) : fillStr("#", alt);
-  const accToAlt = (acc) => acc[0] === "b" ? -acc.length : acc.length;
+  var fillStr$3 = (s, n) => Array(Math.abs(n) + 1).join(s);
+  var NoInterval$2 = { empty: true, name: "", acc: "" };
+  var INTERVAL_TONAL_REGEX$2 = "([-+]?\\d+)(d{1,4}|m|M|P|A{1,4})";
+  var INTERVAL_SHORTHAND_REGEX$2 = "(AA|A|P|M|m|d|dd)([-+]?\\d+)";
+  var REGEX$4 = new RegExp(
+    "^" + INTERVAL_TONAL_REGEX$2 + "|" + INTERVAL_SHORTHAND_REGEX$2 + "$"
+  );
+  function tokenizeInterval$2(str) {
+    const m = REGEX$4.exec(`${str}`);
+    if (m === null) {
+      return ["", ""];
+    }
+    return m[1] ? [m[1], m[2]] : [m[4], m[3]];
+  }
+  var cache$4 = {};
+  function interval$2(src) {
+    return typeof src === "string" ? cache$4[src] || (cache$4[src] = parse$4(src)) : isPitch$2(src) ? interval$2(pitchName$3(src)) : isNamedPitch$2(src) ? interval$2(src.name) : NoInterval$2;
+  }
+  var SIZES$2 = [0, 2, 4, 5, 7, 9, 11];
+  var TYPES$2 = "PMMPPMM";
+  function parse$4(str) {
+    const tokens = tokenizeInterval$2(str);
+    if (tokens[0] === "") {
+      return NoInterval$2;
+    }
+    const num = +tokens[0];
+    const q = tokens[1];
+    const step = (Math.abs(num) - 1) % 7;
+    const t = TYPES$2[step];
+    if (t === "M" && q === "P") {
+      return NoInterval$2;
+    }
+    const type = t === "M" ? "majorable" : "perfectable";
+    const name2 = "" + num + q;
+    const dir = num < 0 ? -1 : 1;
+    const simple = num === 8 || num === -8 ? num : dir * (step + 1);
+    const alt = qToAlt$2(type, q);
+    const oct = Math.floor((Math.abs(num) - 1) / 7);
+    const semitones = dir * (SIZES$2[step] + alt + 12 * oct);
+    const chroma2 = (dir * (SIZES$2[step] + alt) % 12 + 12) % 12;
+    const coord = coordinates$2({ step, alt, oct, dir });
+    return {
+      empty: false,
+      name: name2,
+      num,
+      q,
+      step,
+      alt,
+      dir,
+      type,
+      simple,
+      semitones,
+      chroma: chroma2,
+      coord,
+      oct
+    };
+  }
+  function coordToInterval(coord, forceDescending) {
+    const [f, o = 0] = coord;
+    const isDescending = f * 7 + o * 12 < 0;
+    const ivl = forceDescending || isDescending ? [-f, -o, -1] : [f, o, 1];
+    return interval$2(pitch(ivl));
+  }
+  function qToAlt$2(type, q) {
+    return q === "M" && type === "majorable" || q === "P" && type === "perfectable" ? 0 : q === "m" && type === "majorable" ? -1 : /^A+$/.test(q) ? q.length : /^d+$/.test(q) ? -1 * (type === "perfectable" ? q.length : q.length + 1) : 0;
+  }
+  function pitchName$3(props) {
+    const { step, alt, oct = 0, dir } = props;
+    if (!dir) {
+      return "";
+    }
+    const calcNum = step + 1 + 7 * oct;
+    const num = calcNum === 0 ? step + 1 : calcNum;
+    const d = dir < 0 ? "-" : "";
+    const type = TYPES$2[step] === "M" ? "majorable" : "perfectable";
+    const name2 = d + num + altToQ$2(type, alt);
+    return name2;
+  }
+  function altToQ$2(type, alt) {
+    if (alt === 0) {
+      return type === "majorable" ? "M" : "P";
+    } else if (alt === -1 && type === "majorable") {
+      return "m";
+    } else if (alt > 0) {
+      return fillStr$3("A", alt);
+    } else {
+      return fillStr$3("d", type === "perfectable" ? alt : alt + 1);
+    }
+  }
+  var fillStr$2 = (s, n) => Array(Math.abs(n) + 1).join(s);
+  var NoNote = { empty: true, name: "", pc: "", acc: "" };
+  var cache$3 = /* @__PURE__ */ new Map();
+  var stepToLetter = (step) => "CDEFGAB".charAt(step);
+  var altToAcc = (alt) => alt < 0 ? fillStr$2("b", -alt) : fillStr$2("#", alt);
+  var accToAlt = (acc) => acc[0] === "b" ? -acc.length : acc.length;
   function note(src) {
-    const cached = cache$1$1.get(src);
+    const stringSrc = JSON.stringify(src);
+    const cached = cache$3.get(stringSrc);
     if (cached) {
       return cached;
     }
-    const value = typeof src === "string" ? parse$1(src) : isPitch(src) ? note(pitchName$1(src)) : isNamed(src) ? note(src.name) : NoNote;
-    cache$1$1.set(src, value);
+    const value = typeof src === "string" ? parse$3(src) : isPitch$2(src) ? note(pitchName$2(src)) : isNamedPitch$2(src) ? note(src.name) : NoNote;
+    cache$3.set(stringSrc, value);
     return value;
   }
-  const REGEX$1$1 = /^([a-gA-G]?)(#{1,}|b{1,}|x{1,}|)(-?\d*)\s*(.*)$/;
+  var REGEX$3 = /^([a-gA-G]?)(#{1,}|b{1,}|x{1,}|)(-?\d*)\s*(.*)$/;
   function tokenizeNote(str) {
-    const m = REGEX$1$1.exec(str);
-    return [m[1].toUpperCase(), m[2].replace(/x/g, "##"), m[3], m[4]];
+    const m = REGEX$3.exec(str);
+    return m ? [m[1].toUpperCase(), m[2].replace(/x/g, "##"), m[3], m[4]] : ["", "", "", ""];
   }
   function coordToNote(noteCoord) {
-    return note(decode(noteCoord));
+    return note(pitch(noteCoord));
   }
-  const mod = (n, m) => (n % m + m) % m;
-  const SEMI = [0, 2, 4, 5, 7, 9, 11];
-  function parse$1(noteName) {
+  var mod = (n, m) => (n % m + m) % m;
+  var SEMI = [0, 2, 4, 5, 7, 9, 11];
+  function parse$3(noteName) {
     const tokens = tokenizeNote(noteName);
     if (tokens[0] === "" || tokens[3] !== "") {
       return NoNote;
@@ -2353,7 +3191,7 @@ var __publicField = (obj, key, value) => {
     const step = (letter.charCodeAt(0) + 3) % 7;
     const alt = accToAlt(acc);
     const oct = octStr.length ? +octStr : void 0;
-    const coord = encode({ step, alt, oct });
+    const coord = coordinates$2({ step, alt, oct });
     const name2 = letter + acc + octStr;
     const pc = letter + acc;
     const chroma2 = (SEMI[step] + alt + 120) % 12;
@@ -2376,7 +3214,7 @@ var __publicField = (obj, key, value) => {
       step
     };
   }
-  function pitchName$1(props) {
+  function pitchName$2(props) {
     const { step, alt, oct } = props;
     const letter = stepToLetter(step);
     if (!letter) {
@@ -2385,102 +3223,26 @@ var __publicField = (obj, key, value) => {
     const pc = letter + altToAcc(alt);
     return oct || oct === 0 ? pc + oct : pc;
   }
-  const NoInterval = { empty: true, name: "", acc: "" };
-  const INTERVAL_TONAL_REGEX = "([-+]?\\d+)(d{1,4}|m|M|P|A{1,4})";
-  const INTERVAL_SHORTHAND_REGEX = "(AA|A|P|M|m|d|dd)([-+]?\\d+)";
-  const REGEX$2 = new RegExp("^" + INTERVAL_TONAL_REGEX + "|" + INTERVAL_SHORTHAND_REGEX + "$");
-  function tokenizeInterval(str) {
-    const m = REGEX$2.exec(`${str}`);
-    if (m === null) {
-      return ["", ""];
-    }
-    return m[1] ? [m[1], m[2]] : [m[4], m[3]];
-  }
-  const cache$2 = {};
-  function interval(src) {
-    return typeof src === "string" ? cache$2[src] || (cache$2[src] = parse$2(src)) : isPitch(src) ? interval(pitchName(src)) : isNamed(src) ? interval(src.name) : NoInterval;
-  }
-  const SIZES = [0, 2, 4, 5, 7, 9, 11];
-  const TYPES = "PMMPPMM";
-  function parse$2(str) {
-    const tokens = tokenizeInterval(str);
-    if (tokens[0] === "") {
-      return NoInterval;
-    }
-    const num = +tokens[0];
-    const q = tokens[1];
-    const step = (Math.abs(num) - 1) % 7;
-    const t = TYPES[step];
-    if (t === "M" && q === "P") {
-      return NoInterval;
-    }
-    const type = t === "M" ? "majorable" : "perfectable";
-    const name2 = "" + num + q;
-    const dir = num < 0 ? -1 : 1;
-    const simple = num === 8 || num === -8 ? num : dir * (step + 1);
-    const alt = qToAlt(type, q);
-    const oct = Math.floor((Math.abs(num) - 1) / 7);
-    const semitones = dir * (SIZES[step] + alt + 12 * oct);
-    const chroma2 = (dir * (SIZES[step] + alt) % 12 + 12) % 12;
-    const coord = encode({ step, alt, oct, dir });
-    return {
-      empty: false,
-      name: name2,
-      num,
-      q,
-      step,
-      alt,
-      dir,
-      type,
-      simple,
-      semitones,
-      chroma: chroma2,
-      coord,
-      oct
-    };
-  }
-  function coordToInterval(coord, forceDescending) {
-    const [f, o = 0] = coord;
-    const isDescending = f * 7 + o * 12 < 0;
-    const ivl = forceDescending || isDescending ? [-f, -o, -1] : [f, o, 1];
-    return interval(decode(ivl));
-  }
-  function qToAlt(type, q) {
-    return q === "M" && type === "majorable" || q === "P" && type === "perfectable" ? 0 : q === "m" && type === "majorable" ? -1 : /^A+$/.test(q) ? q.length : /^d+$/.test(q) ? -1 * (type === "perfectable" ? q.length : q.length + 1) : 0;
-  }
-  function pitchName(props) {
-    const { step, alt, oct = 0, dir } = props;
-    if (!dir) {
-      return "";
-    }
-    const calcNum = step + 1 + 7 * oct;
-    const num = calcNum === 0 ? step + 1 : calcNum;
-    const d = dir < 0 ? "-" : "";
-    const type = TYPES[step] === "M" ? "majorable" : "perfectable";
-    const name2 = d + num + altToQ(type, alt);
-    return name2;
-  }
-  function altToQ(type, alt) {
-    if (alt === 0) {
-      return type === "majorable" ? "M" : "P";
-    } else if (alt === -1 && type === "majorable") {
-      return "m";
-    } else if (alt > 0) {
-      return fillStr("A", alt);
-    } else {
-      return fillStr("d", type === "perfectable" ? alt : alt + 1);
-    }
-  }
   function transpose$2(noteName, intervalName) {
-    const note$1 = note(noteName);
-    const interval$1 = interval(intervalName);
-    if (note$1.empty || interval$1.empty) {
+    const note$12 = note(noteName);
+    const intervalCoord = Array.isArray(intervalName) ? intervalName : interval$2(intervalName).coord;
+    if (note$12.empty || !intervalCoord || intervalCoord.length < 2) {
       return "";
     }
-    const noteCoord = note$1.coord;
-    const intervalCoord = interval$1.coord;
+    const noteCoord = note$12.coord;
     const tr2 = noteCoord.length === 1 ? [noteCoord[0] + intervalCoord[0]] : [noteCoord[0] + intervalCoord[0], noteCoord[1] + intervalCoord[1]];
     return coordToNote(tr2).name;
+  }
+  function tonicIntervalsTransposer(intervals, tonic) {
+    const len = intervals.length;
+    return (normalized) => {
+      if (!tonic)
+        return "";
+      const index2 = normalized < 0 ? (len - -normalized % len) % len : normalized % len;
+      const octaves = Math.floor(normalized / len);
+      const root = transpose$2(tonic, [0, octaves]);
+      return transpose$2(root, intervals[index2]);
+    };
   }
   function distance(fromNote, toNote) {
     const from = note(fromNote);
@@ -2495,119 +3257,19 @@ var __publicField = (obj, key, value) => {
     const forceDescending = to.height === from.height && to.midi !== null && from.midi !== null && from.step > to.step;
     return coordToInterval([fifths, octs], forceDescending).name;
   }
-  function rotate(times2, arr) {
-    const len = arr.length;
-    const n = (times2 % len + len) % len;
-    return arr.slice(n, len).concat(arr.slice(0, n));
-  }
-  function compact(arr) {
-    return arr.filter((n) => n === 0 || n);
-  }
-  const EmptyPcset = {
-    empty: true,
-    name: "",
-    setNum: 0,
-    chroma: "000000000000",
-    normalized: "000000000000",
-    intervals: []
-  };
-  const setNumToChroma = (num) => Number(num).toString(2);
-  const chromaToNumber = (chroma2) => parseInt(chroma2, 2);
-  const REGEX$1 = /^[01]{12}$/;
-  function isChroma(set) {
-    return REGEX$1.test(set);
-  }
-  const isPcsetNum = (set) => typeof set === "number" && set >= 0 && set <= 4095;
-  const isPcset = (set) => set && isChroma(set.chroma);
-  const cache$1 = { [EmptyPcset.chroma]: EmptyPcset };
-  function get$6(src) {
-    const chroma2 = isChroma(src) ? src : isPcsetNum(src) ? setNumToChroma(src) : Array.isArray(src) ? listToChroma(src) : isPcset(src) ? src.chroma : EmptyPcset.chroma;
-    return cache$1[chroma2] = cache$1[chroma2] || chromaToPcset(chroma2);
-  }
-  const IVLS = [
-    "1P",
-    "2m",
-    "2M",
-    "3m",
-    "3M",
-    "4P",
-    "5d",
-    "5P",
-    "6m",
-    "6M",
-    "7m",
-    "7M"
-  ];
-  function chromaToIntervals(chroma2) {
-    const intervals = [];
-    for (let i = 0; i < 12; i++) {
-      if (chroma2.charAt(i) === "1")
-        intervals.push(IVLS[i]);
-    }
-    return intervals;
-  }
-  function modes$1(set, normalize = true) {
-    const pcs = get$6(set);
-    const binary = pcs.chroma.split("");
-    return compact(binary.map((_, i) => {
-      const r = rotate(i, binary);
-      return normalize && r[0] === "0" ? null : r.join("");
-    }));
-  }
-  function isSubsetOf(set) {
-    const s = get$6(set).setNum;
-    return (notes) => {
-      const o = get$6(notes).setNum;
-      return s && s !== o && (o & s) === o;
+  function deprecate$1(original, alternative, fn) {
+    return function(...args) {
+      console.warn(`${original} is deprecated. Use ${alternative}.`);
+      return fn.apply(this, args);
     };
   }
-  function isSupersetOf(set) {
-    const s = get$6(set).setNum;
-    return (notes) => {
-      const o = get$6(notes).setNum;
-      return s && s !== o && (o | s) === o;
-    };
-  }
-  function chromaRotations(chroma2) {
-    const binary = chroma2.split("");
-    return binary.map((_, i) => rotate(i, binary).join(""));
-  }
-  function chromaToPcset(chroma2) {
-    const setNum = chromaToNumber(chroma2);
-    const normalizedNum = chromaRotations(chroma2).map(chromaToNumber).filter((n) => n >= 2048).sort()[0];
-    const normalized = setNumToChroma(normalizedNum);
-    const intervals = chromaToIntervals(chroma2);
-    return {
-      empty: false,
-      name: "",
-      setNum,
-      chroma: chroma2,
-      normalized,
-      intervals
-    };
-  }
-  function listToChroma(set) {
-    if (set.length === 0) {
-      return EmptyPcset.chroma;
-    }
-    let pitch;
-    const binary = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    for (let i = 0; i < set.length; i++) {
-      pitch = note(set[i]);
-      if (pitch.empty)
-        pitch = interval(set[i]);
-      if (!pitch.empty)
-        binary[pitch.chroma] = 1;
-    }
-    return binary.join("");
-  }
-  const CHORDS = [
-    ["1P 3M 5P", "major", "M ^ "],
+  var CHORDS$2 = [
+    ["1P 3M 5P", "major", "M ^  maj"],
     ["1P 3M 5P 7M", "major seventh", "maj7 \u0394 ma7 M7 Maj7 ^7"],
     ["1P 3M 5P 7M 9M", "major ninth", "maj9 \u03949 ^9"],
     ["1P 3M 5P 7M 9M 13M", "major thirteenth", "maj13 Maj13 ^13"],
     ["1P 3M 5P 6M", "sixth", "6 add6 add13 M6"],
-    ["1P 3M 5P 6M 9M", "sixth/ninth", "6/9 69 M69"],
+    ["1P 3M 5P 6M 9M", "sixth added ninth", "6add9 6/9 69 M69"],
     ["1P 3M 6m 7M", "major seventh flat sixth", "M7b6 ^7b6"],
     [
       "1P 3M 5P 7M 11A",
@@ -2725,23 +3387,24 @@ var __publicField = (obj, key, value) => {
     ["1P 4P 7m 10m", "", "4 quartal"],
     ["1P 5P 7m 9m 11P", "", "11b9"]
   ];
-  const NoChordType = {
+  var data_default$3 = CHORDS$2;
+  var NoChordType = {
     ...EmptyPcset,
     name: "",
     quality: "Unknown",
     intervals: [],
     aliases: []
   };
-  let dictionary$1 = [];
-  let index$5 = {};
+  var dictionary$3 = [];
+  var index$4 = {};
   function get$5(type) {
-    return index$5[type] || NoChordType;
+    return index$4[type] || NoChordType;
   }
   function all$1() {
-    return dictionary$1.slice();
+    return dictionary$3.slice();
   }
-  function add$1(intervals, aliases, fullName) {
-    const quality = getQuality(intervals);
+  function add$3(intervals, aliases, fullName) {
+    const quality = getQuality$2(intervals);
     const chord2 = {
       ...get$6(intervals),
       name: fullName || "",
@@ -2749,67 +3412,55 @@ var __publicField = (obj, key, value) => {
       intervals,
       aliases
     };
-    dictionary$1.push(chord2);
+    dictionary$3.push(chord2);
     if (chord2.name) {
-      index$5[chord2.name] = chord2;
+      index$4[chord2.name] = chord2;
     }
-    index$5[chord2.setNum] = chord2;
-    index$5[chord2.chroma] = chord2;
-    chord2.aliases.forEach((alias) => addAlias$1(chord2, alias));
+    index$4[chord2.setNum] = chord2;
+    index$4[chord2.chroma] = chord2;
+    chord2.aliases.forEach((alias) => addAlias$3(chord2, alias));
   }
-  function addAlias$1(chord2, alias) {
-    index$5[alias] = chord2;
+  function addAlias$3(chord2, alias) {
+    index$4[alias] = chord2;
   }
-  function getQuality(intervals) {
+  function getQuality$2(intervals) {
     const has = (interval2) => intervals.indexOf(interval2) !== -1;
     return has("5A") ? "Augmented" : has("3M") ? "Major" : has("5d") ? "Diminished" : has("3m") ? "Minor" : "Unknown";
   }
-  CHORDS.forEach(([ivls, fullName, names2]) => add$1(ivls.split(" "), names2.split(" "), fullName));
-  dictionary$1.sort((a, b) => a.setNum - b.setNum);
-  const namedSet = (notes) => {
-    const pcToName = notes.reduce((record, n) => {
-      const chroma2 = note(n).chroma;
-      if (chroma2 !== void 0) {
-        record[chroma2] = record[chroma2] || note(n).name;
-      }
-      return record;
-    }, {});
-    return (chroma2) => pcToName[chroma2];
-  };
-  function detect(source) {
-    const notes = source.map((n) => note(n).pc).filter((x) => x);
-    if (note.length === 0) {
-      return [];
-    }
-    const found = findExactMatches(notes, 1);
-    return found.filter((chord2) => chord2.weight).sort((a, b) => b.weight - a.weight).map((chord2) => chord2.name);
-  }
-  function findExactMatches(notes, weight) {
-    const tonic = notes[0];
-    const tonicChroma = note(tonic).chroma;
-    const noteName = namedSet(notes);
-    const allModes = modes$1(notes, false);
-    const found = [];
-    allModes.forEach((mode, index2) => {
-      const chordTypes = all$1().filter((chordType) => chordType.chroma === mode);
-      chordTypes.forEach((chordType) => {
-        const chordName = chordType.aliases[0];
-        const baseNote = noteName(index2);
-        const isInversion = index2 !== tonicChroma;
-        if (isInversion) {
-          found.push({
-            weight: 0.5 * weight,
-            name: `${baseNote}${chordName}/${tonic}`
-          });
-        } else {
-          found.push({ weight: 1 * weight, name: `${baseNote}${chordName}` });
-        }
-      });
-    });
-    return found;
-  }
-  const SCALES = [
+  data_default$3.forEach(
+    ([ivls, fullName, names2]) => add$3(ivls.split(" "), names2.split(" "), fullName)
+  );
+  dictionary$3.sort((a, b) => a.setNum - b.setNum);
+  Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  var SCALES = [
     ["1P 2M 3M 5P 6M", "major pentatonic", "pentatonic"],
+    ["1P 2M 3M 4P 5P 6M 7M", "major", "ionian"],
+    ["1P 2M 3m 4P 5P 6m 7m", "minor", "aeolian"],
+    ["1P 2M 3m 3M 5P 6M", "major blues"],
+    ["1P 3m 4P 5d 5P 7m", "minor blues", "blues"],
+    ["1P 2M 3m 4P 5P 6M 7M", "melodic minor"],
+    ["1P 2M 3m 4P 5P 6m 7M", "harmonic minor"],
+    ["1P 2M 3M 4P 5P 6M 7m 7M", "bebop"],
+    ["1P 2M 3m 4P 5d 6m 6M 7M", "diminished", "whole-half diminished"],
+    ["1P 2M 3m 4P 5P 6M 7m", "dorian"],
+    ["1P 2M 3M 4A 5P 6M 7M", "lydian"],
+    ["1P 2M 3M 4P 5P 6M 7m", "mixolydian", "dominant"],
+    ["1P 2m 3m 4P 5P 6m 7m", "phrygian"],
+    ["1P 2m 3m 4P 5d 6m 7m", "locrian"],
     ["1P 3M 4P 5P 7M", "ionian pentatonic"],
     ["1P 3M 4P 5P 7m", "mixolydian pentatonic", "indian"],
     ["1P 2M 4P 5P 6M", "ritusen"],
@@ -2836,18 +3487,15 @@ var __publicField = (obj, key, value) => {
     ["1P 3m 4d 5d 7m", "super locrian pentatonic"],
     ["1P 2M 3m 4P 5P 7M", "minor hexatonic"],
     ["1P 2A 3M 5P 5A 7M", "augmented"],
-    ["1P 2M 3m 3M 5P 6M", "major blues"],
     ["1P 2M 4P 5P 6M 7m", "piongio"],
     ["1P 2m 3M 4A 6M 7m", "prometheus neopolitan"],
     ["1P 2M 3M 4A 6M 7m", "prometheus"],
     ["1P 2m 3M 5d 6m 7m", "mystery #1"],
     ["1P 2m 3M 4P 5A 6M", "six tone symmetric"],
-    ["1P 2M 3M 4A 5A 7m", "whole tone", "messiaen's mode #1"],
+    ["1P 2M 3M 4A 5A 6A", "whole tone", "messiaen's mode #1"],
     ["1P 2m 4P 4A 5P 7M", "messiaen's mode #5"],
-    ["1P 3m 4P 5d 5P 7m", "minor blues", "blues"],
     ["1P 2M 3M 4P 5d 6m 7m", "locrian major", "arabian"],
     ["1P 2m 3M 4A 5P 6m 7M", "double harmonic lydian"],
-    ["1P 2M 3m 4P 5P 6m 7M", "harmonic minor"],
     [
       "1P 2m 2A 3M 4A 6m 7m",
       "altered",
@@ -2863,7 +3511,6 @@ var __publicField = (obj, key, value) => {
       "hindu"
     ],
     ["1P 2M 3M 4A 5P 6M 7m", "lydian dominant", "lydian b7", "overtone"],
-    ["1P 2M 3M 4A 5P 6M 7M", "lydian"],
     ["1P 2M 3M 4A 5A 6M 7M", "lydian augmented"],
     [
       "1P 2m 3m 4P 5P 6M 7m",
@@ -2871,8 +3518,6 @@ var __publicField = (obj, key, value) => {
       "phrygian #6",
       "melodic minor second mode"
     ],
-    ["1P 2M 3m 4P 5P 6M 7M", "melodic minor"],
-    ["1P 2m 3m 4P 5d 6m 7m", "locrian"],
     [
       "1P 2m 3m 4d 5d 6m 7d",
       "ultralocrian",
@@ -2889,24 +3534,19 @@ var __publicField = (obj, key, value) => {
       "altered dorian"
     ],
     ["1P 2M 3m 4A 5P 6M 7M", "lydian diminished"],
-    ["1P 2m 3m 4P 5P 6m 7m", "phrygian"],
     ["1P 2M 3M 4A 5A 7m 7M", "leading whole tone"],
     ["1P 2M 3M 4A 5P 6m 7m", "lydian minor"],
     ["1P 2m 3M 4P 5P 6m 7m", "phrygian dominant", "spanish", "phrygian major"],
     ["1P 2m 3m 4P 5P 6m 7M", "balinese"],
     ["1P 2m 3m 4P 5P 6M 7M", "neopolitan major"],
-    ["1P 2M 3m 4P 5P 6m 7m", "aeolian", "minor"],
     ["1P 2M 3M 4P 5P 6m 7M", "harmonic major"],
     ["1P 2m 3M 4P 5P 6m 7M", "double harmonic major", "gypsy"],
-    ["1P 2M 3m 4P 5P 6M 7m", "dorian"],
     ["1P 2M 3m 4A 5P 6m 7M", "hungarian minor"],
     ["1P 2A 3M 4A 5P 6M 7m", "hungarian major"],
     ["1P 2m 3M 4P 5d 6M 7m", "oriental"],
     ["1P 2m 3m 3M 4A 5P 7m", "flamenco"],
     ["1P 2m 3m 4A 5P 6m 7M", "todi raga"],
-    ["1P 2M 3M 4P 5P 6M 7m", "mixolydian", "dominant"],
     ["1P 2m 3M 4P 5d 6m 7M", "persian"],
-    ["1P 2M 3M 4P 5P 6M 7M", "major", "ionian"],
     ["1P 2m 3M 5d 6m 7m 7M", "enigmatic"],
     [
       "1P 2M 3M 4P 5A 6M 7M",
@@ -2919,12 +3559,10 @@ var __publicField = (obj, key, value) => {
     ["1P 2m 2M 4P 4A 5P 6m 7M", "messiaen's mode #4"],
     ["1P 2m 3M 4P 4A 5P 6m 7M", "purvi raga"],
     ["1P 2m 3m 3M 4P 5P 6m 7m", "spanish heptatonic"],
-    ["1P 2M 3M 4P 5P 6M 7m 7M", "bebop"],
     ["1P 2M 3m 3M 4P 5P 6M 7m", "bebop minor"],
     ["1P 2M 3M 4P 5P 5A 6M 7M", "bebop major"],
     ["1P 2m 3m 4P 5d 5P 6m 7m", "bebop locrian"],
     ["1P 2M 3m 4P 5P 6m 7m 7M", "minor bebop"],
-    ["1P 2M 3m 4P 5d 6m 6M 7M", "diminished", "whole-half diminished"],
     ["1P 2M 3M 4P 5d 5P 6M 7M", "ichikosucho"],
     ["1P 2M 3m 4P 5P 6m 6M 7M", "minor six diminished"],
     [
@@ -2940,33 +3578,36 @@ var __publicField = (obj, key, value) => {
     ["1P 2m 2M 3m 4P 4A 5P 6m 6M 7M", "messiaen's mode #7"],
     ["1P 2m 2M 3m 3M 4P 5d 5P 6m 6M 7m 7M", "chromatic"]
   ];
-  const NoScaleType = {
+  var data_default$2 = SCALES;
+  var NoScaleType = {
     ...EmptyPcset,
     intervals: [],
     aliases: []
   };
-  let dictionary = [];
-  let index$4 = {};
+  var dictionary$2 = [];
+  var index$3 = {};
   function get$4(type) {
-    return index$4[type] || NoScaleType;
+    return index$3[type] || NoScaleType;
   }
   function all() {
-    return dictionary.slice();
+    return dictionary$2.slice();
   }
-  function add(intervals, name2, aliases = []) {
+  function add$2(intervals, name2, aliases = []) {
     const scale = { ...get$6(intervals), name: name2, intervals, aliases };
-    dictionary.push(scale);
-    index$4[scale.name] = scale;
-    index$4[scale.setNum] = scale;
-    index$4[scale.chroma] = scale;
-    scale.aliases.forEach((alias) => addAlias(scale, alias));
+    dictionary$2.push(scale);
+    index$3[scale.name] = scale;
+    index$3[scale.setNum] = scale;
+    index$3[scale.chroma] = scale;
+    scale.aliases.forEach((alias) => addAlias$2(scale, alias));
     return scale;
   }
-  function addAlias(scale, alias) {
-    index$4[alias] = scale;
+  function addAlias$2(scale, alias) {
+    index$3[alias] = scale;
   }
-  SCALES.forEach(([ivls, name2, ...aliases]) => add(ivls.split(" "), name2, aliases));
-  const NoChord = {
+  data_default$2.forEach(
+    ([ivls, name2, ...aliases]) => add$2(ivls.split(" "), name2, aliases)
+  );
+  var NoChord = {
     empty: true,
     name: "",
     symbol: "",
@@ -2982,8 +3623,7 @@ var __publicField = (obj, key, value) => {
     notes: [],
     intervals: []
   };
-  const NUM_TYPES = /^(6|64|7|9|11|13)$/;
-  function tokenize$1(name2) {
+  function tokenize$2(name2) {
     const [letter, acc, oct, type] = tokenizeNote(name2);
     if (letter === "") {
       return ["", name2];
@@ -2991,14 +3631,7 @@ var __publicField = (obj, key, value) => {
     if (letter === "A" && type === "ug") {
       return ["", "aug"];
     }
-    if (!type && (oct === "4" || oct === "5")) {
-      return [letter + acc, oct];
-    }
-    if (NUM_TYPES.test(oct)) {
-      return [letter + acc, oct + type];
-    } else {
-      return [letter + acc + oct, type];
-    }
+    return [letter + acc, oct + type];
   }
   function get$3(src) {
     if (src === "") {
@@ -3007,7 +3640,7 @@ var __publicField = (obj, key, value) => {
     if (Array.isArray(src) && src.length === 2) {
       return getChord(src[1], src[0]);
     } else {
-      const [tonic, type] = tokenize$1(src);
+      const [tonic, type] = tokenize$2(src);
       const chord2 = getChord(type, tonic);
       return chord2.empty ? getChord(src) : chord2;
     }
@@ -3048,9 +3681,9 @@ var __publicField = (obj, key, value) => {
       notes
     };
   }
-  const chord = deprecate("Chord.chord", "Chord.get", get$3);
+  var chord = deprecate$1("Chord.chord", "Chord.get", get$3);
   function transpose$1(chordName, interval2) {
-    const [tonic, type] = tokenize$1(chordName);
+    const [tonic, type] = tokenize$2(chordName);
     if (!tonic) {
       return chordName;
     }
@@ -3071,25 +3704,81 @@ var __publicField = (obj, key, value) => {
     const isSubset = isSubsetOf(s.chroma);
     return all$1().filter((chord2) => isSubset(chord2.chroma)).map((chord2) => s.tonic + chord2.aliases[0]);
   }
-  var index$3 = {
+  function degrees(chordName) {
+    const { intervals, tonic } = get$3(chordName);
+    const transpose2 = tonicIntervalsTransposer(intervals, tonic);
+    return (degree) => degree ? transpose2(degree > 0 ? degree - 1 : degree) : "";
+  }
+  function steps(chordName) {
+    const { intervals, tonic } = get$3(chordName);
+    return tonicIntervalsTransposer(intervals, tonic);
+  }
+  var chord_default = {
     getChord,
     get: get$3,
     detect,
     chordScales,
     extended,
     reduced,
-    tokenize: tokenize$1,
+    tokenize: tokenize$2,
     transpose: transpose$1,
+    degrees,
+    steps,
     chord
   };
-  const L2 = Math.log(2);
-  const L440 = Math.log(440);
+  Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  var L2 = Math.log(2);
+  var L440 = Math.log(440);
   function freqToMidi(freq2) {
     const v = 12 * (Math.log(freq2) - L440) / L2 + 69;
     return Math.round(v * 100) / 100;
   }
-  const SHARPS = "C C# D D# E F F# G G# A A# B".split(" ");
-  const FLATS = "C Db D Eb E F Gb G Ab A Bb B".split(" ");
+  var SHARPS = "C C# D D# E F F# G G# A A# B".split(" ");
+  var FLATS = "C Db D Eb E F Gb G Ab A Bb B".split(" ");
   function midiToNoteName(midi2, options = {}) {
     if (isNaN(midi2) || midi2 === -Infinity || midi2 === Infinity)
       return "";
@@ -3102,9 +3791,9 @@ var __publicField = (obj, key, value) => {
     const o = Math.floor(midi2 / 12) - 1;
     return pc + o;
   }
-  const NAMES$1 = ["C", "D", "E", "F", "G", "A", "B"];
-  const toName = (n) => n.name;
-  const onlyNotes = (array) => array.map(note).filter((n) => !n.empty);
+  var NAMES$1 = ["C", "D", "E", "F", "G", "A", "B"];
+  var toName = (n) => n.name;
+  var onlyNotes = (array) => array.map(note$1).filter((n) => !n.empty);
   function names(array) {
     if (array === void 0) {
       return NAMES$1.slice();
@@ -3114,14 +3803,14 @@ var __publicField = (obj, key, value) => {
       return onlyNotes(array).map(toName);
     }
   }
-  const get$2 = note;
-  const name = (note2) => get$2(note2).name;
-  const pitchClass = (note2) => get$2(note2).pc;
-  const accidentals = (note2) => get$2(note2).acc;
-  const octave = (note2) => get$2(note2).oct;
-  const midi = (note2) => get$2(note2).midi;
-  const freq = (note2) => get$2(note2).freq;
-  const chroma = (note2) => get$2(note2).chroma;
+  var get$2 = note$1;
+  var name = (note2) => get$2(note2).name;
+  var pitchClass = (note2) => get$2(note2).pc;
+  var accidentals = (note2) => get$2(note2).acc;
+  var octave = (note2) => get$2(note2).oct;
+  var midi = (note2) => get$2(note2).midi;
+  var freq = (note2) => get$2(note2).freq;
+  var chroma = (note2) => get$2(note2).chroma;
   function fromMidi(midi2) {
     return midiToNoteName(midi2);
   }
@@ -3134,32 +3823,31 @@ var __publicField = (obj, key, value) => {
   function fromMidiSharps(midi2) {
     return midiToNoteName(midi2, { sharps: true });
   }
-  const transpose = transpose$2;
-  const tr = transpose$2;
-  const transposeBy = (interval2) => (note2) => transpose(note2, interval2);
-  const trBy = transposeBy;
-  const transposeFrom = (note2) => (interval2) => transpose(note2, interval2);
-  const trFrom = transposeFrom;
+  var transpose = transpose$3;
+  var tr = transpose$3;
+  var transposeBy = (interval2) => (note2) => transpose(note2, interval2);
+  var trBy = transposeBy;
+  var transposeFrom = (note2) => (interval2) => transpose(note2, interval2);
+  var trFrom = transposeFrom;
   function transposeFifths(noteName, fifths) {
-    const note2 = get$2(noteName);
-    if (note2.empty) {
-      return "";
-    }
-    const [nFifths, nOcts] = note2.coord;
-    const transposed = nOcts === void 0 ? coordToNote([nFifths + fifths]) : coordToNote([nFifths + fifths, nOcts]);
-    return transposed.name;
+    return transpose(noteName, [fifths, 0]);
   }
-  const trFifths = transposeFifths;
-  const ascending = (a, b) => a.height - b.height;
-  const descending = (a, b) => b.height - a.height;
+  var trFifths = transposeFifths;
+  function transposeOctaves(noteName, octaves) {
+    return transpose(noteName, [0, octaves]);
+  }
+  var ascending = (a, b) => a.height - b.height;
+  var descending = (a, b) => b.height - a.height;
   function sortedNames(notes, comparator) {
     comparator = comparator || ascending;
     return onlyNotes(notes).sort(comparator).map(toName);
   }
   function sortedUniqNames(notes) {
-    return sortedNames(notes, ascending).filter((n, i, a) => i === 0 || n !== a[i - 1]);
+    return sortedNames(notes, ascending).filter(
+      (n, i, a) => i === 0 || n !== a[i - 1]
+    );
   }
-  const simplify = (noteName) => {
+  var simplify = (noteName) => {
     const note2 = get$2(noteName);
     if (note2.empty) {
       return "";
@@ -3174,10 +3862,12 @@ var __publicField = (obj, key, value) => {
     if (src.empty) {
       return "";
     }
-    const dest = get$2(destName || midiToNoteName(src.midi || src.chroma, {
-      sharps: src.alt < 0,
-      pitchClass: true
-    }));
+    const dest = get$2(
+      destName || midiToNoteName(src.midi || src.chroma, {
+        sharps: src.alt < 0,
+        pitchClass: true
+      })
+    );
     if (dest.empty || dest.chroma !== src.chroma) {
       return "";
     }
@@ -3190,7 +3880,7 @@ var __publicField = (obj, key, value) => {
     const destOct = src.oct + destOctOffset;
     return dest.pc + destOct;
   }
-  var index$2 = {
+  var note_default = {
     names,
     get: get$2,
     name,
@@ -3215,38 +3905,162 @@ var __publicField = (obj, key, value) => {
     transposeFrom,
     trFrom,
     transposeFifths,
+    transposeOctaves,
     trFifths,
     simplify,
     enharmonic
   };
-  const NoRomanNumeral = { empty: true, name: "", chordType: "" };
-  const cache = {};
+  function isNamedPitch$1(src) {
+    return src !== null && typeof src === "object" && "name" in src && typeof src.name === "string" ? true : false;
+  }
+  function isPitch$1(pitch2) {
+    return pitch2 !== null && typeof pitch2 === "object" && "step" in pitch2 && typeof pitch2.step === "number" && "alt" in pitch2 && typeof pitch2.alt === "number" && !isNaN(pitch2.step) && !isNaN(pitch2.alt) ? true : false;
+  }
+  var FIFTHS$1 = [0, 2, 4, -1, 1, 3, 5];
+  var STEPS_TO_OCTS$1 = FIFTHS$1.map(
+    (fifths) => Math.floor(fifths * 7 / 12)
+  );
+  function coordinates$1(pitch2) {
+    const { step, alt, oct, dir = 1 } = pitch2;
+    const f = FIFTHS$1[step] + 7 * alt;
+    if (oct === void 0) {
+      return [dir * f];
+    }
+    const o = oct - STEPS_TO_OCTS$1[step] - 4 * alt;
+    return [dir * f, dir * o];
+  }
+  var fillStr$1 = (s, n) => Array(Math.abs(n) + 1).join(s);
+  var NoInterval$1 = Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  var INTERVAL_TONAL_REGEX$1 = "([-+]?\\d+)(d{1,4}|m|M|P|A{1,4})";
+  var INTERVAL_SHORTHAND_REGEX$1 = "(AA|A|P|M|m|d|dd)([-+]?\\d+)";
+  var REGEX$2 = new RegExp(
+    "^" + INTERVAL_TONAL_REGEX$1 + "|" + INTERVAL_SHORTHAND_REGEX$1 + "$"
+  );
+  function tokenizeInterval$1(str) {
+    const m = REGEX$2.exec(`${str}`);
+    if (m === null) {
+      return ["", ""];
+    }
+    return m[1] ? [m[1], m[2]] : [m[4], m[3]];
+  }
+  var cache$2 = {};
+  function interval$1(src) {
+    return typeof src === "string" ? cache$2[src] || (cache$2[src] = parse$2(src)) : isPitch$1(src) ? interval$1(pitchName$1(src)) : isNamedPitch$1(src) ? interval$1(src.name) : NoInterval$1;
+  }
+  var SIZES$1 = [0, 2, 4, 5, 7, 9, 11];
+  var TYPES$1 = "PMMPPMM";
+  function parse$2(str) {
+    const tokens = tokenizeInterval$1(str);
+    if (tokens[0] === "") {
+      return NoInterval$1;
+    }
+    const num = +tokens[0];
+    const q = tokens[1];
+    const step = (Math.abs(num) - 1) % 7;
+    const t = TYPES$1[step];
+    if (t === "M" && q === "P") {
+      return NoInterval$1;
+    }
+    const type = t === "M" ? "majorable" : "perfectable";
+    const name2 = "" + num + q;
+    const dir = num < 0 ? -1 : 1;
+    const simple = num === 8 || num === -8 ? num : dir * (step + 1);
+    const alt = qToAlt$1(type, q);
+    const oct = Math.floor((Math.abs(num) - 1) / 7);
+    const semitones = dir * (SIZES$1[step] + alt + 12 * oct);
+    const chroma2 = (dir * (SIZES$1[step] + alt) % 12 + 12) % 12;
+    const coord = coordinates$1({ step, alt, oct, dir });
+    return {
+      empty: false,
+      name: name2,
+      num,
+      q,
+      step,
+      alt,
+      dir,
+      type,
+      simple,
+      semitones,
+      chroma: chroma2,
+      coord,
+      oct
+    };
+  }
+  function qToAlt$1(type, q) {
+    return q === "M" && type === "majorable" || q === "P" && type === "perfectable" ? 0 : q === "m" && type === "majorable" ? -1 : /^A+$/.test(q) ? q.length : /^d+$/.test(q) ? -1 * (type === "perfectable" ? q.length : q.length + 1) : 0;
+  }
+  function pitchName$1(props) {
+    const { step, alt, oct = 0, dir } = props;
+    if (!dir) {
+      return "";
+    }
+    const calcNum = step + 1 + 7 * oct;
+    const num = calcNum === 0 ? step + 1 : calcNum;
+    const d = dir < 0 ? "-" : "";
+    const type = TYPES$1[step] === "M" ? "majorable" : "perfectable";
+    const name2 = d + num + altToQ$1(type, alt);
+    return name2;
+  }
+  function altToQ$1(type, alt) {
+    if (alt === 0) {
+      return type === "majorable" ? "M" : "P";
+    } else if (alt === -1 && type === "majorable") {
+      return "m";
+    } else if (alt > 0) {
+      return fillStr$1("A", alt);
+    } else {
+      return fillStr$1("d", type === "perfectable" ? alt : alt + 1);
+    }
+  }
+  function deprecate(original, alternative, fn) {
+    return function(...args) {
+      console.warn(`${original} is deprecated. Use ${alternative}.`);
+      return fn.apply(this, args);
+    };
+  }
+  var isNamed = deprecate("isNamed", "isNamedPitch", isNamedPitch$1);
+  var NoRomanNumeral = { empty: true, name: "", chordType: "" };
+  var cache$1 = {};
   function get$1(src) {
-    return typeof src === "string" ? cache[src] || (cache[src] = parse(src)) : typeof src === "number" ? get$1(NAMES[src] || "") : isPitch(src) ? fromPitch(src) : isNamed(src) ? get$1(src.name) : NoRomanNumeral;
+    return typeof src === "string" ? cache$1[src] || (cache$1[src] = parse$1(src)) : typeof src === "number" ? get$1(NAMES[src] || "") : isPitch$1(src) ? fromPitch(src) : isNamed(src) ? get$1(src.name) : NoRomanNumeral;
   }
-  function fromPitch(pitch) {
-    return get$1(altToAcc(pitch.alt) + NAMES[pitch.step]);
+  function fromPitch(pitch2) {
+    return get$1(altToAcc$1(pitch2.alt) + NAMES[pitch2.step]);
   }
-  const REGEX = /^(#{1,}|b{1,}|x{1,}|)(IV|I{1,3}|VI{0,2}|iv|i{1,3}|vi{0,2})([^IViv]*)$/;
-  function tokenize(str) {
-    return REGEX.exec(str) || ["", "", "", ""];
+  var REGEX$1 = /^(#{1,}|b{1,}|x{1,}|)(IV|I{1,3}|VI{0,2}|iv|i{1,3}|vi{0,2})([^IViv]*)$/;
+  function tokenize$1(str) {
+    return REGEX$1.exec(str) || ["", "", "", ""];
   }
-  const ROMANS = "I II III IV V VI VII";
-  const NAMES = ROMANS.split(" ");
-  function parse(src) {
-    const [name2, acc, roman, chordType] = tokenize(src);
+  var ROMANS = "I II III IV V VI VII";
+  var NAMES = ROMANS.split(" ");
+  function parse$1(src) {
+    const [name2, acc, roman, chordType] = tokenize$1(src);
     if (!roman) {
       return NoRomanNumeral;
     }
     const upperRoman = roman.toUpperCase();
     const step = NAMES.indexOf(upperRoman);
-    const alt = accToAlt(acc);
+    const alt = accToAlt$1(acc);
     const dir = 1;
     return {
       empty: false,
       name: name2,
       roman,
-      interval: interval({ step, alt, dir }).name,
+      interval: interval$1({ step, alt, dir }).name,
       acc,
       chordType,
       alt,
@@ -3257,7 +4071,22 @@ var __publicField = (obj, key, value) => {
     };
   }
   Object.freeze([]);
-  const MODES = [
+  Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  var MODES = [
     [0, 2773, 0, "ionian", "", "Maj7", "major"],
     [1, 2902, 2, "dorian", "m", "m7"],
     [2, 3418, 4, "phrygian", "m", "m7"],
@@ -3266,7 +4095,7 @@ var __publicField = (obj, key, value) => {
     [5, 2906, 3, "aeolian", "m", "m7", "minor"],
     [6, 3434, 5, "locrian", "dim", "m7b5"]
   ];
-  const NoMode = {
+  var NoMode = {
     ...EmptyPcset,
     name: "",
     alt: 0,
@@ -3275,19 +4104,19 @@ var __publicField = (obj, key, value) => {
     seventh: "",
     aliases: []
   };
-  const modes = MODES.map(toMode);
-  const index$1 = {};
-  modes.forEach((mode) => {
-    index$1[mode.name] = mode;
-    mode.aliases.forEach((alias) => {
-      index$1[alias] = mode;
+  var modes = MODES.map(toMode);
+  var index$2 = {};
+  modes.forEach((mode2) => {
+    index$2[mode2.name] = mode2;
+    mode2.aliases.forEach((alias) => {
+      index$2[alias] = mode2;
     });
   });
   function get(name2) {
-    return typeof name2 === "string" ? index$1[name2.toLowerCase()] || NoMode : name2 && name2.name ? get(name2.name) : NoMode;
+    return typeof name2 === "string" ? index$2[name2.toLowerCase()] || NoMode : name2 && name2.name ? get(name2.name) : NoMode;
   }
-  function toMode(mode) {
-    const [modeNum, setNum, alt, name2, triad, seventh, alias] = mode;
+  function toMode(mode2) {
+    const [modeNum, setNum, alt, name2, triad, seventh, alias] = mode2;
     const aliases = alias ? [alias] : [];
     const chroma2 = Number(setNum).toString(2);
     const intervals = get$4(name2).intervals;
@@ -3307,29 +4136,508 @@ var __publicField = (obj, key, value) => {
   }
   function chords$1(chords2) {
     return (modeName, tonic) => {
-      const mode = get(modeName);
-      if (mode.empty)
+      const mode2 = get(modeName);
+      if (mode2.empty)
         return [];
-      const triads = rotate(mode.modeNum, chords2);
-      const tonics = mode.intervals.map((i) => transpose$2(tonic, i));
-      return triads.map((triad, i) => tonics[i] + triad);
+      const triads2 = rotate(mode2.modeNum, chords2);
+      const tonics = mode2.intervals.map((i) => transpose$3(tonic, i));
+      return triads2.map((triad, i) => tonics[i] + triad);
     };
   }
   chords$1(MODES.map((x) => x[4]));
   chords$1(MODES.map((x) => x[5]));
+  function isNamedPitch(src) {
+    return src !== null && typeof src === "object" && "name" in src && typeof src.name === "string" ? true : false;
+  }
+  function isPitch(pitch2) {
+    return pitch2 !== null && typeof pitch2 === "object" && "step" in pitch2 && typeof pitch2.step === "number" && "alt" in pitch2 && typeof pitch2.alt === "number" && !isNaN(pitch2.step) && !isNaN(pitch2.alt) ? true : false;
+  }
+  var FIFTHS = [0, 2, 4, -1, 1, 3, 5];
+  var STEPS_TO_OCTS = FIFTHS.map(
+    (fifths) => Math.floor(fifths * 7 / 12)
+  );
+  function coordinates(pitch2) {
+    const { step, alt, oct, dir = 1 } = pitch2;
+    const f = FIFTHS[step] + 7 * alt;
+    if (oct === void 0) {
+      return [dir * f];
+    }
+    const o = oct - STEPS_TO_OCTS[step] - 4 * alt;
+    return [dir * f, dir * o];
+  }
+  var fillStr = (s, n) => Array(Math.abs(n) + 1).join(s);
+  var NoInterval = Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  var INTERVAL_TONAL_REGEX = "([-+]?\\d+)(d{1,4}|m|M|P|A{1,4})";
+  var INTERVAL_SHORTHAND_REGEX = "(AA|A|P|M|m|d|dd)([-+]?\\d+)";
+  var REGEX = new RegExp(
+    "^" + INTERVAL_TONAL_REGEX + "|" + INTERVAL_SHORTHAND_REGEX + "$"
+  );
+  function tokenizeInterval(str) {
+    const m = REGEX.exec(`${str}`);
+    if (m === null) {
+      return ["", ""];
+    }
+    return m[1] ? [m[1], m[2]] : [m[4], m[3]];
+  }
+  var cache = {};
+  function interval(src) {
+    return typeof src === "string" ? cache[src] || (cache[src] = parse(src)) : isPitch(src) ? interval(pitchName(src)) : isNamedPitch(src) ? interval(src.name) : NoInterval;
+  }
+  var SIZES = [0, 2, 4, 5, 7, 9, 11];
+  var TYPES = "PMMPPMM";
+  function parse(str) {
+    const tokens = tokenizeInterval(str);
+    if (tokens[0] === "") {
+      return NoInterval;
+    }
+    const num = +tokens[0];
+    const q = tokens[1];
+    const step = (Math.abs(num) - 1) % 7;
+    const t = TYPES[step];
+    if (t === "M" && q === "P") {
+      return NoInterval;
+    }
+    const type = t === "M" ? "majorable" : "perfectable";
+    const name2 = "" + num + q;
+    const dir = num < 0 ? -1 : 1;
+    const simple = num === 8 || num === -8 ? num : dir * (step + 1);
+    const alt = qToAlt(type, q);
+    const oct = Math.floor((Math.abs(num) - 1) / 7);
+    const semitones = dir * (SIZES[step] + alt + 12 * oct);
+    const chroma2 = (dir * (SIZES[step] + alt) % 12 + 12) % 12;
+    const coord = coordinates({ step, alt, oct, dir });
+    return {
+      empty: false,
+      name: name2,
+      num,
+      q,
+      step,
+      alt,
+      dir,
+      type,
+      simple,
+      semitones,
+      chroma: chroma2,
+      coord,
+      oct
+    };
+  }
+  function qToAlt(type, q) {
+    return q === "M" && type === "majorable" || q === "P" && type === "perfectable" ? 0 : q === "m" && type === "majorable" ? -1 : /^A+$/.test(q) ? q.length : /^d+$/.test(q) ? -1 * (type === "perfectable" ? q.length : q.length + 1) : 0;
+  }
+  function pitchName(props) {
+    const { step, alt, oct = 0, dir } = props;
+    if (!dir) {
+      return "";
+    }
+    const calcNum = step + 1 + 7 * oct;
+    const num = calcNum === 0 ? step + 1 : calcNum;
+    const d = dir < 0 ? "-" : "";
+    const type = TYPES[step] === "M" ? "majorable" : "perfectable";
+    const name2 = d + num + altToQ(type, alt);
+    return name2;
+  }
+  function altToQ(type, alt) {
+    if (alt === 0) {
+      return type === "majorable" ? "M" : "P";
+    } else if (alt === -1 && type === "majorable") {
+      return "m";
+    } else if (alt > 0) {
+      return fillStr("A", alt);
+    } else {
+      return fillStr("d", type === "perfectable" ? alt : alt + 1);
+    }
+  }
+  var CHORDS$1 = [
+    ["1P 3M 5P", "major", "M ^  maj"],
+    ["1P 3M 5P 7M", "major seventh", "maj7 \u0394 ma7 M7 Maj7 ^7"],
+    ["1P 3M 5P 7M 9M", "major ninth", "maj9 \u03949 ^9"],
+    ["1P 3M 5P 7M 9M 13M", "major thirteenth", "maj13 Maj13 ^13"],
+    ["1P 3M 5P 6M", "sixth", "6 add6 add13 M6"],
+    ["1P 3M 5P 6M 9M", "sixth added ninth", "6add9 6/9 69 M69"],
+    ["1P 3M 6m 7M", "major seventh flat sixth", "M7b6 ^7b6"],
+    [
+      "1P 3M 5P 7M 11A",
+      "major seventh sharp eleventh",
+      "maj#4 \u0394#4 \u0394#11 M7#11 ^7#11 maj7#11"
+    ],
+    ["1P 3m 5P", "minor", "m min -"],
+    ["1P 3m 5P 7m", "minor seventh", "m7 min7 mi7 -7"],
+    [
+      "1P 3m 5P 7M",
+      "minor/major seventh",
+      "m/ma7 m/maj7 mM7 mMaj7 m/M7 -\u03947 m\u0394 -^7 -maj7"
+    ],
+    ["1P 3m 5P 6M", "minor sixth", "m6 -6"],
+    ["1P 3m 5P 7m 9M", "minor ninth", "m9 -9"],
+    ["1P 3m 5P 7M 9M", "minor/major ninth", "mM9 mMaj9 -^9"],
+    ["1P 3m 5P 7m 9M 11P", "minor eleventh", "m11 -11"],
+    ["1P 3m 5P 7m 9M 13M", "minor thirteenth", "m13 -13"],
+    ["1P 3m 5d", "diminished", "dim \xB0 o"],
+    ["1P 3m 5d 7d", "diminished seventh", "dim7 \xB07 o7"],
+    ["1P 3m 5d 7m", "half-diminished", "m7b5 \xF8 -7b5 h7 h"],
+    ["1P 3M 5P 7m", "dominant seventh", "7 dom"],
+    ["1P 3M 5P 7m 9M", "dominant ninth", "9"],
+    ["1P 3M 5P 7m 9M 13M", "dominant thirteenth", "13"],
+    ["1P 3M 5P 7m 11A", "lydian dominant seventh", "7#11 7#4"],
+    ["1P 3M 5P 7m 9m", "dominant flat ninth", "7b9"],
+    ["1P 3M 5P 7m 9A", "dominant sharp ninth", "7#9"],
+    ["1P 3M 7m 9m", "altered", "alt7"],
+    ["1P 4P 5P", "suspended fourth", "sus4 sus"],
+    ["1P 2M 5P", "suspended second", "sus2"],
+    ["1P 4P 5P 7m", "suspended fourth seventh", "7sus4 7sus"],
+    ["1P 5P 7m 9M 11P", "eleventh", "11"],
+    [
+      "1P 4P 5P 7m 9m",
+      "suspended fourth flat ninth",
+      "b9sus phryg 7b9sus 7b9sus4"
+    ],
+    ["1P 5P", "fifth", "5"],
+    ["1P 3M 5A", "augmented", "aug + +5 ^#5"],
+    ["1P 3m 5A", "minor augmented", "m#5 -#5 m+"],
+    ["1P 3M 5A 7M", "augmented seventh", "maj7#5 maj7+5 +maj7 ^7#5"],
+    [
+      "1P 3M 5P 7M 9M 11A",
+      "major sharp eleventh (lydian)",
+      "maj9#11 \u03949#11 ^9#11"
+    ],
+    ["1P 2M 4P 5P", "", "sus24 sus4add9"],
+    ["1P 3M 5A 7M 9M", "", "maj9#5 Maj9#5"],
+    ["1P 3M 5A 7m", "", "7#5 +7 7+ 7aug aug7"],
+    ["1P 3M 5A 7m 9A", "", "7#5#9 7#9#5 7alt"],
+    ["1P 3M 5A 7m 9M", "", "9#5 9+"],
+    ["1P 3M 5A 7m 9M 11A", "", "9#5#11"],
+    ["1P 3M 5A 7m 9m", "", "7#5b9 7b9#5"],
+    ["1P 3M 5A 7m 9m 11A", "", "7#5b9#11"],
+    ["1P 3M 5A 9A", "", "+add#9"],
+    ["1P 3M 5A 9M", "", "M#5add9 +add9"],
+    ["1P 3M 5P 6M 11A", "", "M6#11 M6b5 6#11 6b5"],
+    ["1P 3M 5P 6M 7M 9M", "", "M7add13"],
+    ["1P 3M 5P 6M 9M 11A", "", "69#11"],
+    ["1P 3m 5P 6M 9M", "", "m69 -69"],
+    ["1P 3M 5P 6m 7m", "", "7b6"],
+    ["1P 3M 5P 7M 9A 11A", "", "maj7#9#11"],
+    ["1P 3M 5P 7M 9M 11A 13M", "", "M13#11 maj13#11 M13+4 M13#4"],
+    ["1P 3M 5P 7M 9m", "", "M7b9"],
+    ["1P 3M 5P 7m 11A 13m", "", "7#11b13 7b5b13"],
+    ["1P 3M 5P 7m 13M", "", "7add6 67 7add13"],
+    ["1P 3M 5P 7m 9A 11A", "", "7#9#11 7b5#9 7#9b5"],
+    ["1P 3M 5P 7m 9A 11A 13M", "", "13#9#11"],
+    ["1P 3M 5P 7m 9A 11A 13m", "", "7#9#11b13"],
+    ["1P 3M 5P 7m 9A 13M", "", "13#9"],
+    ["1P 3M 5P 7m 9A 13m", "", "7#9b13"],
+    ["1P 3M 5P 7m 9M 11A", "", "9#11 9+4 9#4"],
+    ["1P 3M 5P 7m 9M 11A 13M", "", "13#11 13+4 13#4"],
+    ["1P 3M 5P 7m 9M 11A 13m", "", "9#11b13 9b5b13"],
+    ["1P 3M 5P 7m 9m 11A", "", "7b9#11 7b5b9 7b9b5"],
+    ["1P 3M 5P 7m 9m 11A 13M", "", "13b9#11"],
+    ["1P 3M 5P 7m 9m 11A 13m", "", "7b9b13#11 7b9#11b13 7b5b9b13"],
+    ["1P 3M 5P 7m 9m 13M", "", "13b9"],
+    ["1P 3M 5P 7m 9m 13m", "", "7b9b13"],
+    ["1P 3M 5P 7m 9m 9A", "", "7b9#9"],
+    ["1P 3M 5P 9M", "", "Madd9 2 add9 add2"],
+    ["1P 3M 5P 9m", "", "Maddb9"],
+    ["1P 3M 5d", "", "Mb5"],
+    ["1P 3M 5d 6M 7m 9M", "", "13b5"],
+    ["1P 3M 5d 7M", "", "M7b5"],
+    ["1P 3M 5d 7M 9M", "", "M9b5"],
+    ["1P 3M 5d 7m", "", "7b5"],
+    ["1P 3M 5d 7m 9M", "", "9b5"],
+    ["1P 3M 7m", "", "7no5"],
+    ["1P 3M 7m 13m", "", "7b13"],
+    ["1P 3M 7m 9M", "", "9no5"],
+    ["1P 3M 7m 9M 13M", "", "13no5"],
+    ["1P 3M 7m 9M 13m", "", "9b13"],
+    ["1P 3m 4P 5P", "", "madd4"],
+    ["1P 3m 5P 6m 7M", "", "mMaj7b6"],
+    ["1P 3m 5P 6m 7M 9M", "", "mMaj9b6"],
+    ["1P 3m 5P 7m 11P", "", "m7add11 m7add4"],
+    ["1P 3m 5P 9M", "", "madd9"],
+    ["1P 3m 5d 6M 7M", "", "o7M7"],
+    ["1P 3m 5d 7M", "", "oM7"],
+    ["1P 3m 6m 7M", "", "mb6M7"],
+    ["1P 3m 6m 7m", "", "m7#5"],
+    ["1P 3m 6m 7m 9M", "", "m9#5"],
+    ["1P 3m 5A 7m 9M 11P", "", "m11A"],
+    ["1P 3m 6m 9m", "", "mb6b9"],
+    ["1P 2M 3m 5d 7m", "", "m9b5"],
+    ["1P 4P 5A 7M", "", "M7#5sus4"],
+    ["1P 4P 5A 7M 9M", "", "M9#5sus4"],
+    ["1P 4P 5A 7m", "", "7#5sus4"],
+    ["1P 4P 5P 7M", "", "M7sus4"],
+    ["1P 4P 5P 7M 9M", "", "M9sus4"],
+    ["1P 4P 5P 7m 9M", "", "9sus4 9sus"],
+    ["1P 4P 5P 7m 9M 13M", "", "13sus4 13sus"],
+    ["1P 4P 5P 7m 9m 13m", "", "7sus4b9b13 7b9b13sus4"],
+    ["1P 4P 7m 10m", "", "4 quartal"],
+    ["1P 5P 7m 9m 11P", "", "11b9"]
+  ];
+  var data_default$1 = CHORDS$1;
+  ({
+    ...EmptyPcset,
+    name: "",
+    quality: "Unknown",
+    intervals: [],
+    aliases: []
+  });
+  var dictionary$1 = [];
+  var index$1 = {};
+  function add$1(intervals, aliases, fullName) {
+    const quality = getQuality$1(intervals);
+    const chord2 = {
+      ...get$6(intervals),
+      name: fullName || "",
+      quality,
+      intervals,
+      aliases
+    };
+    dictionary$1.push(chord2);
+    if (chord2.name) {
+      index$1[chord2.name] = chord2;
+    }
+    index$1[chord2.setNum] = chord2;
+    index$1[chord2.chroma] = chord2;
+    chord2.aliases.forEach((alias) => addAlias$1(chord2, alias));
+  }
+  function addAlias$1(chord2, alias) {
+    index$1[alias] = chord2;
+  }
+  function getQuality$1(intervals) {
+    const has = (interval2) => intervals.indexOf(interval2) !== -1;
+    return has("5A") ? "Augmented" : has("3M") ? "Major" : has("5d") ? "Diminished" : has("3m") ? "Minor" : "Unknown";
+  }
+  data_default$1.forEach(
+    ([ivls, fullName, names2]) => add$1(ivls.split(" "), names2.split(" "), fullName)
+  );
+  dictionary$1.sort((a, b) => a.setNum - b.setNum);
+  function tokenize(name2) {
+    const [letter, acc, oct, type] = tokenizeNote$1(name2);
+    if (letter === "") {
+      return tokenizeBass("", name2);
+    } else if (letter === "A" && type === "ug") {
+      return tokenizeBass("", "aug");
+    } else {
+      return tokenizeBass(letter + acc, oct + type);
+    }
+  }
+  function tokenizeBass(note2, chord2) {
+    const split = chord2.split("/");
+    if (split.length === 1) {
+      return [note2, split[0], ""];
+    }
+    const [letter, acc, oct, type] = tokenizeNote$1(split[1]);
+    if (letter !== "" && oct === "" && type === "") {
+      return [note2, split[0], letter + acc];
+    } else {
+      return [note2, chord2, ""];
+    }
+  }
   function fromRomanNumerals(tonic, chords2) {
     const romanNumerals = chords2.map(get$1);
-    return romanNumerals.map((rn) => transpose$2(tonic, interval(rn)) + rn.chordType);
+    return romanNumerals.map(
+      (rn) => transpose$3(tonic, interval(rn)) + rn.chordType
+    );
   }
   function toRomanNumerals(tonic, chords2) {
     return chords2.map((chord2) => {
-      const [note2, chordType] = tokenize$1(chord2);
-      const intervalName = distance(tonic, note2);
+      const [note2, chordType] = tokenize(chord2);
+      const intervalName = distance$1(tonic, note2);
       const roman = get$1(interval(intervalName));
       return roman.name + chordType;
     });
   }
-  var index = { fromRomanNumerals, toRomanNumerals };
+  var progression_default = { fromRomanNumerals, toRomanNumerals };
+  Object.freeze({
+    empty: true,
+    name: "",
+    num: NaN,
+    q: "",
+    type: "",
+    step: NaN,
+    alt: NaN,
+    dir: NaN,
+    simple: NaN,
+    semitones: NaN,
+    chroma: NaN,
+    coord: [],
+    oct: NaN
+  });
+  var CHORDS = [
+    ["1P 3M 5P", "major", "M ^  maj"],
+    ["1P 3M 5P 7M", "major seventh", "maj7 \u0394 ma7 M7 Maj7 ^7"],
+    ["1P 3M 5P 7M 9M", "major ninth", "maj9 \u03949 ^9"],
+    ["1P 3M 5P 7M 9M 13M", "major thirteenth", "maj13 Maj13 ^13"],
+    ["1P 3M 5P 6M", "sixth", "6 add6 add13 M6"],
+    ["1P 3M 5P 6M 9M", "sixth added ninth", "6add9 6/9 69 M69"],
+    ["1P 3M 6m 7M", "major seventh flat sixth", "M7b6 ^7b6"],
+    [
+      "1P 3M 5P 7M 11A",
+      "major seventh sharp eleventh",
+      "maj#4 \u0394#4 \u0394#11 M7#11 ^7#11 maj7#11"
+    ],
+    ["1P 3m 5P", "minor", "m min -"],
+    ["1P 3m 5P 7m", "minor seventh", "m7 min7 mi7 -7"],
+    [
+      "1P 3m 5P 7M",
+      "minor/major seventh",
+      "m/ma7 m/maj7 mM7 mMaj7 m/M7 -\u03947 m\u0394 -^7 -maj7"
+    ],
+    ["1P 3m 5P 6M", "minor sixth", "m6 -6"],
+    ["1P 3m 5P 7m 9M", "minor ninth", "m9 -9"],
+    ["1P 3m 5P 7M 9M", "minor/major ninth", "mM9 mMaj9 -^9"],
+    ["1P 3m 5P 7m 9M 11P", "minor eleventh", "m11 -11"],
+    ["1P 3m 5P 7m 9M 13M", "minor thirteenth", "m13 -13"],
+    ["1P 3m 5d", "diminished", "dim \xB0 o"],
+    ["1P 3m 5d 7d", "diminished seventh", "dim7 \xB07 o7"],
+    ["1P 3m 5d 7m", "half-diminished", "m7b5 \xF8 -7b5 h7 h"],
+    ["1P 3M 5P 7m", "dominant seventh", "7 dom"],
+    ["1P 3M 5P 7m 9M", "dominant ninth", "9"],
+    ["1P 3M 5P 7m 9M 13M", "dominant thirteenth", "13"],
+    ["1P 3M 5P 7m 11A", "lydian dominant seventh", "7#11 7#4"],
+    ["1P 3M 5P 7m 9m", "dominant flat ninth", "7b9"],
+    ["1P 3M 5P 7m 9A", "dominant sharp ninth", "7#9"],
+    ["1P 3M 7m 9m", "altered", "alt7"],
+    ["1P 4P 5P", "suspended fourth", "sus4 sus"],
+    ["1P 2M 5P", "suspended second", "sus2"],
+    ["1P 4P 5P 7m", "suspended fourth seventh", "7sus4 7sus"],
+    ["1P 5P 7m 9M 11P", "eleventh", "11"],
+    [
+      "1P 4P 5P 7m 9m",
+      "suspended fourth flat ninth",
+      "b9sus phryg 7b9sus 7b9sus4"
+    ],
+    ["1P 5P", "fifth", "5"],
+    ["1P 3M 5A", "augmented", "aug + +5 ^#5"],
+    ["1P 3m 5A", "minor augmented", "m#5 -#5 m+"],
+    ["1P 3M 5A 7M", "augmented seventh", "maj7#5 maj7+5 +maj7 ^7#5"],
+    [
+      "1P 3M 5P 7M 9M 11A",
+      "major sharp eleventh (lydian)",
+      "maj9#11 \u03949#11 ^9#11"
+    ],
+    ["1P 2M 4P 5P", "", "sus24 sus4add9"],
+    ["1P 3M 5A 7M 9M", "", "maj9#5 Maj9#5"],
+    ["1P 3M 5A 7m", "", "7#5 +7 7+ 7aug aug7"],
+    ["1P 3M 5A 7m 9A", "", "7#5#9 7#9#5 7alt"],
+    ["1P 3M 5A 7m 9M", "", "9#5 9+"],
+    ["1P 3M 5A 7m 9M 11A", "", "9#5#11"],
+    ["1P 3M 5A 7m 9m", "", "7#5b9 7b9#5"],
+    ["1P 3M 5A 7m 9m 11A", "", "7#5b9#11"],
+    ["1P 3M 5A 9A", "", "+add#9"],
+    ["1P 3M 5A 9M", "", "M#5add9 +add9"],
+    ["1P 3M 5P 6M 11A", "", "M6#11 M6b5 6#11 6b5"],
+    ["1P 3M 5P 6M 7M 9M", "", "M7add13"],
+    ["1P 3M 5P 6M 9M 11A", "", "69#11"],
+    ["1P 3m 5P 6M 9M", "", "m69 -69"],
+    ["1P 3M 5P 6m 7m", "", "7b6"],
+    ["1P 3M 5P 7M 9A 11A", "", "maj7#9#11"],
+    ["1P 3M 5P 7M 9M 11A 13M", "", "M13#11 maj13#11 M13+4 M13#4"],
+    ["1P 3M 5P 7M 9m", "", "M7b9"],
+    ["1P 3M 5P 7m 11A 13m", "", "7#11b13 7b5b13"],
+    ["1P 3M 5P 7m 13M", "", "7add6 67 7add13"],
+    ["1P 3M 5P 7m 9A 11A", "", "7#9#11 7b5#9 7#9b5"],
+    ["1P 3M 5P 7m 9A 11A 13M", "", "13#9#11"],
+    ["1P 3M 5P 7m 9A 11A 13m", "", "7#9#11b13"],
+    ["1P 3M 5P 7m 9A 13M", "", "13#9"],
+    ["1P 3M 5P 7m 9A 13m", "", "7#9b13"],
+    ["1P 3M 5P 7m 9M 11A", "", "9#11 9+4 9#4"],
+    ["1P 3M 5P 7m 9M 11A 13M", "", "13#11 13+4 13#4"],
+    ["1P 3M 5P 7m 9M 11A 13m", "", "9#11b13 9b5b13"],
+    ["1P 3M 5P 7m 9m 11A", "", "7b9#11 7b5b9 7b9b5"],
+    ["1P 3M 5P 7m 9m 11A 13M", "", "13b9#11"],
+    ["1P 3M 5P 7m 9m 11A 13m", "", "7b9b13#11 7b9#11b13 7b5b9b13"],
+    ["1P 3M 5P 7m 9m 13M", "", "13b9"],
+    ["1P 3M 5P 7m 9m 13m", "", "7b9b13"],
+    ["1P 3M 5P 7m 9m 9A", "", "7b9#9"],
+    ["1P 3M 5P 9M", "", "Madd9 2 add9 add2"],
+    ["1P 3M 5P 9m", "", "Maddb9"],
+    ["1P 3M 5d", "", "Mb5"],
+    ["1P 3M 5d 6M 7m 9M", "", "13b5"],
+    ["1P 3M 5d 7M", "", "M7b5"],
+    ["1P 3M 5d 7M 9M", "", "M9b5"],
+    ["1P 3M 5d 7m", "", "7b5"],
+    ["1P 3M 5d 7m 9M", "", "9b5"],
+    ["1P 3M 7m", "", "7no5"],
+    ["1P 3M 7m 13m", "", "7b13"],
+    ["1P 3M 7m 9M", "", "9no5"],
+    ["1P 3M 7m 9M 13M", "", "13no5"],
+    ["1P 3M 7m 9M 13m", "", "9b13"],
+    ["1P 3m 4P 5P", "", "madd4"],
+    ["1P 3m 5P 6m 7M", "", "mMaj7b6"],
+    ["1P 3m 5P 6m 7M 9M", "", "mMaj9b6"],
+    ["1P 3m 5P 7m 11P", "", "m7add11 m7add4"],
+    ["1P 3m 5P 9M", "", "madd9"],
+    ["1P 3m 5d 6M 7M", "", "o7M7"],
+    ["1P 3m 5d 7M", "", "oM7"],
+    ["1P 3m 6m 7M", "", "mb6M7"],
+    ["1P 3m 6m 7m", "", "m7#5"],
+    ["1P 3m 6m 7m 9M", "", "m9#5"],
+    ["1P 3m 5A 7m 9M 11P", "", "m11A"],
+    ["1P 3m 6m 9m", "", "mb6b9"],
+    ["1P 2M 3m 5d 7m", "", "m9b5"],
+    ["1P 4P 5A 7M", "", "M7#5sus4"],
+    ["1P 4P 5A 7M 9M", "", "M9#5sus4"],
+    ["1P 4P 5A 7m", "", "7#5sus4"],
+    ["1P 4P 5P 7M", "", "M7sus4"],
+    ["1P 4P 5P 7M 9M", "", "M9sus4"],
+    ["1P 4P 5P 7m 9M", "", "9sus4 9sus"],
+    ["1P 4P 5P 7m 9M 13M", "", "13sus4 13sus"],
+    ["1P 4P 5P 7m 9m 13m", "", "7sus4b9b13 7b9b13sus4"],
+    ["1P 4P 7m 10m", "", "4 quartal"],
+    ["1P 5P 7m 9m 11P", "", "11b9"]
+  ];
+  var data_default = CHORDS;
+  ({
+    ...EmptyPcset,
+    name: "",
+    quality: "Unknown",
+    intervals: [],
+    aliases: []
+  });
+  var dictionary = [];
+  var index = {};
+  function add(intervals, aliases, fullName) {
+    const quality = getQuality(intervals);
+    const chord2 = {
+      ...get$6(intervals),
+      name: fullName || "",
+      quality,
+      intervals,
+      aliases
+    };
+    dictionary.push(chord2);
+    if (chord2.name) {
+      index[chord2.name] = chord2;
+    }
+    index[chord2.setNum] = chord2;
+    index[chord2.chroma] = chord2;
+    chord2.aliases.forEach((alias) => addAlias(chord2, alias));
+  }
+  function addAlias(chord2, alias) {
+    index[alias] = chord2;
+  }
+  function getQuality(intervals) {
+    const has = (interval2) => intervals.indexOf(interval2) !== -1;
+    return has("5A") ? "Augmented" : has("3M") ? "Major" : has("5d") ? "Diminished" : has("3m") ? "Minor" : "Unknown";
+  }
+  data_default.forEach(
+    ([ivls, fullName, names2]) => add(ivls.split(" "), names2.split(" "), fullName)
+  );
+  dictionary.sort((a, b) => a.setNum - b.setNum);
   const defaultOptions = {
     seed: 0,
     noteLength: 32,
@@ -3350,52 +4658,79 @@ var __publicField = (obj, key, value) => {
       if (isDrum) {
         return generateDrumNote(options.noteLength);
       } else {
-        return generateMelodyNote(options.noteLength, chordProgressionNotes);
+        return random.get() < 0.5 ? generateMelodyNote(options.noteLength, chordProgressionNotes) : generateChordNote(options.noteLength, chordProgressionNotes);
       }
     });
   }
   function generateMelodyNote(noteLength, chordProgressionNotes) {
-    const pattern = createRandomPattern(noteLength, 1);
-    const continuingPattern = times(noteLength, () => random.get() < 0.8);
-    const randomChordPatterns = random.select([
-      [0, 2],
-      [0, 1, 2],
-      [0, 1, 2, 3]
-    ]);
-    let seType = random.select([
-      "tone",
-      "tone",
-      "tone",
-      "select",
-      "laser",
-      "synth",
-      "hit"
-    ]);
-    let volume2 = random.getInt(36, 50);
-    if (seType === "synth" || seType === "select") {
-      volume2 = Math.floor(volume2 * 0.6);
-    }
-    const baseOctaveOffset = random.getInt(-1, 1);
+    const seType = random.select(["tone", "synth"]);
+    const volume2 = 32;
     const baseNoteDuration = 16;
     let mml = `@${seType}@s${random.getInt(
       999999999
     )} v${volume2} l${baseNoteDuration} `;
+    const pattern = createRandomPattern(noteLength, 4, 8, 3);
+    let octaveOffset = random.getInt(-1, 1);
     let octave2 = -1;
-    let hasPrevNote = false;
     for (let i = 0; i < noteLength; i++) {
+      if (random.get() < 0.1) {
+        octaveOffset += random.getInt(-1, 2);
+      }
       if (!pattern[i]) {
         mml += "r";
-        hasPrevNote = false;
         continue;
       }
-      if (continuingPattern[i] && hasPrevNote) {
-        mml += "^";
+      const ns = chordProgressionNotes[i][random.getInt(4)];
+      let o = clamp(
+        Number.parseFloat(ns.charAt(ns.length - 1)) + octaveOffset,
+        2,
+        7
+      );
+      const n = ns.substring(0, ns.length - 1).replace("#", "+").replace("b", "-").toLowerCase();
+      if (o !== octave2) {
+        mml += ` o${o}`;
+        octave2 = o;
+      }
+      mml += n;
+    }
+    return mml;
+  }
+  function generateChordNote(noteLength, chordProgressionNotes) {
+    const seType = random.select(["tone", "synth", "select"]);
+    const isArpeggio = random.get() < 0.3;
+    const volume2 = isArpeggio ? 24 : 30;
+    const baseNoteDuration = 16;
+    let mml = `@${seType}@s${random.getInt(
+      999999999
+    )} v${volume2} l${baseNoteDuration} `;
+    const arpeggioInterval = random.select([4, 8, 16]);
+    const arpeggioPattern = times(arpeggioInterval, () => random.getInt(4));
+    const interval2 = random.select([2, 4, 8]);
+    const pattern = isArpeggio ? times(noteLength, () => true) : createRandomPattern(
+      noteLength,
+      random.select([1, 1, interval2 / 2]),
+      interval2,
+      2
+    );
+    let baseOctave = random.getInt(-1, 1);
+    const isReciprocatingOctave = random.get() < (isArpeggio ? 0.3 : 0.8);
+    let octaveOffset = 0;
+    let octave2 = -1;
+    for (let i = 0; i < noteLength; i++) {
+      if (isReciprocatingOctave && i % interval2 === 0) {
+        octaveOffset = (octaveOffset + 1) % 2;
+      }
+      if (!pattern[i]) {
+        mml += "r";
         continue;
       }
-      hasPrevNote = true;
-      const ns = chordProgressionNotes[i][random.select(randomChordPatterns)];
-      let o = Number.parseFloat(ns.charAt(ns.length - 1)) + baseOctaveOffset;
-      let n = ns.substring(0, ns.length - 1).replace("#", "+").replace("b", "-").toLowerCase();
+      const ns = chordProgressionNotes[i][isArpeggio ? arpeggioPattern[i % arpeggioInterval] : 0];
+      let o = clamp(
+        Number.parseFloat(ns.charAt(ns.length - 1)) + baseOctave + octaveOffset,
+        2,
+        7
+      );
+      const n = ns.substring(0, ns.length - 1).replace("#", "+").replace("b", "-").toLowerCase();
       if (o !== octave2) {
         mml += ` o${o}`;
         octave2 = o;
@@ -3405,30 +4740,20 @@ var __publicField = (obj, key, value) => {
     return mml;
   }
   function generateDrumNote(noteLength) {
-    const pattern = createRandomPattern(noteLength, 3);
-    const continuingPattern = times(noteLength, () => random.get() < 0.4);
-    const seType = random.select(["hit", "hit", "click", "explosion"]);
-    let volume2 = random.getInt(36, 50);
-    if (seType === "click" || seType === "explosion") {
-      volume2 = Math.floor(volume2 * 0.5);
-    }
+    const volume2 = 36;
     const baseNoteDuration = 16;
+    const seType = random.select(["hit", "click", "explosion"]);
     let mml = `@${seType}@d@s${random.getInt(
       999999999
-    )} v${volume2} l${baseNoteDuration} `;
-    let hasPrevNote = false;
+    )} v${volume2} l${baseNoteDuration} o2 `;
+    const pattern = createRandomPattern(
+      noteLength,
+      random.getInt(1, 3),
+      random.select([4, 8]),
+      3
+    );
     for (let i = 0; i < noteLength; i++) {
-      if (!pattern[i]) {
-        mml += "r";
-        hasPrevNote = false;
-        continue;
-      }
-      if (continuingPattern[i] && hasPrevNote) {
-        mml += "^";
-        continue;
-      }
-      hasPrevNote = true;
-      mml += "c";
+      mml += pattern[i] ? "c" : "r";
     }
     return mml;
   }
@@ -3459,7 +4784,7 @@ var __publicField = (obj, key, value) => {
           chordsIndex = random.select(nextChordsIndex[chordsIndex]);
           chord2 = random.select(chords[chordsIndex]);
         }
-        const progression2 = index.fromRomanNumerals(`${key}${octave2}`, [
+        const progression2 = progression_default.fromRomanNumerals(`${key}${octave2}`, [
           chord2
         ])[0];
         if (progression2.charAt(progression2.length - 1) === "m") {
@@ -3470,13 +4795,15 @@ var __publicField = (obj, key, value) => {
           tonic = progression2;
         }
       }
-      return index$3.getChord(type, tonic).notes;
+      return chord_default.getChord(type, tonic).notes;
     });
   }
-  function createRandomPattern(len, freq2) {
+  function createRandomPattern(len, freq2, interval2, loop) {
     let pattern = times(len, () => false);
-    let interval2 = 4;
-    while (interval2 <= len) {
+    for (let i = 0; i < loop; i++) {
+      if (interval2 > len) {
+        break;
+      }
       pattern = reversePattern(pattern, interval2, freq2);
       interval2 *= 2;
     }
@@ -3506,7 +4833,7 @@ var __publicField = (obj, key, value) => {
     } else if (options.pitch != null) {
       freq2 = pitchToFreq(options.pitch);
     } else if (options.note != null) {
-      freq2 = index$2.get(
+      freq2 = note_default.get(
         options.note.toUpperCase().replace("+", "#").replace("-", "b")
       ).freq;
     }
@@ -3528,7 +4855,7 @@ var __publicField = (obj, key, value) => {
       attackRatio,
       sustainRatio
     );
-    add$3(se);
+    add$6(se);
     soundEffects[key] = se;
     play$2(se);
     return se;
@@ -3560,7 +4887,7 @@ var __publicField = (obj, key, value) => {
       return get$8(mml, sequence, se);
     });
     const t = get$7(parts, notesStepsCount, options.speed);
-    add$2(t);
+    add$5(t);
     play$1(t, options.isLooping);
     if (options.isLooping) {
       loopingTrack = t;
@@ -3634,26 +4961,26 @@ var __publicField = (obj, key, value) => {
   }
   let jingles;
   let generatedTrack;
-  function play(name2 = "0", numberOfSounds = 2, pitch, volume2 = 1) {
+  function play(name2 = "0", numberOfSounds = 2, pitch2, volume2 = 1) {
     playSoundEffect(playPrefixes[name2[0]], {
       seed: getHashFromString(name2),
       numberOfSounds,
-      pitch,
+      pitch: pitch2,
       volume: volume2
     });
   }
-  function playBgm(name2 = "0", pitch = 69 - 24, len = 32, interval2 = 0.25, numberOfTracks = 4, soundEffectTypes = ["laser", "select", "hit", "hit"], volume2 = 1) {
+  function playBgm(name2 = "0", pitch2 = 69 - 24, len = 32, interval2 = 0.25, numberOfTracks = 4, soundEffectTypes = ["laser", "select", "hit", "hit"], volume2 = 1) {
     stopBgm();
     generatedTrack = generateBgm(
       name2,
-      pitch,
+      pitch2,
       len,
       interval2,
       numberOfTracks,
       soundEffectTypes,
       volume2
     );
-    add$2(generatedTrack);
+    add$5(generatedTrack);
     play$1(generatedTrack, true);
   }
   function stopBgm() {
@@ -3676,7 +5003,7 @@ var __publicField = (obj, key, value) => {
         numberOfTracks,
         volume2
       );
-      add$2(jingle);
+      add$5(jingle);
       jingles[key] = jingle;
     }
     play$1(jingles[key]);
