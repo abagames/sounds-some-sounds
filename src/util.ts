@@ -36,3 +36,7 @@ export function getHashFromString(str: string) {
   }
   return hash;
 }
+
+export function clamp(v: number, low = 0, high = 1) {
+  return Math.max(low, Math.min(v, high));
+}
