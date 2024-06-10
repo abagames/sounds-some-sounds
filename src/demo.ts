@@ -3,6 +3,7 @@ import * as sss from "./main";
 import "../lib/crisp-game-lib/bundle.js";
 
 (window as any).options = {
+  theme: "dark",
   isShowingScore: false,
 };
 
@@ -47,7 +48,7 @@ let seed = 1;
     let nextSeed = input.pos.x - bp.x;
     color("blue");
     rect(bp.x + nextSeed, bp.y + 1, 1, 3);
-    text(`${nextSeed}`, 85, bp.y - 3);
+    text(`${nextSeed}`, 90, bp.y - 4, { isSmallText: true });
     if (input.isJustPressed) {
       seed = nextSeed;
       sss.stopMml();
@@ -57,7 +58,7 @@ let seed = 1;
   }
   color("black");
   rect(bp.x + seed, bp.y + 1, 1, 3);
-  text(`seed: ${seed}`, 5, bp.y - 3);
+  text(`seed: ${seed}`, 5, bp.y - 4, { isSmallText: true });
 };
 
 declare const onLoad: any;
