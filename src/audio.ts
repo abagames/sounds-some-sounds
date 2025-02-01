@@ -2,14 +2,23 @@ export let audioContext: AudioContext;
 export let tempo: number;
 export let playInterval: number;
 export let quantize: number;
-export let volume: number;
+export let gainNode: GainNode;
 let isStarted = false;
 
-export function init(_audioContext: AudioContext = undefined) {
+export function init(
+  _audioContext: AudioContext = undefined,
+  _gainNode: GainNode = undefined
+) {
   audioContext =
     _audioContext == null
       ? new (window.AudioContext || (window as any).webkitAudioContext)()
       : _audioContext;
+  if (_gainNode == null) {
+    gainNode = audioContext.createGain();
+    gainNode.connect(audioContext.destination);
+  } else {
+    gainNode = _gainNode;
+  }
   setTempo();
   setQuantize();
   setVolume();
@@ -33,7 +42,7 @@ export function setQuantize(noteLength = 8) {
 }
 
 export function setVolume(_volume = 0.1) {
-  volume = _volume;
+  gainNode.gain.value = _volume;
 }
 
 export function getQuantizedTime(time: number) {

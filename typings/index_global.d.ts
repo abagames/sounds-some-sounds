@@ -48,7 +48,9 @@ declare module sss {
     // Used to generate sound effects and MMLs
     baseRandomSeed?: number,
     // When reusing an existing AudioContext
-    audioContext?: AudioContext
+    audioContext?: AudioContext,
+    // When reusing an existing GainNode
+    gainNode?: GainNode
   ): void;
   // The startAudio function needs to be called from within
   // the user operation event handler to enable audio playback in the browser

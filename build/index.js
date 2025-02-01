@@ -1552,10 +1552,16 @@ var __publicField = (obj, key, value) => {
   let tempo;
   let playInterval;
   let quantize;
-  let volume;
+  let gainNode;
   let isStarted = false;
-  function init$3(_audioContext = void 0) {
+  function init$3(_audioContext = void 0, _gainNode = void 0) {
     audioContext = _audioContext == null ? new (window.AudioContext || window.webkitAudioContext)() : _audioContext;
+    if (_gainNode == null) {
+      gainNode = audioContext.createGain();
+      gainNode.connect(audioContext.destination);
+    } else {
+      gainNode = _gainNode;
+    }
     setTempo();
     setQuantize();
     setVolume();
@@ -1575,7 +1581,7 @@ var __publicField = (obj, key, value) => {
     quantize = noteLength > 0 ? 4 / noteLength : void 0;
   }
   function setVolume(_volume = 0.1) {
-    volume = _volume;
+    gainNode.gain.value = _volume;
   }
   function getQuantizedTime(time) {
     if (quantize == null) {
@@ -1714,7 +1720,7 @@ var __publicField = (obj, key, value) => {
       updateSoundEffect(se, currentTime);
     });
   }
-  function get$9(type = void 0, seed = void 0, numberOfSounds = 2, volume2 = 0.5, freq2 = void 0, attackRatio = 1, sustainRatio = 1) {
+  function get$9(type = void 0, seed = void 0, numberOfSounds = 2, volume = 0.5, freq2 = void 0, attackRatio = 1, sustainRatio = 1) {
     if (seed != null) {
       random$2.setSeed(seed);
     }
@@ -1732,9 +1738,9 @@ var __publicField = (obj, key, value) => {
       }
       return p;
     });
-    return createBuffers(type, params, volume2);
+    return createBuffers(type, params, volume);
   }
-  function createBuffers(type, params, volume$1) {
+  function createBuffers(type, params, volume) {
     const buffers = params.map((p) => {
       const values = live._generate(p);
       const buffer = audioContext.createBuffer(1, values.length, jsfx.SampleRate);
@@ -1742,21 +1748,21 @@ var __publicField = (obj, key, value) => {
       channelData.set(values);
       return buffer;
     });
-    const gainNode = audioContext.createGain();
-    gainNode.gain.value = volume$1 * volume;
-    gainNode.connect(audioContext.destination);
+    const gainNode$1 = audioContext.createGain();
+    gainNode$1.gain.value = volume;
+    gainNode$1.connect(gainNode);
     return {
       type,
       params,
-      volume: volume$1,
+      volume,
       buffers,
       bufferSourceNodes: void 0,
-      gainNode,
+      gainNode: gainNode$1,
       isPlaying: false,
       playedTime: void 0
     };
   }
-  function getForSequence(sequence, isDrum, seed, type, volume2) {
+  function getForSequence(sequence, isDrum, seed, type, volume) {
     const random2 = new Random();
     random2.setSeed(seed);
     let se;
@@ -1769,7 +1775,7 @@ var __publicField = (obj, key, value) => {
         t,
         random2.getInt(999999999),
         t === "explosion" ? 1 : 2,
-        volume2 != null ? volume2 : t === "explosion" ? 0.4 : 0.5,
+        volume != null ? volume : t === "explosion" ? 0.4 : 0.5,
         random2.get(100, 200),
         t === "explosion" ? 0.5 : 1,
         t === "explosion" ? 0.2 : 1
@@ -1784,7 +1790,7 @@ var __publicField = (obj, key, value) => {
         t,
         random2.getInt(999999999),
         t !== "select" ? 1 : 2,
-        volume2 != null ? volume2 : 0.3,
+        volume != null ? volume : 0.3,
         261.6,
         t !== "select" ? 0.1 : 1,
         t !== "select" ? 2 : 1
@@ -1879,12 +1885,12 @@ var __publicField = (obj, key, value) => {
       leftMml = leftMml.replace(/@s\d+/, "");
     }
     const vs = leftMml.match(/v\d+/);
-    let volume2 = 0.5;
+    let volume = 0.5;
     if (vs != null) {
-      volume2 = Number.parseInt(vs[0].substring(1)) / volumeMultiplier;
+      volume = Number.parseInt(vs[0].substring(1)) / volumeMultiplier;
       leftMml = leftMml.replace(/v\d+/, "");
     }
-    return { mml: leftMml, args: { isDrum, seed, type, volume: volume2 } };
+    return { mml: leftMml, args: { isDrum, seed, type, volume } };
   }
   function get$8(mml, sequence, soundEffect2, visualizer) {
     return {
@@ -2024,7 +2030,7 @@ var __publicField = (obj, key, value) => {
   function setSeed$2(_baseRandomSeed) {
     baseRandomSeed$2 = _baseRandomSeed;
   }
-  function generateBgm(name2, pitch2, len, interval2, numberOfTracks, soundEffectTypes, volume2) {
+  function generateBgm(name2, pitch2, len, interval2, numberOfTracks, soundEffectTypes, volume) {
     random$1.setSeed(baseRandomSeed$2 + getHashFromString(name2));
     initProgression();
     prevTrack = null;
@@ -2055,12 +2061,12 @@ var __publicField = (obj, key, value) => {
         isLimitNoteResolution,
         isRepeatHalf,
         void 0,
-        volume2
+        volume
       );
     });
     return getTrack(tracks2, 0.5 / interval2);
   }
-  function generateJingle(name2 = "0", isSe = false, note2 = 69 - 12, len = 16, interval2 = 0.25, numberOfTracks = 4, volume2 = 1) {
+  function generateJingle(name2 = "0", isSe = false, note2 = 69 - 12, len = 16, interval2 = 0.25, numberOfTracks = 4, volume = 1) {
     random$1.setSeed(baseRandomSeed$2 + getHashFromString(name2));
     initProgression();
     prevTrack = null;
@@ -2097,7 +2103,7 @@ var __publicField = (obj, key, value) => {
         isLimitNoteResolution,
         isRepeatHalf,
         restRatio,
-        volume2
+        volume
       );
       return track2;
     });
@@ -2116,12 +2122,12 @@ var __publicField = (obj, key, value) => {
     return get$7(parts, gps[0].notes.length * 2, speedRatio);
   }
   let prevTrack;
-  function generatePart(len = 32, soundEffectName, pitch2 = 60, durationRatio = 1, chordOffset = 0, randomness = 0, velocityRatio = 1, hasSameNoteWithPrevPart = false, isLimitNoteWidth = false, isLimitNoteResolution = false, isRepeatHalf = false, restRatio = null, volume2 = 0.1) {
+  function generatePart(len = 32, soundEffectName, pitch2 = 60, durationRatio = 1, chordOffset = 0, randomness = 0, velocityRatio = 1, hasSameNoteWithPrevPart = false, isLimitNoteWidth = false, isLimitNoteResolution = false, isRepeatHalf = false, restRatio = null, volume = 0.1) {
     const generatedPart = getGeneratedPart(
       soundEffectName,
       pitchToFreq(pitch2),
       durationRatio,
-      volume2
+      volume
     );
     if (prevTrack != null && hasSameNoteWithPrevPart) {
       generatedPart.noteRatios = prevTrack.noteRatios;
@@ -2269,7 +2275,7 @@ var __publicField = (obj, key, value) => {
       return d + b * 12 + chord2[cn];
     });
   }
-  function getGeneratedPart(soundEffectName, freq2, durationRatio, volume2) {
+  function getGeneratedPart(soundEffectName, freq2, durationRatio, volume) {
     return {
       noteRatios: void 0,
       notes: void 0,
@@ -2277,7 +2283,7 @@ var __publicField = (obj, key, value) => {
         soundEffectName,
         void 0,
         1,
-        volume2,
+        volume,
         freq2,
         durationRatio,
         durationRatio
@@ -4664,11 +4670,11 @@ var __publicField = (obj, key, value) => {
   }
   function generateMelodyNote(noteLength, chordProgressionNotes) {
     const seType = random.select(["tone", "synth"]);
-    const volume2 = 32;
+    const volume = 32;
     const baseNoteDuration = 16;
     let mml = `@${seType}@s${random.getInt(
       999999999
-    )} v${volume2} l${baseNoteDuration} `;
+    )} v${volume} l${baseNoteDuration} `;
     const pattern = createRandomPattern(noteLength, 4, 8, 3);
     let octaveOffset = random.getInt(-1, 1);
     let octave2 = -1;
@@ -4698,11 +4704,11 @@ var __publicField = (obj, key, value) => {
   function generateChordNote(noteLength, chordProgressionNotes) {
     const seType = random.select(["tone", "synth", "select"]);
     const isArpeggio = random.get() < 0.3;
-    const volume2 = isArpeggio ? 24 : 30;
+    const volume = isArpeggio ? 24 : 30;
     const baseNoteDuration = 16;
     let mml = `@${seType}@s${random.getInt(
       999999999
-    )} v${volume2} l${baseNoteDuration} `;
+    )} v${volume} l${baseNoteDuration} `;
     const arpeggioInterval = random.select([4, 8, 16]);
     const arpeggioPattern = times(arpeggioInterval, () => random.getInt(4));
     const interval2 = random.select([2, 4, 8]);
@@ -4740,12 +4746,12 @@ var __publicField = (obj, key, value) => {
     return mml;
   }
   function generateDrumNote(noteLength) {
-    const volume2 = 36;
+    const volume = 36;
     const baseNoteDuration = 16;
     const seType = random.select(["hit", "click", "explosion"]);
     let mml = `@${seType}@d@s${random.getInt(
       999999999
-    )} v${volume2} l${baseNoteDuration} o2 `;
+    )} v${volume} l${baseNoteDuration} o2 `;
     const pattern = createRandomPattern(
       noteLength,
       random.getInt(1, 3),
@@ -4916,9 +4922,9 @@ var __publicField = (obj, key, value) => {
     update$1(currentTime);
     update$3(currentTime);
   }
-  function init(baseRandomSeed2 = 1, audioContext2 = void 0) {
+  function init(baseRandomSeed2 = 1, audioContext2 = void 0, gainNode2 = void 0) {
     setSeed(baseRandomSeed2);
-    init$3(audioContext2);
+    init$3(audioContext2, gainNode2);
     reset();
   }
   function reset() {
@@ -4961,15 +4967,15 @@ var __publicField = (obj, key, value) => {
   }
   let jingles;
   let generatedTrack;
-  function play(name2 = "0", numberOfSounds = 2, pitch2, volume2 = 1) {
+  function play(name2 = "0", numberOfSounds = 2, pitch2, volume = 1) {
     playSoundEffect(playPrefixes[name2[0]], {
       seed: getHashFromString(name2),
       numberOfSounds,
       pitch: pitch2,
-      volume: volume2
+      volume
     });
   }
-  function playBgm(name2 = "0", pitch2 = 69 - 24, len = 32, interval2 = 0.25, numberOfTracks = 4, soundEffectTypes = ["laser", "select", "hit", "hit"], volume2 = 1) {
+  function playBgm(name2 = "0", pitch2 = 69 - 24, len = 32, interval2 = 0.25, numberOfTracks = 4, soundEffectTypes = ["laser", "select", "hit", "hit"], volume = 1) {
     stopBgm();
     generatedTrack = generateBgm(
       name2,
@@ -4978,7 +4984,7 @@ var __publicField = (obj, key, value) => {
       interval2,
       numberOfTracks,
       soundEffectTypes,
-      volume2
+      volume
     );
     add$5(generatedTrack);
     play$1(generatedTrack, true);
@@ -4991,8 +4997,8 @@ var __publicField = (obj, key, value) => {
     remove(generatedTrack);
     generatedTrack = void 0;
   }
-  function playJingle(name2 = "0", isSoundEffect = false, note2 = 69 - 12, len = 16, interval2 = 0.25, numberOfTracks = 4, volume2 = 1) {
-    const key = `${name2}_${isSoundEffect}_${note2}_${len}_${interval2}_${numberOfTracks}_${volume2}`;
+  function playJingle(name2 = "0", isSoundEffect = false, note2 = 69 - 12, len = 16, interval2 = 0.25, numberOfTracks = 4, volume = 1) {
+    const key = `${name2}_${isSoundEffect}_${note2}_${len}_${interval2}_${numberOfTracks}_${volume}`;
     if (jingles[key] == null) {
       const jingle = generateJingle(
         name2,
@@ -5001,7 +5007,7 @@ var __publicField = (obj, key, value) => {
         len,
         interval2,
         numberOfTracks,
-        volume2
+        volume
       );
       add$5(jingle);
       jingles[key] = jingle;

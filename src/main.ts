@@ -149,10 +149,11 @@ export function update() {
 
 export function init(
   baseRandomSeed = 1,
-  audioContext: AudioContext = undefined
+  audioContext: AudioContext = undefined,
+  gainNode: GainNode = undefined
 ) {
   setSeed(baseRandomSeed);
-  initAudio(audioContext);
+  initAudio(audioContext, gainNode);
   reset();
 }
 

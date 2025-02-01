@@ -2,7 +2,7 @@ import { jsfx } from "../lib/jsfx/index";
 import {
   audioContext,
   getQuantizedTime,
-  volume as masterVolume,
+  gainNode as masterGainNode,
 } from "./audio";
 import { Random } from "./random";
 import { times } from "./util";
@@ -111,8 +111,8 @@ function createBuffers(type: Type, params, volume: number): SoundEffect {
     return buffer;
   });
   const gainNode = audioContext.createGain();
-  gainNode.gain.value = volume * masterVolume;
-  gainNode.connect(audioContext.destination);
+  gainNode.gain.value = volume;
+  gainNode.connect(masterGainNode);
   return {
     type,
     params,

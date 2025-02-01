@@ -7,7 +7,7 @@ Add sounds to your game in a minute.
 Load [build/index.js](https://raw.githubusercontent.com/abagames/sounds-some-sounds/master/build/index.js) script,
 
 ```html
-<script src="https://unpkg.com/sounds-some-sounds@3.1.0/build/index.js"></script>
+<script src="https://unpkg.com/sounds-some-sounds@3.1.1/build/index.js"></script>
 ```
 
 or install from npm and import.
@@ -132,6 +132,8 @@ function init(
   baseRandomSeed?: number,
   // When reusing an existing AudioContext
   audioContext?: AudioContext
+  // When reusing an existing GainNode
+  gainNode?: GainNode
 ): void;
 // The startAudio function needs to be called from within
 // the user operation event handler to enable audio playback in the browser
